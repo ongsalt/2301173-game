@@ -1,7 +1,6 @@
 import pygame
 
 
-
 def is_collided(self, player_hitbox: pygame.Rect) -> bool: ...
 
 # velocity = 10px / sec
@@ -26,7 +25,8 @@ class Background:
     pass
 class Block:
     pass
-
+class Game:
+    pass
 
 # Ongsa 
 # game logic
