@@ -13,6 +13,8 @@ class Game:
 
     def run(self, screen: pygame.Surface):
         self.handle_input()
+        self.player.update()
+
         screen.fill((253, 238, 173))
         self.player.draw(screen)
 
@@ -24,7 +26,6 @@ class Game:
             self.player.move_y(-10)
         elif key_down and not key_up:
             self.player.move_y(10)
-            
         
     def handle_event(self, event: pygame.event.Event):
         pass

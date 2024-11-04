@@ -10,7 +10,7 @@ DISPLAY_SIZE = (800, 600)
 screen = pygame.display.set_mode(DISPLAY_SIZE)
 clock = pygame.time.Clock()
 
-scenes_stack: list[Scene | None] = [
+scenes_stack: list[Scene] = [
     HomeScene(DISPLAY_SIZE),
     GameScene(DISPLAY_SIZE),
 ]

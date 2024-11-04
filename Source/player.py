@@ -38,7 +38,7 @@ class Player(pygame.sprite.Sprite):
             pygame.image.load(f"Assets/images/tee.png")
         ]
 
-    def draw(self, surface: pygame.Surface):
+    def update(self):
         frames = self.textures[self.get_state()][self.color]
         self.frame_counter += 1
         if self.frame_counter == 3:
@@ -46,16 +46,20 @@ class Player(pygame.sprite.Sprite):
             self.animation_frame += 1
             if self.animation_frame == len(frames):
                 self.animation_frame = 0
-        
+
+    def draw(self, surface: pygame.Surface):
+        frames = self.textures[self.state][self.color]
         surface.blit(frames[self.animation_frame], self.rect)
         pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
 
-    def get_state(self) -> Literal["running", "flying", "dying"]:
+    @property
+    def state(self) -> Literal["running", "flying", "dying"]:
         return "running"
     
     def move_y(self, dy: float):
         self.y += dy
         self.rect.y = int(self.y)
 
-    def get_hitbox(self) -> pygame.Rect:
+    @property
+    def hitbox(self) -> pygame.Rect:
         return self.rect
