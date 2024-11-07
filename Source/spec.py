@@ -68,3 +68,21 @@ class Player:
     pass
 
 # HP bar
+
+
+
+# testing
+if __name__ == "__main__":
+    pygame.init()
+    clock = pygame.time.Clock()
+    DISPLAY_SIZE = (800, 600)
+
+    while True:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        # เทสตรงนี้นะครับ
+
+        pygame.display.flip()
