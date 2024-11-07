@@ -3,13 +3,16 @@ import pygame
 from player import Player
 from pygame.locals import * 
 
+
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
         self.obstacles = []
         self.score_points = []
+        self.color_changers = []
         self.state: Literal["running", "pause"] = "pause"
         self.player = Player()
+        self.image = pygame.image.load("Assets/images/ThaiRice.jpg")
 
     def run(self, screen: pygame.Surface):
         self.handle_input()
