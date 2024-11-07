@@ -27,6 +27,9 @@ class GameScene(Scene):
     def handle_event(self, event):
         self.game.handle_event(event)
 
+    def copy(self):
+        return GameScene(self.x, self.y) 
+
 
 class HomeScene(Scene):
     def __init__(self, size: tuple[int, int]):

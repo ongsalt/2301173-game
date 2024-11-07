@@ -2,22 +2,25 @@ from typing import Literal
 import pygame
 from player import Player
 from pygame.locals import * 
-
+from color_change import ColorChange
 
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
         self.obstacles = []
         self.score_points = []
-        self.color_changers = []
+        self.color_changers: list[ColorChange] = []
         self.state: Literal["running", "pause"] = "pause"
         self.player = Player()
         self.image = pygame.image.load("Assets/images/ThaiRice.jpg")
 
     def run(self, screen: pygame.Surface):
         self.handle_input()
+
+        # update
         self.player.update()
 
+        # draw
         screen.fill((253, 238, 173))
         self.player.draw(screen)
 
@@ -33,5 +36,8 @@ class Game:
     def handle_event(self, event: pygame.event.Event):
         pass
 
-    def generate_obstacles(self):
+    def load_block(self):
+        pass
+
+    def remove_dead_objects(self):
         pass

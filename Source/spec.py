@@ -9,41 +9,56 @@ def is_collided(self, player_hitbox: pygame.Rect) -> bool: ...
 def update(self): ...
 def draw(self, screen: pygame.Surface): ...
 
-# nine | 8 Nov
 class Obstacle:
-    pass
+    def is_collided(self, player_hitbox: pygame.Rect) -> bool: ...
+    def update(self): ...
+    def draw(self, screen: pygame.Surface): ...
+    def copy(self): ...
 
-# - 
 class ScorePoint:
-    pass
+    def is_collided(self, player_hitbox: pygame.Rect) -> bool: ...
+    def update(self): ...
+    def draw(self, screen: pygame.Surface): ...
+    def copy(self): ...
 
-# one | 6 Nov
 class ColorChanger:
-    pass
+    def is_collided(self, player_hitbox: pygame.Rect) -> bool: ...
+    def update(self): ...
+    def draw(self, screen: pygame.Surface): ...
+    def copy(self): ...
 
-class Background:
-    pass
 
-# Block
-# an arrays of dictionary of game object definition
-# {
-#     "type": "obstacle",
-#     "x": 100,
-#     "y": 100,
-#     "width": 50,
-#     "height": 50,
-#     "color": (255, 0, 0),
-#     "image": "path/to/image.png",
-#     "velocity": 10,
-# }
-# need a function to translate this to a real game object and add some offset to its position first
-# this should be a method of the game class
+# ทำพร้อมกับ load_block()
+class Block:
+    def __init__(self, obstacles: list[Obstacle], score_points: list[ScorePoint], color_changers: list[ColorChanger]):
+        pass
 
+
+# block = Block(
+#         [
+#             Obstacle(),
+#         ],
+#         [], 
+#         []
+#     ),
+
+# make load_obstracles run every 80 frame
 class Game:
-    def append_block(self, block: dict): ...
+    def run():
+        # เพิ่มการ update กับ draw ของ 
+        # self.obstacles = []
+        # self.score_points = []
+        # self.color_changers: list[ColorChange] = []
+        pass
+
+    # ทำพร้อมกับคลาส Block
+    def load_block(self): ...
 
     # remove all objects that are out of the screen
     def remove_dead_objects(self): ...
+
+class Background:
+    pass
 
 # Ongsa 
 # game logic
@@ -51,3 +66,5 @@ class Scene:
     pass
 class Player:
     pass
+
+# HP bar
