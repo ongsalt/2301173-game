@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
         ]
 
     def update(self):
-        frames = self.textures[self.get_state()][self.color]
+        frames = self.textures[self.state][self.color]
         self.frame_counter += 1
         if self.frame_counter == 3:
             self.frame_counter = 0
