@@ -13,7 +13,6 @@ class Game:
         self.color_changers: list[ColorChange] = []
         self.state: Literal["running", "pause"] = "pause"
         self.player = Player(screen_size)
-        self.image = pygame.image.load("Assets/images/ThaiRice.jpg")
 
     def run(self, screen: pygame.Surface):
         # update
