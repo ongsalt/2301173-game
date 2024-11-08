@@ -40,4 +40,20 @@ class Game:
         pass
 
     def remove_dead_objects(self):
-        pass
+        new_obstacles = self.obstacles
+        for obstacle in self.obstacles:
+           if obstacle.x < 0:
+              new_obstacles.remove(obstacle)
+        self.obstacles = new_obstacles
+
+        new_color_changers = self.color_changers
+        for color_changer in self.color_changers:
+           if color_changer.x < 0:
+              new_color_changers.remove(color_changer)
+        self.color_changers = new_color_changers
+
+        new_score_point = self.score_points
+        for score_point in self.score_points:
+           if score_point.x < 0:
+              new_score_point.remove(score_point)
+        self.score_points = new_score_point
