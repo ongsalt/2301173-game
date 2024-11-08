@@ -3,12 +3,13 @@ import pygame
 from player import Player
 from pygame.locals import * 
 from color_change import ColorChange
+from scorepoint import Scorepoint
+from obstacle import Obstacle
 
 class Game:
     def __init__(self):
-        self.screen = pygame.display.set_mode((800, 600))
-        self.obstacles = []
-        self.score_points = []
+        self.obstacles: list[Obstacle] = []
+        self.score_points: list[Scorepoint] = []
         self.color_changers: list[ColorChange] = []
         self.state: Literal["running", "pause"] = "pause"
         self.player = Player()
