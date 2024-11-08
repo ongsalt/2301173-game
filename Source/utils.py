@@ -8,3 +8,7 @@ def tint(surf, tint_color):
     # surf.fill(tint_color[0:3] + (0,), None, pygame.BLEND_RGBA_ADD)
     return surf
 
+type Number = float | int
+
+def coerce(value: Number, lower: Number, upper: Number) -> Number:
+    return max(lower, min(value, upper))

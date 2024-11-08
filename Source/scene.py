@@ -19,7 +19,7 @@ class Scene:
 class GameScene(Scene):
     def __init__(self, size: tuple[int, int]):
         super().__init__(size)
-        self.game = Game()
+        self.game = Game(size)
 
     def run(self, display):
         self.game.run(display)
