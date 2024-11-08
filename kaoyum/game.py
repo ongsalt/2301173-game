@@ -1,10 +1,10 @@
 import pygame
 from pygame.locals import * 
 from typing import Literal
-from player import Player
-from color_change import ColorChange
-from scorepoint import Scorepoint
-from obstacle import Obstacle
+from kaoyum.player import Player
+from kaoyum.color_change import ColorChange
+from kaoyum.scorepoint import Scorepoint
+from kaoyum.obstacle import Obstacle
 
 class Game:
     def __init__(self, screen_size: tuple[int, int]):

@@ -1,6 +1,6 @@
 import pygame
 import pygame.freetype
-from utils import Singleton
+from kaoyum.utils import Singleton
 
 class AssetsManager(metaclass=Singleton):
     def __init__(self):

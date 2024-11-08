@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from scene import Scene, GameScene, HomeScene
+from kaoyum.scene import Scene, GameScene, HomeScene
 import sys
 
 pygame.init()

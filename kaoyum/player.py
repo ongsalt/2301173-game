@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import * 
 from typing import Literal
-from utils import coerce, tint
+from kaoyum.utils import coerce, tint
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen_size: tuple[int, int], *groups):

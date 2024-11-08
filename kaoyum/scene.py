@@ -1,8 +1,7 @@
 import pygame
 import pygame.freetype
 from pygame.locals import *
-from game import Game 
-from dataclasses import dataclass
+from kaoyum.game import Game 
 
 # Can i just make an interface for this?
 class Scene:
