@@ -1,12 +1,18 @@
 import pygame
 
-def tint(surf, tint_color):
-    """ adds tint_color onto surf.
+def tint_inp(surface: pygame.Surface, tint_color) -> pygame.Surface:
+    """This WILL mutate the surface passed in.
     """
-    surf = surf.copy()
-    surf.fill((0, 0, 0, 255), None, pygame.BLEND_RGBA_MULT)
-    # surf.fill(tint_color[0:3] + (0,), None, pygame.BLEND_RGBA_ADD)
-    return surf
+    surface.fill(tint_color[0:3] + (0,), None, pygame.BLEND_MULT)
+    # surface.fill(tint_color[0:3] + (0,), None, pygame.BLEND_ADD)
+    return surface
+
+# This won't
+def tint(surface: pygame.Surface, tint_color) -> pygame.Surface:
+    """ adds tint_color onto surface.
+    """
+    surface = surface.copy()
+    return tint_inp(surface, tint_color)
 
 type Number = float | int
 

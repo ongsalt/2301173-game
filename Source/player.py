@@ -1,14 +1,14 @@
 import pygame
 from pygame.locals import * 
 from typing import Literal
-from utils import coerce
+from utils import coerce, tint
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen_size: tuple[int, int], *groups):
         super().__init__(*groups)
         self.color: Literal["red", "green", "blue"] = "red"
         self.y = 0.0
-        self.rect = pygame.Rect(0, 0, 32, 32)
+        self.rect = pygame.Rect(0, 0, 64, 64)
         self.screen_size = screen_size
 
         # For animation
@@ -25,8 +25,9 @@ class Player(pygame.sprite.Sprite):
         self.rotate_frame()
 
     def draw(self, surface: pygame.Surface):
-        # frames = self.textures[self.state][self.color]
-        surface.blit(self.textures["placeholder"], self.rect)
+        # I should precompute the tinted frames
+        tinted_frame = tint(self.textures["placeholder"], (255, 0, 0))
+        surface.blit(tinted_frame, self.rect)
         pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
 
     @property
