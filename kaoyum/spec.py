@@ -68,13 +68,16 @@ class Player:
     pass
 
 # HP bar
-
-
+class UIHPBar:
+    def __init__(self, hp: int, max_hp: int): ...
+    def set_hp(self, hp: int): ...
+    def draw(self, screen: pygame.Surface) -> bool: ...
 
 # testing
 if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
+    screen = pygame.display.set_mode((800, 600))
     DISPLAY_SIZE = (800, 600)
 
     while True:

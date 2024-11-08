@@ -19,6 +19,8 @@ type Number = float | int
 def coerce(value: Number, lower: Number, upper: Number) -> Number:
     return max(lower, min(value, upper))
 
+def add(a: tuple[Number, Number], b: tuple[Number, Number]) -> tuple[Number, Number]:
+    return a[0] + b[0], a[1] + b[1]
 
 class Singleton(type):
     _instances = {}
