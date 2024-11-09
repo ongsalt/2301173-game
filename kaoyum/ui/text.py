@@ -26,8 +26,11 @@ class UIText(UINode):
         h += abs(self.padding.height)
         return constraints.coerce(w, h)
 
-    def hash(self):
-        return hash(self.node_type, self.text, self.font_name, self.size, self.color, self.padding)
+    def __hash__(self):
+        return hash((self.node_type, self.text, self.font_name, self.size, self.color, self.padding))
+
+    def __repr__(self):
+        return f"{self.node_type}(text={self.text}, font_name={self.font_name}, size={self.size}, color={self.color}, padding={self.padding})"
 
 if __name__ == "__main__":
     pygame.init()

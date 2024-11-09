@@ -35,6 +35,7 @@ class HomeUI(Widget):
     def __init__(self):
         self.selected_index = 0
         self.indicator_y = Spring(42)
+        super().__init__()
 
     def build(self):
         return VStack(
@@ -60,7 +61,7 @@ class HomeScene(Scene):
 
     def run(self, display, dt: int):
         display.fill((0, 0, 0))
-        self.ui.draw(display)
+        self.ui.run(display)
         self.indicator_y.update(dt)
         pygame.draw.rect(display, (255, 255, 255), (2, self.indicator_y.value, 3, 30))
     

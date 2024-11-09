@@ -1,12 +1,4 @@
-from dataclasses import dataclass
-from typing import TypeVar, Generic
-from .core import UINode
-
-T = TypeVar("T", bound=UINode) 
-
-@dataclass
-class Ref(Generic[T]):
-    value: T
+from typing import TypeVar, Generic, Callable
 
 K = TypeVar("K") 
 class State(Generic[K]): # an Observable
@@ -15,7 +7,7 @@ class State(Generic[K]): # an Observable
         self._value = value
         self.callbacks = []
 
-    def subscribe(self, callback: callable[[K], None]) -> callable[[], None]:
+    def subscribe(self, callback: Callable[[K], None]) -> Callable[[], None]:
         """
         Subscribe to the state changes.
         Returns a function to unsubscribe the callback.
@@ -30,6 +22,7 @@ class State(Generic[K]): # an Observable
     @value.setter
     def value(self, value: K) -> None:
         self._value = value
-        self.callback(value)
+        for callback in self.callbacks:
+            callback(value)
 
     

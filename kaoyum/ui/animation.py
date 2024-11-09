@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 import math
+from .state import State
 
-class Animatable:
+class Animatable(State[float]):
     value: float
     final_position: float 
     velocity: float
 
     def __init__(self, value: float):
-        self.value = value
+        super().__init__(value)
         self.final_position = value
         self.velocity = 0
 
@@ -79,5 +80,4 @@ class Spring(Animatable):
 
     @property
     def is_animating(self):
-        # return abs(self.value - self.final_position) > 0.0001 or abs(self.velocity) > 0.0001
-        return True
+        return abs(self.value - self.final_position) > 0.1 or abs(self.velocity) > 0.1

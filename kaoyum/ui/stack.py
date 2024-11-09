@@ -23,8 +23,8 @@ class Stack(UINode):
     def add_children(self, *children: UINode):
         self.children.extend(children)
     
-    def hash(self):
-        return hash(self.node_type, self.children, self.padding, self.alignment, self.gap)
+    def __hash__(self):
+        return hash((self.node_type, *self.children, self.padding, self.alignment, self.gap))
 
 class VStack(Stack):
     node_type: str = "VStack"
