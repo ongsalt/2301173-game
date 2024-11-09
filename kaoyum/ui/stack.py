@@ -4,21 +4,27 @@ from kaoyum.ui.core import UINode, Constraints, Padding
 from typing import Literal
 from math import inf
 
-type Alignment = Literal["start", "center", "end", "between"]
+type Arrangement = Literal["start", "center", "end", "between"] # im not gonna do "around" and "evenly"
+type Alignment = Literal["start", "center", "end"]
+# no rtl btw
 
 # TODO: redraw only the damaged children
 class Stack(UINode):
     node_type: str = "Stack"
-    def __init__(self, padding: Padding | None = None, gap: int = 0, alignment: Alignment = "start", children: list[UINode] = []):
+    def __init__(self, padding: Padding | None = None, gap: int = 0, alignment: Alignment = "start", arrangement: Arrangement = "start", children: list[UINode] = [], fill_max_width: bool = False, fill_max_height: bool = False, reverse: bool = False):
         super().__init__()
         self.children = children
-        self.placeables: list[tuple[UINode, Rect]] = []
+        self.placeables: list[Rect] = []
         self.padding = padding or Padding.zero()
         self.gap = gap
         self.alignment = alignment
+        self.arrangement = arrangement
+        self.fill_max_width = fill_max_width
+        self.fill_max_height = fill_max_height
+        self.reverse = reverse
 
     def layout(self) -> list[Rect]:
-        return [target for _, target in self.placeables]
+        return self.placeables
     
     def add_children(self, *children: UINode):
         self.children.extend(children)
@@ -31,34 +37,100 @@ class VStack(Stack):
     def measure(self, constraints: Constraints) -> tuple[int, int]:
         # TODO: handle alignment here
         children_constraints = Constraints(0, 0, constraints.max_width, inf)
-        self.placeables = []
-        y = self.padding.top
-        for child in self.children:
-            w, h = child.measure(children_constraints)
-            # x, y = child.offset
-            target = Rect(self.padding.left, y, w, h)
-            y += h + self.gap
-            self.placeables.append((child, target))
+        measureds = [child.measure(children_constraints) for child in self.children]
 
-        width = max(self.placeables, key=lambda x: x[1].width)[1].width + self.padding.width
-        height = sum(map(lambda x: x[1].height, self.placeables)) + max(self.gap * (len(self.children) - 1), 0) + self.padding.height
+        content_width = max(measureds, key=lambda x: x[0])[0]
+        content_height = sum(map(lambda x: x[1], measureds)) + max(self.gap * (len(self.children) - 1), 0) if self.arrangement != "between" else constraints.max_height
+
+        if self.fill_max_width:
+            width = constraints.max_width
+        else:
+            width = content_width + self.padding.width
+        
+        if self.fill_max_height:
+            height = constraints.max_height
+        else:
+            height = content_height + self.padding.height
+
+        self.placeables = []
+        gap = self.gap
+
+        if self.arrangement == "start":
+            y = self.padding.top
+        elif self.arrangement == "center":
+            y = (height - content_height) / 2
+        elif self.arrangement == "end":
+            y = height - content_height
+        else: # between
+            y = self.padding.top
+            gap = (height - content_height) / (len(self.children) - 1)
+
+        for measured in measureds:
+            w, h = measured
+            if self.alignment == "start":
+                x = self.padding.left     
+            elif self.alignment == "center":
+                x = (width - w) / 2
+            else:
+                x = width - w
+
+            self.placeables.append(Rect(x, y, w, h))
+
+            if self.reverse:
+                y -= h + gap
+            else:
+                y += h + gap
+
         return constraints.coerce(width, height)
         
 class HStack(Stack):
     node_type: str = "HStack"
+
     def measure(self, constraints: Constraints) -> tuple[int, int]:
         # TODO: handle alignment here
         children_constraints = Constraints(0, 0, constraints.max_width, inf)
+        measureds = [child.measure(children_constraints) for child in self.children]
+
+        content_height = max(measureds, key=lambda x: x[1])[1]
+        content_width = sum(map(lambda x: x[0], measureds)) + max(self.gap * (len(self.children) - 1), 0) if self.arrangement != "between" else constraints.max_width
+
+        if self.fill_max_width:
+            width = constraints.max_width
+        else:
+            width = content_width + self.padding.width
+        
+        if self.fill_max_height:
+            height = constraints.max_height
+        else:
+            height = content_height + self.padding.height
+
         self.placeables = []
-        x = self.padding.left
-        for child in self.children:
-            w, h = child.measure(children_constraints)
-            # x, y = child.offset
-            target = Rect(x, self.padding.top, w, h)
-            x += w + self.gap
-            self.placeables.append((child, target))
+        gap = self.gap
 
-        height = max(self.placeables, key=lambda x: x[1].height)[1].height + self.padding.width
-        width = sum(map(lambda x: x[1].width, self.placeables)) + max(self.gap * (len(self.children) - 1), 0) + self.padding.height
+        if self.arrangement == "start":
+            x = self.padding.left
+        elif self.arrangement == "center":
+            x = (width - content_width) / 2
+        elif self.arrangement == "end":
+            x = width - content_width
+        else: # between
+            x = self.padding.left
+            gap = (width - content_width) / (len(self.children) - 1)
+
+        for measured in measureds:
+            w, h = measured
+            if self.alignment == "start":
+                y = self.padding.top     
+            elif self.alignment == "center":
+                y = (height - h) / 2
+            else:
+                y = height - h
+
+            self.placeables.append(Rect(x, y, w, h))
+
+            if self.reverse:
+                x -= w + gap
+            else:
+                x += w + gap
+
         return constraints.coerce(width, height)
-

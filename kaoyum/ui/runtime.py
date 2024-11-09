@@ -119,13 +119,17 @@ if __name__ == "__main__":
     class ExampleWidget(Widget):
         def __init__(self):
             self.time = 0
-            self.y_padding = Spring(50)
+            self.y_padding = Spring(0)
             super().__init__()
 
         def build(self):
             return VStack(
                 gap=10,
                 padding=Padding(0, 0, 0, 24),
+                fill_max_width=True,
+                fill_max_height=True,
+                alignment="center",
+                arrangement="center",
                 children=[
                     UIText(f"from svelte style state: {self.time}", size=24),
                     UIText("Text 2"),
@@ -142,7 +146,7 @@ if __name__ == "__main__":
                             ),
                         ]
                     ),
-                    UIText(f"State object: y padding {self.y_padding.value}", padding=Padding(top=self.y_padding.value)),
+                    UIText(f"State object: click to change {self.y_padding.value}", padding=Padding(top=self.y_padding.value)),
                 ]
             )
 
@@ -156,7 +160,7 @@ if __name__ == "__main__":
 
     widget = ExampleWidget()
     ui = UIRuntime(
-        size=(780, 580),
+        size=DISPLAY_SIZE,
         draw_bound=True,
         root=widget
     )
@@ -168,13 +172,13 @@ if __name__ == "__main__":
                 pygame.quit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                widget.y_padding.animate_to(50 if widget.y_padding.final_position == 100 else 100)
+                widget.y_padding.animate_to(0 if widget.y_padding.final_position == 100 else 100)
 
         widget.time += dt
 
         # เทสตรงนี้นะครับ
         screen.fill((16, 163, 240))
-        ui.run(screen, position=(20, 20), dt=dt)
+        ui.run(screen, dt=dt)
 
         pygame.display.flip()
         

@@ -51,12 +51,9 @@ class Padding:
 
 
 # TODO: 
-#  - raw surface node
 #  - box node (with bg)
 #  - click handling
-#  - stack alignment
 #  - shadow
-#  - animation
 #  - High level things like button, slider, dropdown, etc
 
 class UINode:
