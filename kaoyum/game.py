@@ -14,7 +14,7 @@ class Game:
         self.state: Literal["running", "pause"] = "pause"
         self.player = Player(screen_size)
 
-    def run(self, screen: pygame.Surface):
+    def run(self, screen: pygame.Surface, dt: int):
         # update
         self.player.update()
 

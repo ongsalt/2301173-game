@@ -2,14 +2,14 @@ import pygame
 import pygame.freetype
 from pygame.locals import *
 from kaoyum.game import Game 
-from kaoyum.ui import UIRenderer, VStack, UIText
+from kaoyum.ui import UIRuntime, VStack, UIText, Spring, Padding, Widget
 
 # Can i just make an interface for this?
 class Scene:
     def __init__(self, size: tuple[int, int]):
         pass
 
-    def run(self, display: pygame.Surface):
+    def run(self, display: pygame.Surface, dt: int):
         pass
 
     def handle_event(self, event: pygame.event.Event) -> None | str:
@@ -20,8 +20,8 @@ class GameScene(Scene):
         super().__init__(size)
         self.game = Game(size)
 
-    def run(self, display):
-        self.game.run(display)
+    def run(self, display, dt: int):
+        self.game.run(display, dt)
     
     def handle_event(self, event):
         self.game.handle_event(event)
@@ -30,27 +30,39 @@ class GameScene(Scene):
         return GameScene(self.x, self.y) 
 
 
+
+class HomeUI(Widget):
+    def __init__(self):
+        self.selected_index = 0
+        self.indicator_y = Spring(42)
+
+    def build(self):
+        return VStack(
+            gap=10,
+            padding=Padding(left=20),
+            children=[
+                UIText("Kaoyum", size=32),
+                UIText("Play", size=24),
+                UIText("Settings", size=24),
+                UIText("Exit", size=24)
+            ]
+        )
+
 class HomeScene(Scene):
     def __init__(self, size: tuple[int, int]):
         super().__init__(size)
         self.selected_index = 0
-        self.ui = UIRenderer(
+        self.indicator_y = Spring(42)
+        self.ui = UIRuntime(
             size=size, 
-            root=VStack(
-                gap=10,
-                children=[
-                    UIText("Kaoyum", size=32),
-                    UIText("Play", size=24),
-                    UIText("Settings", size=24),
-                    UIText("Exit", size=24)
-                ]
-            )
+            root=HomeUI()
         )
 
-    def run(self, display):
+    def run(self, display, dt: int):
         display.fill((0, 0, 0))
         self.ui.draw(display)
-        pygame.draw.rect(display, (255, 255, 255), (2, 52 + self.selected_index * 30, 3, 30))
+        self.indicator_y.update(dt)
+        pygame.draw.rect(display, (255, 255, 255), (2, self.indicator_y.value, 3, 30))
     
     def handle_event(self, event) -> str | None:
         if event.type == KEYDOWN:
@@ -66,3 +78,4 @@ class HomeScene(Scene):
                     return "to:settings"
                 elif self.selected_index == 2:
                     return "exit"
+            self.indicator_y.animate_to(42 + self.selected_index * 30)

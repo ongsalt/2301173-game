@@ -18,7 +18,7 @@ active_scene = scenes_stack[0]
 
 while True:
     # fixed frame rate
-    clock.tick(60)
+    dt = clock.tick(60)
 
     # Event processing queue
     for event in pygame.event.get():
@@ -34,6 +34,6 @@ while True:
             active_scene = scenes_stack[1]
     
     # Let the scene do it's thing
-    active_scene.run(screen)
+    active_scene.run(screen, dt)
 
     pygame.display.flip()

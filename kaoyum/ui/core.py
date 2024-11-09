@@ -21,10 +21,10 @@ class Constraints:
 
 @dataclass
 class Padding:
-    top: int
-    right: int
-    bottom: int
-    left: int
+    top: int = 0
+    right: int = 0
+    bottom: int = 0
+    left: int = 0
 
     @property
     def height(self) -> int:
@@ -52,46 +52,93 @@ class Padding:
 #  - raw surface node
 #  - box node (with bg)
 #  - click handling
+#  - stack alignment
+#  - shadow
+#  - animation
+#  - High level things like button, slider, dropdown, etc
+
 class UINode:
     _damaged: bool = True
+    _hash: int | None = None
+    node_type: str = "UINode"
     children: list[Self]
 
     def __init__(self, padding: Padding | None = None):
         self.children = []
         self.padding = padding or Padding.zero()
-        self.rect = pygame.Rect(0, 0, 0, 0)
 
     # MUST BE CALL IN THIS ORDER: measure -> layout -> draw
     # accept parent constraints and it own size afer measuring its children
     def measure(self, constraints: Constraints) -> Size:
         return (0, 0)
 
-    # set the rect (absolute position) of each child node
-    def layout(self, area: Rect):
-        self.rect = area
+    # return the relative position of each child node
+    def layout(self) -> list[Rect]:
+        return []
 
     # design to draw the node itself NOT THE CHILDREN as it will be handled by the renderer
-    def draw(self, screen: pygame.Surface):
+    # target size is from the measured size
+    def draw(self, target: pygame.Surface):
         pass
 
-    def draw_bound(self, screen: pygame.Surface):
-        pygame.draw.rect(screen, (255, 0, 0, 140), self.rect, 1)
+    # def __setattr__(self, name, value):
+    #     # Well you should not update the surface directly anyway
+    #     if name not in ["_damaged", "rect"]:
+    #         self._damaged = True
+    #         self._hash = None # Invalidate hash
+    #     return super().__setattr__(name, value)
 
-    def __setattr__(self, name, value):
-        # Well you should not update the surface directly anyway
-        if name not in ["_damaged", "rect"]:
-            self._damaged = True
-        return super().__setattr__(name, value)
+    # @property
+    # def damaged(self):
+    #     return self._damaged
+    
+    # @damaged.setter
+    # def damaged(self, value: bool):
+    #     self._damaged = value    
+
+    def __hash__(self):
+        if self._hash is None:
+            self._hash = self.hash()
+        return self._hash
+    
+    def __eq__(self, value):
+        return self.__hash__() == value.__hash__()
+
+    def hash(self):
+        return hash(self.children, self.padding)
+
+class Widget(UINode):
+    node_type: str = "Widget"
+
+    def __init__(self):
+        self._built: None | UINode = None
+
+    def build(self) -> UINode:
+        raise NotImplementedError
 
     @property
-    def damaged(self):
-        return self._damaged
+    def built(self) -> UINode:
+        if self._built is None:
+            self._built = self.build()
+        return self._built
+
+    def measure(self, constraints: Constraints) -> Size:
+        return self.built.measure(constraints)
+
+    def layout(self) -> list[Rect]:
+        return self.built.layout()
     
-    @damaged.setter
-    def damaged(self, value: bool):
-        self._damaged = value
+    def draw(self, target):
+        return self.built.draw(target)
 
-
+    @property
+    def padding(self):
+        return self.built.padding
+    
+    @property
+    def children(self):
+        return self.built.children
+    
 # Need to measure bounding box
 # minimum size is reported itself
 # while maximum size is reported by the parent
@@ -99,22 +146,3 @@ class UINode:
 # measure -> size -> placing(aka layouting) -> draw
 # after measure the parent node should set the rect of the child node
 # currently we are drawing children nodes immediately after measuring them and before parent node
-
-if __name__ == "__main__":
-    pygame.init()
-    clock = pygame.time.Clock()
-    DISPLAY_SIZE = (800, 600)
-    screen = pygame.display.set_mode((800, 600))
-    node = UINode()
-
-    while True:
-        clock.tick(60)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-        # เทสตรงนี้นะครับ
-        screen.fill((0, 0, 0))
-        node.draw(screen)
-
-        pygame.display.flip()

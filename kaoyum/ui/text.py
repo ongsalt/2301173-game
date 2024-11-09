@@ -1,9 +1,11 @@
 import pygame
 from pygame import Rect
-from kaoyum.assets_manager import AssetsManager
-from kaoyum.ui.core import UINode, Constraints, Padding
+from ..assets_manager import AssetsManager
+from .core import UINode, Constraints, Padding
 
 class UIText(UINode):
+    node_type: str = "UIText"
+
     def __init__(self, text: str, font_name: str = "Inter-Regular.ttf", size: int = 18, color: tuple = (255, 255, 255), padding: Padding | None = None):
         super().__init__()
         self.texture: pygame.Surface | None = None
@@ -11,24 +13,11 @@ class UIText(UINode):
         self.font_name = font_name
         self.size = size
         self.color = color
-        self.damaged = True # Default
         self.padding = padding or Padding.zero()
 
-    def render(self):
+    def draw(self, target: pygame.Surface) -> bool:
         font = AssetsManager().get_font(self.font_name, self.size)
-        font.render_to(self.texture, self.padding.topleft, self.text, self.color)
-        self.damaged = False
-
-    def draw(self, screen: pygame.Surface) -> bool:
-        if self.damaged:
-            self.render()
-        size = Rect((0, 0), self.rect.size)
-        screen.blit(self.texture, self.rect, size)
-
-    def layout(self, area):
-        if self.texture is None or self.texture.get_size() != area.size:
-            self.texture = pygame.Surface(area.size, pygame.SRCALPHA, 32)
-        return super().layout(area)
+        font.render_to(target, self.padding.topleft, self.text, self.color)
 
     def measure(self, constraints: Constraints) -> tuple[int, int]:
         font = AssetsManager().get_font(self.font_name, self.size)
@@ -37,14 +26,17 @@ class UIText(UINode):
         h += abs(self.padding.height)
         return constraints.coerce(w, h)
 
+    def hash(self):
+        return hash(self.node_type, self.text, self.font_name, self.size, self.color, self.padding)
+
 if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     DISPLAY_SIZE = (800, 600)
     screen = pygame.display.set_mode(DISPLAY_SIZE)
-    text = UIText("Hello World", position=(100, 100))
-    size = text.measure()
-    print(size)
+    text = UIText("Hello World", padding=Padding(left=50, top=50))
+    size = text.measure(Constraints(0, 0, 800, 600))
+    text.layout(Rect((0, 0), size))
 
     while True:
         clock.tick(60)
@@ -54,6 +46,6 @@ if __name__ == "__main__":
 
         # เทสตรงนี้นะครับ
         screen.fill((0, 0, 0))
-        text.draw(screen, Rect(0, 0, 0, 0))
+        text.draw(screen)
 
         pygame.display.flip()
