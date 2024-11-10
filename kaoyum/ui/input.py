@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pygame.event import Event
 from typing import Callable
 import pygame
+from core import Widget
 
 @dataclass
 class MouseEventHandler:
@@ -23,3 +24,14 @@ class MouseEventHandler:
             self.on_release(pos)
             return True
         return False
+    
+class GestureDetector(Widget):
+    def __init__(self, child: Widget, on_tap: Callable[[tuple[int, int]]] = lambda _: None):
+        self.child = child
+        self.on_tap = on_tap
+
+    def build(self):
+        return self.child
+    
+    def handle_event(self, event: Event, area: pygame.Rect) -> bool:
+        return self.event_handler.handle_event(event, area) or self.child.handle_event(event, area)

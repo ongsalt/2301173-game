@@ -8,7 +8,6 @@ type Arrangement = Literal["start", "center", "end", "between"] # im not gonna d
 type Alignment = Literal["start", "center", "end"]
 # no rtl btw
 
-# TODO: redraw only the damaged children
 class Stack(UINode):
     node_type: str = "Stack"
     def __init__(self, padding: Padding | None = None, gap: int = 0, alignment: Alignment = "start", arrangement: Arrangement = "start", children: list[UINode] = [], fill_max_width: bool = False, fill_max_height: bool = False, reverse: bool = False):
@@ -26,6 +25,58 @@ class Stack(UINode):
     def layout(self) -> list[Rect]:
         return self.placeables
     
+    def measure(self, constraints: Constraints) -> tuple[int, int]:
+        children_constraints = Constraints(0, 0, constraints.max_width, constraints.max_height)
+        measureds = [child.measure(children_constraints) for child in self.children]
+
+        content_width = max(measureds, key=lambda x: x[0])[0]
+        content_height = sum(map(lambda x: x[1], measureds)) + max(self.gap * (len(self.children) - 1), 0) if self.arrangement != "between" else constraints.max_height
+
+        if self.fill_max_width:
+            width = constraints.max_width
+        else:
+            width = content_width + self.padding.width
+        
+        if self.fill_max_height:
+            height = constraints.max_height
+        else:
+            height = content_height + self.padding.height
+
+        self.placeables = []
+        gap = self.gap
+
+        if self.arrangement == "start":
+            y = self.padding.top
+        elif self.arrangement == "center":
+            y = (height - content_height) / 2
+        elif self.arrangement == "end":
+            y = height - content_height
+        else: # between
+            y = self.padding.top
+            gap = (height - content_height) / (len(self.children) - 1)
+
+        for measured in measureds:
+            w, h = measured
+            if self.alignment == "start":
+                x = self.padding.left     
+            elif self.alignment == "center":
+                x = (width - w) / 2
+            else:
+                x = width - w
+
+            if self.arrangement == "start":
+                y = self.padding.top     
+            elif self.arrangement == "center":
+                y = (height - h) / 2
+            elif self.arrangement == "end":
+                y = height - h
+            else:
+                raise ValueError("Stack does not support 'between' arrangement")
+
+            self.placeables.append(Rect(x, y, w, h))
+            
+        return constraints.coerce(width, height)
+
     def add_children(self, *children: UINode):
         self.children.extend(children)
     
@@ -35,7 +86,6 @@ class Stack(UINode):
 class VStack(Stack):
     node_type: str = "VStack"
     def measure(self, constraints: Constraints) -> tuple[int, int]:
-        # TODO: handle alignment here
         children_constraints = Constraints(0, 0, constraints.max_width, inf)
         measureds = [child.measure(children_constraints) for child in self.children]
 
@@ -87,7 +137,6 @@ class HStack(Stack):
     node_type: str = "HStack"
 
     def measure(self, constraints: Constraints) -> tuple[int, int]:
-        # TODO: handle alignment here
         children_constraints = Constraints(0, 0, constraints.max_width, inf)
         measureds = [child.measure(children_constraints) for child in self.children]
 

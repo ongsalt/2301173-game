@@ -1,12 +1,11 @@
 import pygame
 from pygame import Rect
 from pygame.event import Event
-from typing import Literal, Self
+from typing import Self
 from itertools import zip_longest
 from kaoyum.utils import add
 from .core import UINode, Constraints, Padding, Widget
 from .animation import Spring
-
 
 # Should be UINodeImmediateWhatever
 class UINodeTexture:
@@ -16,6 +15,7 @@ class UINodeTexture:
         self.children: list[UINodeTexture] = []
         self.render_hash: None | int = None
         self.composite_hash: None | int = None
+        self.composite_placement_hash: None | int = None
 
     @property
     def size(self):
@@ -31,6 +31,11 @@ class UINodeTexture:
             self.children[index] = texture
         else:
             raise IndexError("Index out of range")
+    
+    def dispose_since(self, index: int):
+        # TODO: test this
+        for i in range(len(self.children) - 1, index, -1):
+            del self.children[i]
         
     def __repr__(self):
         return f"Texture(size={self.size}, node={self.node})"
@@ -50,14 +55,17 @@ class Compositor:
         screen.blit(self.screen, position)
 
     def render(self) -> UINodeTexture:
-        old_root_texture = self.root_texture
-
         def traverse(node: UINode, old_texture: None | UINodeTexture, path: str = "") -> UINodeTexture:
             # TODO: cache measure call
             size = node.measure(self.constraints)
-            if old_texture is None or size != old_texture.size:
+            # we can keep the old texture if the size is the larger than needed
+            if old_texture is None:
+                texture = UINodeTexture(size, node)
+            elif old_texture.size[0] < size[0] or old_texture.size[1] < size[1]:
+                # print("Creating new texture")
                 texture = UINodeTexture(size, node)
             else:
+                # print("Reusing texture")
                 texture = old_texture
 
             if id(node) != id(texture.node):
@@ -70,6 +78,9 @@ class Compositor:
                 return texture
             texture.clear()
             node.draw(texture.surface)
+            if self.draw_bound:
+                pygame.draw.rect(texture.surface, (255, 0, 0), Rect((0, 0), size), 1)
+
             # print(f"Rendering {node} at {path} : {render_hash}")
             texture.render_hash = render_hash
 
@@ -77,24 +88,27 @@ class Compositor:
             for i, (child, node_texture) in enumerate(zip_longest(node.children, old_children)):
                 child_texture = traverse(child, node_texture, f"{path}/{i}")
                 texture.set_nth_child(child_texture, i)
+            texture.dispose_since(len(node.children))
             
             return texture
         
+        old_root_texture = self.root_texture
         self.root_texture = traverse(self.root, old_root_texture)
         return self.root_texture 
 
     def composite(self):
-        def traverse(texture: UINodeTexture, offset: tuple[int, int]):
+        def traverse(texture: UINodeTexture, offset: tuple[int, int]) -> bool:
             placeables = texture.node.layout()
             # print(f"Compositing {texture.node} at {offset}")
+            # We can skip this if the node is gauranteed to not overlap
+            # which will be mark from parent node
             self.screen.fill((0, 0, 0, 0), Rect(offset, texture.size))
-            self.screen.blit(texture.surface, offset)
             if self.draw_bound:
-                pygame.draw.rect(self.screen, (255, 0, 0), Rect(offset, texture.size), 1)
+                pygame.draw.rect(self.screen, (255, 255, 0), Rect(offset, texture.size), 1)
+            self.screen.blit(texture.surface, offset)
             for child, rect in zip(texture.children, placeables):
                 traverse(child, add(offset, rect.topleft))
 
-        self.screen.fill((0, 0, 0, 0))
         traverse(self.root_texture, (0, 0))
 
     def draw(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0)):
@@ -103,7 +117,6 @@ class Compositor:
         
         screen.blit(self.screen, position)
 
-# TODO make this thing accept a normal node too
 class UIRuntime:
     def __init__(self, root: Widget, size: tuple[int, int], draw_bound: bool = False):
         self.root = root
@@ -112,7 +125,7 @@ class UIRuntime:
         self.compositor.render()
 
     def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), event: Event = None, dt: int = 1000/60):
-        self.root.update_animatables(dt)
+        self.root.update(dt)
         self.compositor.draw(screen, position)
 
 if __name__ == "__main__":
@@ -147,11 +160,12 @@ if __name__ == "__main__":
                         ]
                     ),
                     UIText(f"State object: click to change {self.y_padding.value}", padding=Padding(top=self.y_padding.value)),
+                    UIText(f"texture reusing", padding=Padding(top=self.y_padding.value / 2)),
                 ]
             )
 
-    from kaoyum.ui.text import UIText
-    from kaoyum.ui.stack import VStack, HStack
+    from kaoyum.ui.widgets.text import UIText
+    from kaoyum.ui.widgets.stack import VStack, HStack
 
     pygame.init()
     clock = pygame.time.Clock()
@@ -160,7 +174,7 @@ if __name__ == "__main__":
 
     widget = ExampleWidget()
     ui = UIRuntime(
-        size=DISPLAY_SIZE,
+        size=(600, 400),
         draw_bound=True,
         root=widget
     )
@@ -176,9 +190,8 @@ if __name__ == "__main__":
 
         widget.time += dt
 
-        # เทสตรงนี้นะครับ
         screen.fill((16, 163, 240))
-        ui.run(screen, dt=dt)
+        ui.run(screen, dt=dt, position=(100, 100))
 
         pygame.display.flip()
         

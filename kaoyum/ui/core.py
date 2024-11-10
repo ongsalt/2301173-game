@@ -4,8 +4,17 @@ from dataclasses import dataclass
 from typing import Self
 from .state import State
 from .animation import Animatable
+from dataclasses import dataclass
+from typing import Self
+
 
 # Bruh this is just Flutter
+
+# TODO: 
+#  - shape node (with bg)
+#  - click handling: GestureDetector
+#  - shadow
+#  - High level things like button, slider, dropdown, etc
 
 type Size = tuple[int, int]
 
@@ -49,13 +58,6 @@ class Padding:
     def both(vertical: int, horizontal: int) -> Self:
         return Padding(vertical, horizontal, vertical, horizontal)
 
-
-# TODO: 
-#  - box node (with bg)
-#  - click handling
-#  - shadow
-#  - High level things like button, slider, dropdown, etc
-
 class UINode:
     node_type: str = "UINode"
     children: list[Self]
@@ -65,7 +67,7 @@ class UINode:
         self.padding = padding or Padding.zero()
 
     # MUST BE CALL IN THIS ORDER: measure -> layout -> draw
-    # well, the renderer will do that for you so you don't have to worry about it
+    # well, the runtime will do that for you so you don't have to worry about it
     # accept parent constraints and it own size afer measuring its children
     def measure(self, constraints: Constraints) -> Size:
         return (0, 0)
@@ -78,6 +80,12 @@ class UINode:
     # target size is from the measured size
     def draw(self, target: pygame.Surface):
         pass
+
+    # in case there is something depend on time
+    def update(self, dt: int):        
+        for child in self.children:
+            child.update(dt)
+
 
     # We need to compare the pointer AND the hash
     # def __eq__(self, value):
@@ -128,14 +136,11 @@ class Widget(UINode):
             self.invalidate()
         return super().__setattr__(name, value)
     
-    # Should be called recursively
-    def update_animatables(self, dt: int):
+    def update(self, dt: int):
         for animatables in self._animatables:
             animatables.update(dt)
         
-        for child in self.children:
-            if isinstance(child, Widget):
-                child.update_animatables(dt)
+        super().update(dt)
 
     @property
     def built(self) -> UINode:

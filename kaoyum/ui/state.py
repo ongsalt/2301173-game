@@ -24,5 +24,3 @@ class State(Generic[K]): # an Observable
         self._value = value
         for callback in self.callbacks:
             callback(value)
-
-    
