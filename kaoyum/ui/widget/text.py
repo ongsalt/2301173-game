@@ -24,7 +24,7 @@ class UIText(UINode):
         w, h = font.get_rect(self.text).size
         w += abs(self.padding.width)
         h += abs(self.padding.height)
-        return constraints.coerce(w, h)
+        return constraints.coerce_and_round(w, h)
 
     def __hash__(self):
         return hash((self.node_type, self.text, self.font_name, self.size, self.color, self.padding))

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pygame.event import Event
 from typing import Callable
 import pygame
-from core import Widget
+from .widget.common import Widget
 
 @dataclass
 class MouseEventHandler:

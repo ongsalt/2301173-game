@@ -4,8 +4,8 @@ from pygame.event import Event
 from typing import Self
 from itertools import zip_longest
 from kaoyum.utils import add
-from .core import UINode, Constraints, Padding, Widget
-from .animation import Spring
+from .core import UINode, Constraints, Padding
+from .widget.common import Widget
 
 # Should be UINodeImmediateWhatever
 class UINodeTexture:
@@ -16,9 +16,18 @@ class UINodeTexture:
         self.render_hash: None | int = None
         self.composite_hash: None | int = None
         self.composite_placement_hash: None | int = None
+        self.size = size
+    
+    def resize(self, size: tuple[int, int]):
+        if not self.can_contain(size):
+            self.surface = pygame.Surface(size, pygame.SRCALPHA, 32)
+        self.size = size
 
+    def can_contain(self, size: tuple[int, int]):
+        return self.actual_size[0] >= size[0] and self.actual_size[1] >= size[1]
+    
     @property
-    def size(self):
+    def actual_size(self):
         return self.surface.get_size()
     
     def clear(self):
@@ -36,6 +45,9 @@ class UINodeTexture:
         # TODO: test this
         for i in range(len(self.children) - 1, index, -1):
             del self.children[i]
+
+    def blit_to(self, target: pygame.Surface, position: tuple[int, int]):
+        target.blit(self.surface, position, Rect((0, 0), self.size))
         
     def __repr__(self):
         return f"Texture(size={self.size}, node={self.node})"
@@ -61,11 +73,9 @@ class Compositor:
             # we can keep the old texture if the size is the larger than needed
             if old_texture is None:
                 texture = UINodeTexture(size, node)
-            elif old_texture.size[0] < size[0] or old_texture.size[1] < size[1]:
-                # print("Creating new texture")
-                texture = UINodeTexture(size, node)
             else:
                 # print("Reusing texture")
+                old_texture.resize(size)
                 texture = old_texture
 
             if id(node) != id(texture.node):
@@ -78,9 +88,6 @@ class Compositor:
                 return texture
             texture.clear()
             node.draw(texture.surface)
-            if self.draw_bound:
-                pygame.draw.rect(texture.surface, (255, 0, 0), Rect((0, 0), size), 1)
-
             # print(f"Rendering {node} at {path} : {render_hash}")
             texture.render_hash = render_hash
 
@@ -104,7 +111,8 @@ class Compositor:
             # which will be mark from parent node
             self.screen.fill((0, 0, 0, 0), Rect(offset, texture.size))
             if self.draw_bound:
-                pygame.draw.rect(self.screen, (255, 255, 0), Rect(offset, texture.size), 1)
+                pygame.draw.rect(self.screen, (255, 255, 0), Rect(offset, texture.actual_size), 1)
+                pygame.draw.rect(self.screen, (255, 0, 0), Rect(offset, texture.size), 1)
             self.screen.blit(texture.surface, offset)
             for child, rect in zip(texture.children, placeables):
                 traverse(child, add(offset, rect.topleft))
@@ -127,71 +135,3 @@ class UIRuntime:
     def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), event: Event = None, dt: int = 1000/60):
         self.root.update(dt)
         self.compositor.draw(screen, position)
-
-if __name__ == "__main__":
-    class ExampleWidget(Widget):
-        def __init__(self):
-            self.time = 0
-            self.y_padding = Spring(0)
-            super().__init__()
-
-        def build(self):
-            return VStack(
-                gap=10,
-                padding=Padding(0, 0, 0, 24),
-                fill_max_width=True,
-                fill_max_height=True,
-                alignment="center",
-                arrangement="center",
-                children=[
-                    UIText(f"from svelte style state: {self.time}", size=24),
-                    UIText("Text 2"),
-                    HStack(
-                        gap=25,
-                        children=[
-                            UIText("1"),
-                            UIText("Hello World"),
-                            VStack(
-                                children=[
-                                    UIText("Nested 1"),
-                                    UIText("Nested 2"),
-                                ]
-                            ),
-                        ]
-                    ),
-                    UIText(f"State object: click to change {self.y_padding.value}", padding=Padding(top=self.y_padding.value)),
-                    UIText(f"texture reusing", padding=Padding(top=self.y_padding.value / 2)),
-                ]
-            )
-
-    from kaoyum.ui.widgets.text import UIText
-    from kaoyum.ui.widgets.stack import VStack, HStack
-
-    pygame.init()
-    clock = pygame.time.Clock()
-    DISPLAY_SIZE = (800, 600)
-    screen = pygame.display.set_mode(DISPLAY_SIZE)
-
-    widget = ExampleWidget()
-    ui = UIRuntime(
-        size=(600, 400),
-        draw_bound=True,
-        root=widget
-    )
-
-    while True:
-        dt = clock.tick(60)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                widget.y_padding.animate_to(0 if widget.y_padding.final_position == 100 else 100)
-
-        widget.time += dt
-
-        screen.fill((16, 163, 240))
-        ui.run(screen, dt=dt, position=(100, 100))
-
-        pygame.display.flip()
-        

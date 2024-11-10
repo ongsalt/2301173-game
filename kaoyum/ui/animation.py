@@ -23,6 +23,10 @@ class Animatable(State[float]):
             if abs(diff) < 0.01:
                 self.value = self.final_position
 
+    @property
+    def rounded(self):
+        return round(self.value)
+
 class Spring(Animatable):
     # Stiffness is natural frequency squared
     def __init__(self, value: float, damping_ratio: float = 1.0, natural_freq: float = 20.0):

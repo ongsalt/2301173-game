@@ -29,6 +29,9 @@ class Constraints:
         w = max(min(w, self.max_width), self.min_width)
         h = max(min(h, self.max_height), self.min_height)
         return (w, h)
+    
+    def coerce_and_round(self, w: float, h: float) -> Size:
+        return self.coerce(round(w), round(h))
 
 @dataclass(frozen=True)
 class Padding:
@@ -86,7 +89,6 @@ class UINode:
         for child in self.children:
             child.update(dt)
 
-
     # We need to compare the pointer AND the hash
     # def __eq__(self, value):
     #     return self.__hash__() == value.__hash__()
@@ -95,80 +97,7 @@ class UINode:
         return hash((*self.children, self.padding))
     
     def __repr__(self):
-        return f"{self.node_type}(padding={self.padding})"
-
-# TODO: testing nest widget
-class Widget(UINode):
-    node_type: str = "Widget"
-    _should_rebuild = True
-
-    def __init__(self):
-        self._built: None | UINode = None
-        self._states: list[State] = []
-        self._animatables: list[Animatable] = []
-        self._track_state()
-
-    def build(self) -> UINode:
-        raise NotImplementedError
-    
-    # SUMMARY: I do this the svelte way AND the State object way
-    # I have 4 choices here: 
-    # 1. flutter way: extract a state to other class
-    # 2. manuanlly call invalidate
-    def invalidate(self):
-        self._should_rebuild = True
-
-    # 3. just force the user to use State object, btw this make animation easier
-    def _track_state(self):
-        for key in dir(self):
-            prop = getattr(self, key)
-            if isinstance(prop, State) and prop not in self._states:
-                unsub = prop.subscribe(lambda _: self.invalidate()) # this binding ptsd from js
-                self._states.append(prop)
-                if isinstance(prop, Animatable) and prop not in self._animatables:
-                    self._animatables.append(prop)
-
-    # 4. or mark a variable as a state somehow 
-    # 4.1 Svelte way: force the user to reassign the variable
-    # 4.2 _states = ["variable_name", ...] which is probably the worst way to do it
-    def __setattr__(self, name, value):
-        if name not in ["_built", "_should_rebuild"]: 
-            self.invalidate()
-        return super().__setattr__(name, value)
-    
-    def update(self, dt: int):
-        for animatables in self._animatables:
-            animatables.update(dt)
-        
-        super().update(dt)
-
-    @property
-    def built(self) -> UINode:
-        if self._should_rebuild or self._built is None:
-            self._built = self.build()
-            self._should_rebuild = False
-        return self._built
-
-    def measure(self, constraints: Constraints) -> Size:
-        return self.built.measure(constraints)
-
-    def layout(self) -> list[Rect]:
-        return self.built.layout()
-    
-    def draw(self, target):
-        return self.built.draw(target)
-
-    @property
-    def padding(self):
-        return self.built.padding
-    
-    @property
-    def children(self):
-        return self.built.children
-    
-    def __hash__(self):
-        return hash(self.built)
-    
+        return f"{self.node_type}(padding={self.padding})"    
 
 # Need to measure bounding box
 # minimum size is reported itself
