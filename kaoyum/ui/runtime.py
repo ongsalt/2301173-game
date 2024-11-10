@@ -6,6 +6,9 @@ from itertools import zip_longest
 from kaoyum.utils import add
 from .core import UINode, Constraints, Padding
 from .widget.common import Widget
+from .widget.input import GestureHandler
+
+# i should just do tree transformation and be done with everything
 
 # Should be UINodeImmediateWhatever
 class UINodeTexture:
@@ -72,6 +75,7 @@ class Compositor:
             size = node.measure(self.constraints)
             # we can keep the old texture if the size is the larger than needed
             if old_texture is None:
+                # print("Creating new texture")
                 texture = UINodeTexture(size, node)
             else:
                 # print("Reusing texture")
@@ -93,6 +97,8 @@ class Compositor:
 
             old_children = old_texture.children if old_texture is not None else []
             for i, (child, node_texture) in enumerate(zip_longest(node.children, old_children)):
+                if child is None:
+                    break
                 child_texture = traverse(child, node_texture, f"{path}/{i}")
                 texture.set_nth_child(child_texture, i)
             texture.dispose_since(len(node.children))
@@ -103,8 +109,18 @@ class Compositor:
         self.root_texture = traverse(self.root, old_root_texture)
         return self.root_texture 
 
-    def composite(self):
+    def composite(self, events: list[Event], global_offset: tuple[int, int]):
         def traverse(texture: UINodeTexture, offset: tuple[int, int]) -> bool:
+            nonlocal global_offset, events
+            for event in reversed(events):
+                if texture.node.node_type == "GestureHandler" and self.is_event_inside(event, texture, offset, global_offset):
+                    # if isinstance(texture.node, GestureHandler): # why tf this doesn't work
+                        # print("GestureHandler") 
+                    # print(f"Event inside {texture.node}")
+                    texture.node.on_tap(event.pos)
+                    events.remove(event)
+                    # Will be handled by the outermost node
+
             placeables = texture.node.layout()
             # print(f"Compositing {texture.node} at {offset}")
             # We can skip this if the node is gauranteed to not overlap
@@ -114,14 +130,30 @@ class Compositor:
                 pygame.draw.rect(self.screen, (255, 255, 0), Rect(offset, texture.actual_size), 1)
                 pygame.draw.rect(self.screen, (255, 0, 0), Rect(offset, texture.size), 1)
             self.screen.blit(texture.surface, offset)
+
             for child, rect in zip(texture.children, placeables):
                 traverse(child, add(offset, rect.topleft))
 
         traverse(self.root_texture, (0, 0))
 
-    def draw(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0)):
-        self.render()
-        self.composite()
+    def is_event_inside(self, event: Event, texture: UINodeTexture, offset: tuple[int, int], global_offset: tuple[int, int]) -> bool:
+        if not hasattr(event, "pos"):
+            return False
+
+        if event.type != pygame.MOUSEBUTTONDOWN:
+            return False
+
+        if event.button != 1:
+            return False
+        x, y = event.pos
+        x -= offset[0] + global_offset[0]
+        y -= offset[1] + global_offset[1]
+        return 0 <= x < texture.size[0] and 0 <= y < texture.size[1]
+
+    def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), events: list[Event] | None = None):
+        self.render() # actually this will do the diffing and it will redraw the damaged part
+
+        self.composite(events or [], position)
         
         screen.blit(self.screen, position)
 
@@ -132,6 +164,7 @@ class UIRuntime:
         self.draw_bound = draw_bound
         self.compositor.render()
 
-    def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), event: Event = None, dt: int = 1000/60):
+    def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), events: list[Event] | None = None, dt: int = 1000/60):
         self.root.update(dt)
-        self.compositor.draw(screen, position)
+        # should i build the event listener tree
+        self.compositor.run(screen, position, events)

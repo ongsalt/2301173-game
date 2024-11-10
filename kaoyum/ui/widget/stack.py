@@ -1,7 +1,7 @@
 import pygame
-from pygame import Rect
-from ..core import UINode, Constraints, Padding
-from .common import SizedNode
+from pygame import Rect, Color
+from ..core import UINode, Constraints, Padding, ChildrenProp
+from .common import SizedNode, Box, OutlineProp
 from typing import Literal
 from math import inf
 
@@ -9,11 +9,12 @@ type Arrangement = Literal["start", "center", "end", "between"] # im not gonna d
 type Alignment = Literal["start", "center", "end"]
 # no rtl btw
 
-class Stack(SizedNode):
+class Stack(Box):
     node_type: str = "Stack"
-    def __init__(self, padding: Padding | None = None, width: int | None = None, height: int | None = None, gap: int = 0, alignment: Alignment = "start", arrangement: Arrangement = "start", children: list[UINode] = [], fill_max_width: bool = False, fill_max_height: bool = False, reverse: bool = False):
-        super().__init__(padding, width, height, fill_max_width, fill_max_height)
-        self.children = children
+    
+    # I should think of better way to do this
+    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1, gap: int = 0, alignment: Alignment = "start", arrangement: Arrangement = "start", reverse: bool = False):
+        super().__init__(children, padding, width, height, fill_max_width, fill_max_height, background_color, outline, outline_color, outline_width)
         self.placeables: list[Rect] = []
         self.padding = padding or Padding.zero()
         self.gap = gap

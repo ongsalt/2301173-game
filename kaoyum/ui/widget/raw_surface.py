@@ -11,7 +11,6 @@ class StaticSurfaceNode(UINode):
         self._invalidation_flags = randint(0, 10000000)
         super().__init__()
 
-    # TODO: thinkg about clipping
     def measure(self, constraints: Constraints) -> Size:
         w, h = self.surface.get_size()
         return constraints.coerce_and_round(w, h)

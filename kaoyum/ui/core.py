@@ -11,7 +11,6 @@ from typing import Self
 # Bruh this is just Flutter
 
 # TODO: 
-#  - shape node (with bg)
 #  - click handling: GestureDetector
 #  - shadow
 #  - High level things like button, slider, dropdown, etc
@@ -61,12 +60,13 @@ class Padding:
     def both(vertical: int, horizontal: int) -> Self:
         return Padding(vertical, horizontal, vertical, horizontal)
 
+type ChildrenProp = list[Self | None] | None
 class UINode:
     node_type: str = "UINode"
     children: list[Self]
 
-    def __init__(self, padding: Padding | None = None):
-        self.children = []
+    def __init__(self, padding: Padding | None = None, children: ChildrenProp = None):
+        self.children = [] if not children else [child for child in children if child is not None] 
         self.padding = padding or Padding.zero()
 
     # MUST BE CALL IN THIS ORDER: measure -> layout -> draw

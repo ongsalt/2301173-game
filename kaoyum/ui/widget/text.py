@@ -7,13 +7,12 @@ class UIText(UINode):
     node_type: str = "UIText"
 
     def __init__(self, text: str, font_name: str = "Inter-Regular.ttf", size: int = 18, color: tuple = (255, 255, 255), padding: Padding | None = None):
-        super().__init__()
+        super().__init__(padding=padding)
         self.texture: pygame.Surface | None = None
         self.text = text
         self.font_name = font_name
         self.size = size
         self.color = color
-        self.padding = padding or Padding.zero()
 
     def draw(self, target: pygame.Surface) -> bool:
         font = AssetsManager().get_font(self.font_name, self.size)

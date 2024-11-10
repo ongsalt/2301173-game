@@ -1,11 +1,14 @@
-from ..core import UINode, Constraints, Padding, Size, Rect
+from ..core import UINode, Constraints, Padding, Size, Rect, ChildrenProp
 from ..state import State
 from ..animation import Animatable
-from pygame import Color
+import pygame
+from pygame import Color, Surface
+from typing import Literal
 
+# DONT DIRECTLY USE THIS CLASS
 class SizedNode(UINode):
-    def __init__(self, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
-        super().__init__(padding)
+    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
+        super().__init__(padding, children)
         self.width = width
         self.height = height
         self.fill_max_width = fill_max_width
@@ -16,10 +19,35 @@ class SizedNode(UINode):
         height = self.height if self.height is not None else constraints.min_height if self.fill_max_height else constraints.max_height
         return constraints.coerce_and_round(width, height)
 
-class Box(SizedNode):
-    def __init__(self, padding: Padding | None = None, background_color: Color | None = None,  width: int | None = None, height: int | None = None):
-        super().__init__(padding, width, height)
+type OutlineSide = Literal["top", "bottom", "left", "right"]
+type OutlineProp = bool | list[OutlineProp]
+class Box(SizedNode): # More like a div
+    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1):
+        super().__init__(children, padding, width, height, fill_max_width, fill_max_height)
         self.background_color = background_color
+        self.outline = outline
+        self.outline_color = outline_color
+        self.outline_width = outline_width
+    
+    def draw(self, target: Surface):
+        target.fill(self.background_color or Color(0, 0, 0, 0))
+        if self.outline:
+            if isinstance(self.outline, list):
+                for side in self.outline:
+                    self._draw_outline(target, side)
+            else:
+                for side in ["top", "bottom", "left", "right"]:
+                    self._draw_outline(target, side)
+    
+    def _draw_outline(self, target: Surface, side: OutlineSide):
+        if side == "top":
+            pygame.draw.rect(target, self.outline_color, Rect(0, 0, self.width, self.outline_width))
+        elif side == "bottom":
+            pygame.draw.rect(target, self.outline_color, Rect(0, self.height - self.outline_width, self.width, self.outline_width))
+        elif side == "left":
+            pygame.draw.rect(target, self.outline_color, Rect(0, 0, self.outline_width, self.height))
+        elif side == "right":
+            pygame.draw.rect(target, self.outline_color, Rect(self.width - self.outline_width, 0, self.outline_width, self.height))
 
 # TODO: testing nest widget
 class Widget(UINode):
@@ -29,15 +57,16 @@ class Widget(UINode):
         self._built: None | UINode = None
         self._states: list[State] = []
         self._animatables: list[Animatable] = []
+        self._invalidated = True
         self._track_state()
 
-    def build(self) -> UINode:
+    def build(self) -> UINode | None:
         raise NotImplementedError
     
     # SUMMARY: I do this the svelte way AND the State object way
     # I have 4 choices here: 
     # 1. flutter way: extract a state to other class
-    # 2. manuanlly call invalidate
+    # 2. manually call invalidate
     def invalidate(self):
         self._invalidated = True
 
@@ -66,8 +95,8 @@ class Widget(UINode):
         super().update(dt)
 
     @property
-    def built(self) -> UINode:
-        if self._invalidated or self._built is None:
+    def built(self) -> UINode | None:
+        if self._invalidated:
             self._built = self.build()
             self._invalidated = False
         return self._built
