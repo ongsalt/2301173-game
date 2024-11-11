@@ -5,6 +5,7 @@ from kaoyum.player import Player
 from kaoyum.color_change import ColorChange
 from kaoyum.scorepoint import Scorepoint
 from kaoyum.obstacle import Obstacle
+from kaoyum.assets_manager import AssetsManager
 
 class Game:
     def __init__(self, screen_size: tuple[int, int]):
@@ -13,6 +14,7 @@ class Game:
         self.color_changers: list[ColorChange] = []
         self.state: Literal["running", "pause"] = "pause"
         self.player = Player(screen_size)
+        self.load_mock_block()
 
     def run(self, screen: pygame.Surface, dt: int):
         # update
@@ -27,6 +29,11 @@ class Game:
 
     def load_block(self):
         pass
+
+    def load_mock_block(self):
+        image = AssetsManager().get("slime_2.gif")
+        self.obstacles.append(Obstacle(100, 100, 64, 64, 10, image))
+        self.obstacles.append(Obstacle(200, 100, 64, 64, 10, image))
 
     def remove_dead_objects(self):
         new_obstacles = self.obstacles

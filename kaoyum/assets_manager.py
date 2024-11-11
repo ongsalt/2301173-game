@@ -14,9 +14,9 @@ class AssetsManager(metaclass=Singleton):
     # If not please use this method
     def get(self, path: str) -> pygame.Surface:
         path = f"Assets/images/{path}"
-        if path not in self.assets:
-            self.assets[path] = pygame.image.load(path)
-        return self.assets[path]
+        if path not in self.surfaces:
+            self.surfaces[path] = pygame.image.load(path)
+        return self.surfaces[path]
     
     def get_font(self, path: str, size: int = 18) -> pygame.freetype.Font:
         path = f"Assets/fonts/{path}"
