@@ -14,7 +14,7 @@ class Obstacle:
         self.hitbox.topleft = (self.x,self.y)
 
     def is_collided(self, player_hitbox: pygame.Rect):
-        return player_hitbox.colliderect(self.hitbox):
+        return player_hitbox.colliderect(self.hitbox)
 
     def update(self):
         self.hitbox.move_ip(-10,0)

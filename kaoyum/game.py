@@ -15,14 +15,25 @@ class Game:
         self.state: Literal["running", "pause"] = "pause"
         self.player = Player(screen_size)
         self.load_mock_block()
+        self.score = 0
 
     def run(self, screen: pygame.Surface, dt: int):
         # update
         self.player.update()
 
+        for score_point in self.score_points:
+           score_point.update()         
+
+        for score_point in self.score_points[:]:
+            if score_point.is_collided(self.player.rect):
+                self.score += score_point.score
+                self.score_points.remove(score_point)
+
         # draw
         screen.fill((253, 238, 173))
         self.player.draw(screen)
+        for score_point in self.score_points:
+            score_point.draw(screen)
 
     def handle_event(self, event: pygame.event.Event):
         pass
@@ -36,7 +47,7 @@ class Game:
         self.obstacles.append(Obstacle(200, 100, 64, 64, 10, image))
         self.score_points.append(Scorepoint(300, 100, 64, 64, 10, image))
         self.score_points.append(Scorepoint(400, 100, 64, 64, 10, image))
-
+        self.score_points.append(Scorepoint(700, 100, 64, 64, 10, image))
     def remove_dead_objects(self):
         new_obstacles = self.obstacles
         for obstacle in self.obstacles:
