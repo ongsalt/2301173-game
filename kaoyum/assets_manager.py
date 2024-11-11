@@ -18,6 +18,9 @@ class AssetsManager(metaclass=Singleton):
             self.surfaces[path] = pygame.image.load(path)
         return self.surfaces[path]
     
+    def set(self, path: str, surface: pygame.Surface) -> None:
+        self.surfaces[path] = surface
+        
     def get_font(self, path: str, size: int = 18) -> pygame.freetype.Font:
         path = f"Assets/fonts/{path}"
         key = (path, size)

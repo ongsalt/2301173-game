@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 import math
-from .state import Observable
 
-class Animatable(Observable[float]):
+class Animatable:
     value: float
     final_position: float 
     velocity: float
 
     def __init__(self, value: float):
-        super().__init__(value)
+        self.value = value
         self.final_position = value
         self.velocity = 0
 
@@ -24,8 +23,8 @@ class Animatable(Observable[float]):
                 self.value = self.final_position
 
     @property
-    def rounded(self):
-        return round(self.value)
+    def is_animating(self):
+        return abs(self.value - self.final_position) > 0.1 or abs(self.velocity) > 0.1
 
 class Spring(Animatable):
     # Stiffness is natural frequency squared
@@ -81,7 +80,3 @@ class Spring(Animatable):
 
         self.value = displacement + self.final_position
         self.velocity = current_velocity
-
-    @property
-    def is_animating(self):
-        return abs(self.value - self.final_position) > 0.1 or abs(self.velocity) > 0.1

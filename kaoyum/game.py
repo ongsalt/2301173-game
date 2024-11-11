@@ -32,8 +32,11 @@ class Game:
         # draw
         screen.fill((253, 238, 173))
         self.player.draw(screen)
+
         for score_point in self.score_points:
             score_point.draw(screen)
+
+        pygame.draw.rect(screen, (255, 0, 0), (0, 0, 100, 50), 1)
 
     def handle_event(self, event: pygame.event.Event):
         pass
@@ -48,6 +51,7 @@ class Game:
         self.score_points.append(Scorepoint(300, 100, 64, 64, 10, image))
         self.score_points.append(Scorepoint(400, 100, 64, 64, 10, image))
         self.score_points.append(Scorepoint(700, 100, 64, 64, 10, image))
+        
     def remove_dead_objects(self):
         new_obstacles = self.obstacles
         for obstacle in self.obstacles:

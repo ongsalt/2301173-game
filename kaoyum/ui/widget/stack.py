@@ -1,7 +1,7 @@
 import pygame
 from pygame import Rect, Color
 from ..core import UINode, Constraints, Padding, ChildrenProp
-from .common import SizedNode, Box, OutlineProp
+from .core import SizedNode, Box, OutlineProp
 from typing import Literal
 from math import inf
 
@@ -30,7 +30,7 @@ class Stack(Box):
         height = self.height
 
         children_constraints = Constraints(0, 0, constraints.max_width, constraints.max_height)
-        measureds = [child.measure(children_constraints) for child in self.children]
+        measureds = [child.cached_measure(children_constraints) for child in self.children]
 
         if width == None:
             content_width = max(measureds, key=lambda x: x[0])[0]
@@ -55,14 +55,14 @@ class Stack(Box):
             elif self.alignment == "center":
                 x = (width - w) / 2
             else:
-                x = width - w
+                x = width - w - self.padding.right
 
             if self.arrangement == "start":
                 y = self.padding.top     
             elif self.arrangement == "center":
                 y = (height - h) / 2
             elif self.arrangement == "end":
-                y = height - h
+                y = height - h - self.padding.bottom
             else:
                 raise ValueError("Stack does not support 'between' arrangement")
 
@@ -84,7 +84,7 @@ class VStack(Stack):
         children = self.children if not self.reverse else reversed(self.children)
 
         children_constraints = Constraints(0, 0, constraints.max_width, inf)
-        measureds = [child.measure(children_constraints) for child in children]
+        measureds = [child.cached_measure(children_constraints) for child in children]
 
         content_height = sum(map(lambda x: x[1], measureds)) + max(self.gap * (len(self.children) - 1), 0) if self.arrangement != "between" else constraints.max_height
 
@@ -109,7 +109,7 @@ class VStack(Stack):
         elif self.arrangement == "center":
             y = (height - content_height) / 2
         elif self.arrangement == "end":
-            y = height - content_height
+            y = height - content_height - self.padding.bottom
         else: # between
             y = self.padding.top
             gap = (height - content_height) / (len(self.children) - 1)
@@ -121,7 +121,7 @@ class VStack(Stack):
             elif self.alignment == "center":
                 x = (width - w) / 2
             else:
-                x = width - w
+                x = width - w - self.padding.right
 
             self.placeables.append(Rect(x, y, w, h))
             y += h + gap
@@ -129,7 +129,7 @@ class VStack(Stack):
         if self.reverse:
             self.placeables.reverse()
         return constraints.coerce_and_round(width, height)
-        
+                
 class HStack(Stack):
     node_type: str = "HStack"
 
@@ -139,7 +139,7 @@ class HStack(Stack):
         children = self.children if not self.reverse else reversed(self.children)
 
         children_constraints = Constraints(0, 0, constraints.max_width, inf)
-        measureds = [child.measure(children_constraints) for child in children]
+        measureds = [child.cached_measure(children_constraints) for child in children]
 
         content_width = sum(map(lambda x: x[0], measureds)) + max(self.gap * (len(self.children) - 1), 0) if self.arrangement != "between" else constraints.max_width
 
@@ -164,10 +164,10 @@ class HStack(Stack):
         elif self.arrangement == "center":
             x = (width - content_width) / 2
         elif self.arrangement == "end":
-            x = width - content_width
+            x = width - content_width - self.padding.right
         else: # between
             x = self.padding.left
-            gap = (width - content_width) / (len(self.children) - 1)
+            gap = (width - sum(map(lambda x: x[0], measureds))) / (len(self.children) - 1)
 
         for measured in measureds:
             w, h = measured
@@ -176,7 +176,7 @@ class HStack(Stack):
             elif self.alignment == "center":
                 y = (height - h) / 2
             else:
-                y = height - h
+                y = height - h - self.padding.bottom
 
             self.placeables.append(Rect(x, y, w, h))
             x += w + gap

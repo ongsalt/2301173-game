@@ -2,7 +2,7 @@ import pygame
 import pygame.freetype
 from pygame.locals import *
 from kaoyum.game import Game 
-from kaoyum.ui import UIRuntime, VStack, UIText, Spring, Padding, DirtyStatefulWidget
+from kaoyum.ui import UIRuntime, VStack, UIText, Spring, Padding, StatefulWidget, Stack, Image, Box, HStack
 
 # Can i just make an interface for this?
 class Scene:
@@ -29,55 +29,82 @@ class GameScene(Scene):
     def copy(self):
         return GameScene(self.x, self.y) 
 
-
-
-class HomeUI(DirtyStatefulWidget):
+class HomeUI(StatefulWidget):
     def __init__(self):
         super().__init__()
-        self.selected_index = 0
-        self.indicator_y = Spring(42)
-        self._track_state()
 
     def build(self):
-        return VStack(
-            gap=10,
-            padding=Padding(left=20),
+        return Stack(
+            alignment="center",
+            arrangement="center",
             children=[
-                UIText("Kaoyum", size=32),
-                UIText("Play", size=24),
-                UIText("Settings", size=24),
-                UIText("Exit", size=24)
+                Image("bg.800x600.jpg"),
+                Stack(
+                    alignment="center",
+                    arrangement="end",
+                    fill_max_width=True,
+                    fill_max_height=True,
+                    gap=30,
+                    padding=Padding(bottom=24),
+                    children=[
+                        UIText("Press space to begin", size=18),
+                    ]
+                ),
+                VStack(
+                    gap=10,
+                    alignment="center",
+                    children=[
+                        UIText("Game Title", size=40),
+                        Box(
+                            height=1,
+                            width=200,
+                            background_color=(255, 255, 255, 100),
+                        ),
+                        UIText("Some random text", size=18)
+                    ]
+                ),
+                VStack(
+                    alignment="end",
+                    arrangement="end",
+                    fill_max_width=True,
+                    fill_max_height=True,
+                    gap=6,
+                    padding=Padding(right=24, bottom=24),
+                    children=[
+                        UIText("Settings", size=18),
+                        UIText("Exit", size=18)
+                    ]
+                )    
             ]
         )
 
 class HomeScene(Scene):
     def __init__(self, size: tuple[int, int]):
         super().__init__(size)
-        self.selected_index = 0
-        self.indicator_y = Spring(42)
-        self.ui = UIRuntime(
+        self.ui = HomeUI()
+        self.ui_runtime = UIRuntime(
             size=size, 
-            root=HomeUI()
+            # draw_bound=True,
+            root=self.ui
         )
 
     def run(self, display, dt: int):
         display.fill((0, 0, 0))
-        self.ui.run(display)
-        self.indicator_y.update(dt)
-        pygame.draw.rect(display, (255, 255, 255), (2, self.indicator_y.value, 3, 30))
+        self.ui_runtime.run(display, dt=dt)
     
     def handle_event(self, event) -> str | None:
         if event.type == KEYDOWN:
             key = event.dict["key"]
-            if key == K_s or key == K_DOWN:
-                self.selected_index = (self.selected_index + 1) % 3
-            elif key == K_w or key == K_UP:
-                self.selected_index = (self.selected_index - 1) % 3
-            elif key == K_RETURN or key == K_SPACE:
-                if self.selected_index == 0:
-                    return "to:game"
-                elif self.selected_index == 1:
-                    return "to:settings"
-                elif self.selected_index == 2:
-                    return "exit"
-            self.indicator_y.animate_to(42 + self.selected_index * 30)
+            if key == K_SPACE:
+                return "to:game"
+        #     if key == K_s or key == K_DOWN:
+        #         self.ui.selected_index = (self.ui.selected_index + 1) % 3
+        #     elif key == K_w or key == K_UP:
+        #         self.ui.selected_index = (self.ui.selected_index - 1) % 3
+        #     elif key == K_RETURN or key == K_SPACE:
+        #         if self.ui.selected_index == 0:
+        #             return "to:game"
+        #         elif self.ui.selected_index == 1:
+        #             return "to:settings"
+        #         elif self.ui.selected_index == 2:
+        #             return "exit"

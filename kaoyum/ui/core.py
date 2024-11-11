@@ -25,7 +25,10 @@ class Constraints:
         return (w, h)
     
     def coerce_and_round(self, w: float, h: float) -> Size:
-        return self.coerce(round(w), round(h))
+        # w, h = self.coerce(w, h)
+        # return (round(w), round(h))
+        # TODO: handle infinity
+        return self.coerce(w, h)
 
 @dataclass(frozen=True)
 class Padding:
@@ -63,6 +66,8 @@ class UINode:
     def __init__(self, padding: Padding | None = None, children: ChildrenProp = None):
         self.children = [] if not children else [child for child in children if child is not None] 
         self.padding = padding or Padding.zero()
+        self._measure_cache = None
+        self._measure_constraints = None
 
     # MUST BE CALL IN THIS ORDER: measure -> layout -> draw
     # well, the runtime will do that for you so you don't have to worry about it
@@ -82,7 +87,14 @@ class UINode:
     # in case there is something depend on time
     def update(self, dt: int):        
         for child in self.children:
+            # print(self, child)
             child.update(dt)
+
+    def cached_measure(self, constraints: Constraints) -> Size:
+        if self._measure_cache is None or self._measure_constraints != constraints:
+            self._measure_cache = self.measure(constraints)
+            self._measure_constraints = constraints
+        return self._measure_cache
 
     # We need to compare the pointer AND the hash
     # def __eq__(self, value):
@@ -101,3 +113,35 @@ class UINode:
 # measure -> size -> placing(aka layouting) -> draw
 # after measure the parent node should set the rect of the child node
 # currently we are drawing children nodes immediately after measuring them and before parent node
+
+
+class WrapperNode(UINode):
+    node_type: str = "WrapperNode"
+    
+    def __init__(self, child: UINode | None = None):
+        super().__init__()
+        self.children = [child] if child else []
+
+    def measure(self, constraints: Constraints) -> Size:
+        return self.children[0].measure(constraints)
+
+    def layout(self) -> list[Rect]:
+        return [Rect((0, 0), self.cached_measure(self._measure_constraints))]
+
+    def draw(self, target: pygame.Surface):
+        if self.child is not None:
+            self.child.draw(target)
+
+    @property
+    def child(self):
+        # refactor this
+        return self.children[0] if len(self.children) == 1 else None
+
+    @child.setter
+    def child(self, value):
+        if value is None:
+            self.children = []
+        self.children = [value]
+
+    def __repr__(self):
+        return f"{self.node_type}(padding={self.padding}, children={self.child})"
