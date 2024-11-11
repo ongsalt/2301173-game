@@ -93,12 +93,10 @@ class Compositor:
                     texture.state = node.state
                     # print(f"Caching state [{node.state._invalidation_marker}]")
                 else:
-                    # render_hash == texture.render_hash
-                    if texture.state._invalidation_marker != node.state._invalidation_marker:
-                        # print(f"Reusing state [{node.state._invalidation_marker}] [{texture.state._invalidation_marker}]")
-                        # TODO: think about node insertion, deletion and reordering
-                        # probably gonna need a node type and Keyed
-                        node.retach_state(texture.state) 
+                    node.retach_state(texture.state) 
+                    # print(f"Reusing state [{node.state._invalidation_marker}] [{texture.state._invalidation_marker}]")
+                    # TODO: think about node insertion, deletion and reordering
+                    # probably gonna need a node type and Keyed
 
             texture.node = node
             

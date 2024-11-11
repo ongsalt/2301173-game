@@ -115,6 +115,7 @@ class StatefulWidget(Widget):
     def retach_state(self, state: State):
         # print(" - Retaching state")
         self.state = state
+        self.state._dirty = True
     
     def __hash__(self):
         # return hash(self.built)
