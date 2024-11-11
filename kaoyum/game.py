@@ -34,6 +34,8 @@ class Game:
         image = AssetsManager().get("slime_2.gif")
         self.obstacles.append(Obstacle(100, 100, 64, 64, 10, image))
         self.obstacles.append(Obstacle(200, 100, 64, 64, 10, image))
+        self.score_points.append(Scorepoint(300, 100, 64, 64, 10, image))
+        self.score_points.append(Scorepoint(400, 100, 64, 64, 10, image))
 
     def remove_dead_objects(self):
         new_obstacles = self.obstacles
