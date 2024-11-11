@@ -99,7 +99,6 @@ class Compositor:
                         # TODO: think about node insertion, deletion and reordering
                         # probably gonna need a node type and Keyed
                         node.retach_state(texture.state) 
-                        node.rebuild()
 
             texture.node = node
             
@@ -134,9 +133,9 @@ class Compositor:
         def traverse(texture: UINodeTexture, offset: tuple[int, int]) -> bool:
             nonlocal global_offset, events
             for event in reversed(events):
+                # print(type(texture.node)) 
                 if isinstance(texture.node, GestureHandler): 
                     if self.is_event_inside(event, Rect(offset, texture.size), global_offset):
-                            # print("GestureHandler") 
                         # print(f"Event inside {texture.node}")
                         consumed = texture.node.handle_event(event)
                     else:

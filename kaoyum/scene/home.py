@@ -6,7 +6,7 @@ class HomeUIState(State):
     def __init__(self):
         super().__init__()
         self.selected_index = 0
-        self.text_opacity = Loop(150, 255, angular_frequency=0.3)
+        self.text_opacity = Loop(150, 220, angular_frequency=0.2)
 
 class HomeUI(StatefulWidget):
     state: HomeUIState

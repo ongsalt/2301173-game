@@ -39,6 +39,7 @@ class State: # a State
                 prop.update(dt)
                 if prop.is_animating:
                     self._dirty = True
+                    self._invalidation_marker += 1
 
     def __setattr__(self, name, value):
         if name not in ["_dirty", "_invalidation_marker"]:
