@@ -59,7 +59,7 @@ screen = pygame.display.set_mode(DISPLAY_SIZE)
 widget = ExampleWidget()
 ui = UIRuntime(
     size=(600, 400),
-    draw_bound=True,
+    # draw_bound=True,
     root=widget
 )
 

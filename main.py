@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from kaoyum.scene import Scene, GameScene, HomeScene
+from kaoyum.scene import Scene, GameplayScene, HomeScene
 import sys
 
 pygame.init()
@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 
 scenes_stack: list[Scene] = [
     HomeScene(DISPLAY_SIZE),
-    GameScene(DISPLAY_SIZE),
+    GameplayScene(DISPLAY_SIZE),
 ]
 active_scene = scenes_stack[0]
 

@@ -39,7 +39,6 @@ class GestureHandler(StatefulWidget):
                     return True
         elif event.type == MOUSEBUTTONDOWN:
             if self.on_click:
-                print("Mouse clicked")
                 self.on_click(event.pos)
                 return True
         elif event.type == MOUSEBUTTONUP:

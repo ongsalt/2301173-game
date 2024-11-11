@@ -22,15 +22,17 @@ class SizedNode(UINode):
 type OutlineSide = Literal["top", "bottom", "left", "right"]
 type OutlineProp = bool | list[OutlineProp]
 class Box(SizedNode): # More like a div
-    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1):
+    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1, border_radius: int = 0):
         super().__init__(children, padding, width, height, fill_max_width, fill_max_height)
         self.background_color = background_color
         self.outline = outline
         self.outline_color = outline_color
         self.outline_width = outline_width
+        self.border_radius = border_radius
     
     def draw(self, target: Surface):
-        target.fill(self.background_color or Color(0, 0, 0, 0))
+        w, h = target.get_size()
+        pygame.draw.rect(target, self.background_color or Color(0, 0, 0, 0), Rect(0, 0, w, h), border_radius=self.border_radius)
         if self.outline:
             if isinstance(self.outline, list):
                 for side in self.outline:
@@ -49,7 +51,7 @@ class Box(SizedNode): # More like a div
         elif side == "right":
             pygame.draw.rect(target, self.outline_color, Rect(self.width - self.outline_width, 0, self.outline_width, self.height))
 
-# TODO: testing nest widget
+# TODO: make child accept a builder lambda
 class Widget(WrapperNode):
     node_type: str = "Widget"
 
@@ -111,7 +113,7 @@ class StatefulWidget(Widget):
         self.state._dirty = False
 
     def retach_state(self, state: State):
-        print(" - Retaching state")
+        # print(" - Retaching state")
         self.state = state
     
     def __hash__(self):

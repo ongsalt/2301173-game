@@ -113,7 +113,7 @@ class Compositor:
 
             texture.clear()
             node.draw(texture.surface)
-            print(f"Rendering [{path}, {render_hash}]: {node}")
+            # print(f"Rendering [{path}, {render_hash}]: {node}")
             texture.render_hash = render_hash
 
             old_children = old_texture.children if old_texture is not None else []

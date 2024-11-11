@@ -1,6 +1,6 @@
 import pygame
 from pygame import Rect
-from ...assets_manager import AssetsManager
+from kaoyum.assets_manager import AssetsManager
 from ..core import UINode, Constraints, Padding
 
 class UIText(UINode):

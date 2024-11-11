@@ -3,21 +3,31 @@ from typing import Callable
 from .input import GestureHandler
 from .stack import Stack
 from .text import UIText
+from ..animation import Spring
 from ..core import Padding
 from ..state import State
 
 class ButtonState(State):
     def __init__(self):
         super().__init__()
-        self.background_color = (255, 255, 255, 50)
+        self.opacity = Spring(20)
+        self.on_mouse_leave()
     
     def on_mouse_enter(self):
-        print("------- Mouse enter")
-        self.background_color = (255, 255, 255, 150)
+        self.opacity.animate_to(40)
     
     def on_mouse_leave(self):
-        print("------- Mouse leave")
-        self.background_color = (255, 255, 255, 50)
+        self.opacity.animate_to(20)
+
+    def on_mouse_up(self):
+        self.opacity.animate_to(40)
+
+    def on_mouse_down(self):
+        self.opacity.animate_to(80)
+
+    @property
+    def background_color(self): 
+        return (0, 0, 0, self.opacity.value)
 
 class Button(StatefulWidget):
     node_type: str = "Button"
@@ -29,18 +39,19 @@ class Button(StatefulWidget):
         self.on_click = on_click
 
     def create_state(self):
-        print(" - Creating state for button")
         return ButtonState()
 
     def build(self):
         return GestureHandler(
             on_click=lambda pos: self._on_click(pos),
+            on_mouse_up=lambda pos: self.state.on_mouse_up(),
             on_mouse_enter=lambda _: self.state.on_mouse_enter(),
             on_mouse_leave=lambda _: self.state.on_mouse_leave(),
             child=Stack(
                 alignment="center",
                 arrangement="center",
                 background_color=self.state.background_color,
+                border_radius=8,
                 children=[
                     UIText(self.text, padding=Padding.all(10)),
                 ]
@@ -48,7 +59,7 @@ class Button(StatefulWidget):
         )
     
     def _on_click(self, pos):
-        print("Button clicked")
+        self.state.on_mouse_down()
         if self.on_click:
             self.on_click(pos)
 
@@ -73,7 +84,6 @@ if __name__ == "__main__":
             super().__init__()
 
         def create_state(self):
-            print(" - Creating state for ExampleWidget")
             return ExampleState()
                 
         def build(self):
@@ -99,7 +109,7 @@ if __name__ == "__main__":
     widget = ExampleWidget()
     ui = UIRuntime(
         size=(600, 400),
-        draw_bound=True,
+        # draw_bound=True,
         root=widget
     )
 
@@ -107,7 +117,6 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((800, 600))
     surface = pygame.Surface((100, 100))
     surface.fill((255, 0, 0))
-
 
     while True:
         dt = clock.tick(60)

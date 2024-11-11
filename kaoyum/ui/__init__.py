@@ -6,6 +6,6 @@ from .widget.core import Widget, StatefulWidget, Box
 from .widget.input import GestureHandler
 from .widget.button import Button
 from .widget.raw_surface import StaticSurfaceNode, Image
-from .animation import Animatable, Spring
+from .animation import Animatable, Spring, Loop
 from .state import State, Observable
 

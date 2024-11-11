@@ -36,8 +36,6 @@ class Game:
         for score_point in self.score_points:
             score_point.draw(screen)
 
-        pygame.draw.rect(screen, (255, 0, 0), (0, 0, 100, 50), 1)
-
     def handle_event(self, event: pygame.event.Event):
         pass
 

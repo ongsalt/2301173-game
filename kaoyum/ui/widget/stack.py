@@ -13,8 +13,8 @@ class Stack(Box):
     node_type: str = "Stack"
     
     # I should think of better way to do this
-    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1, gap: int = 0, alignment: Alignment = "start", arrangement: Arrangement = "start", reverse: bool = False):
-        super().__init__(children, padding, width, height, fill_max_width, fill_max_height, background_color, outline, outline_color, outline_width)
+    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1, border_radius: int = 0, gap: int = 0, alignment: Alignment = "start", arrangement: Arrangement = "start", reverse: bool = False):
+        super().__init__(children, padding, width, height, fill_max_width, fill_max_height, background_color, outline, outline_color, outline_width, border_radius)
         self.placeables: list[Rect] = []
         self.padding = padding or Padding.zero()
         self.gap = gap

@@ -1,39 +1,24 @@
-import pygame
-import pygame.freetype
-from pygame.locals import *
-from kaoyum.game import Game 
-from kaoyum.ui import UIRuntime, VStack, UIText, Spring, Padding, StatefulWidget, Stack, Image, Box, HStack
+from pygame.locals import K_SPACE, KEYDOWN
+from kaoyum.ui import UIRuntime, VStack, UIText, Padding, StatefulWidget, Stack, Image, Box, Loop, State
+from .scene import Scene
 
-# Can i just make an interface for this?
-class Scene:
-    def __init__(self, size: tuple[int, int]):
-        pass
-
-    def run(self, display: pygame.Surface, dt: int):
-        pass
-
-    def handle_event(self, event: pygame.event.Event) -> None | str:
-        pass
-
-class GameScene(Scene):
-    def __init__(self, size: tuple[int, int]):
-        super().__init__(size)
-        self.game = Game(size)
-
-    def run(self, display, dt: int):
-        self.game.run(display, dt)
-    
-    def handle_event(self, event):
-        self.game.handle_event(event)
-
-    def copy(self):
-        return GameScene(self.x, self.y) 
+class HomeUIState(State):
+    def __init__(self):
+        super().__init__()
+        self.selected_index = 0
+        self.text_opacity = Loop(150, 255, angular_frequency=0.3)
 
 class HomeUI(StatefulWidget):
+    state: HomeUIState
+
     def __init__(self):
         super().__init__()
 
+    def create_state(self):
+        return HomeUIState()
+
     def build(self):
+        state = self.state
         return Stack(
             alignment="center",
             arrangement="center",
@@ -47,7 +32,7 @@ class HomeUI(StatefulWidget):
                     gap=30,
                     padding=Padding(bottom=24),
                     children=[
-                        UIText("Press space to begin", size=18),
+                        UIText("Press space to begin", size=18, color=(255, 255, 255, state.text_opacity.rounded)),
                     ]
                 ),
                 VStack(
