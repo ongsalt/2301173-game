@@ -2,7 +2,7 @@ import pygame
 import pygame.freetype
 from pygame.locals import *
 from kaoyum.game import Game 
-from kaoyum.ui import UIRuntime, VStack, UIText, Spring, Padding, Widget
+from kaoyum.ui import UIRuntime, VStack, UIText, Spring, Padding, DirtyStatefulWidget
 
 # Can i just make an interface for this?
 class Scene:
@@ -31,11 +31,12 @@ class GameScene(Scene):
 
 
 
-class HomeUI(Widget):
+class HomeUI(DirtyStatefulWidget):
     def __init__(self):
+        super().__init__()
         self.selected_index = 0
         self.indicator_y = Spring(42)
-        super().__init__()
+        self._track_state()
 
     def build(self):
         return VStack(

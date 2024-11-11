@@ -3,7 +3,7 @@ from ..state import State
 from ..animation import Animatable
 import pygame
 from pygame import Color, Surface
-from typing import Literal
+from typing import Literal, Self
 
 # DONT DIRECTLY USE THIS CLASS
 class SizedNode(UINode):
@@ -55,50 +55,16 @@ class Widget(UINode):
 
     def __init__(self):
         self._built: None | UINode = None
-        self._states: list[State] = []
-        self._animatables: list[Animatable] = []
-        self._invalidated = True
-        self._track_state()
+        self._dirty = True
 
     def build(self) -> UINode | None:
         raise NotImplementedError
     
-    # SUMMARY: I do this the svelte way AND the State object way
-    # I have 4 choices here: 
-    # 1. flutter way: extract a state to other class
-    # 2. manually call invalidate
-    def invalidate(self):
-        self._invalidated = True
-
-    # 3. just force the user to use State object, btw this make animation easier
-    def _track_state(self):
-        for key in dir(self):
-            prop = getattr(self, key)
-            if isinstance(prop, State) and prop not in self._states:
-                unsub = prop.subscribe(lambda _: self.invalidate()) # this binding ptsd from js
-                self._states.append(prop)
-                if isinstance(prop, Animatable) and prop not in self._animatables:
-                    self._animatables.append(prop)
-
-    # 4. or mark a variable as a state somehow 
-    # 4.1 Svelte way: force the user to reassign the variable
-    # 4.2 _states = ["variable_name", ...] which is probably the worst way to do it
-    def __setattr__(self, name, value):
-        if name not in ["_built", "_invalidated"]: 
-            self.invalidate()
-        return super().__setattr__(name, value)
-    
-    def update(self, dt: int):
-        for animatables in self._animatables:
-            animatables.update(dt)
-        
-        super().update(dt)
-
     @property
     def built(self) -> UINode | None:
-        if self._invalidated:
+        if self._dirty:
             self._built = self.build()
-            self._invalidated = False
+            self._dirty = False
         return self._built
 
     def measure(self, constraints: Constraints) -> Size:
@@ -120,3 +86,84 @@ class Widget(UINode):
     
     def __hash__(self):
         return hash(self.built)
+
+
+class DirtyStatefulWidget(Widget):
+    def __init__(self):
+        self._invalidation_counter = 0
+        self._states = []
+        self._unsubscribers = []
+        self._animatables = []
+        super().__init__()
+
+    def build(self) -> UINode | None:
+        raise NotImplementedError
+
+    def _unsubscribe(self):
+        for unsub in self._unsubscribers:
+            unsub()
+        
+    # def __setattr__(self, name, value):
+    #     if name == "state":
+    #         self._state.set(value)
+    #     else:
+    #         super().__setattr__(name, value)
+
+    def update(self, dt: int):
+        for animatables in self._animatables:
+            animatables.update(dt)
+        
+        super().update(dt)
+
+    # SUMMARY: I do this the svelte way AND the State object way
+    # I have 4 choices here: 
+    # 1. flutter way: extract a state to other class
+    # 2. manually call invalidate
+    def invalidate(self):
+        self._invalidation_counter += 1
+        self._dirty = True
+
+    # 3. just force the user to use State object, btw this make animation easier
+    def _track_state(self):
+        self._unsubscribe()
+        for key in dir(self):
+            prop = getattr(self, key)
+            if isinstance(prop, State) and prop not in self._states:
+                unsub = prop.subscribe(lambda _: self.invalidate()) # this binding ptsd from js
+                self._states.append(prop)
+                self._unsubscribers.append(unsub)
+                if isinstance(prop, Animatable) and prop not in self._animatables:
+                    self._animatables.append(prop)
+
+    # 4. or mark a variable as a state somehow 
+    # 4.1 Svelte way: force the user to reassign the variable
+    # 4.2 _states = ["variable_name", ...] which is probably the worst way to do it
+    def __setattr__(self, name, value):
+        if name not in ["_built", "_dirty", "_invalidation_counter", "_states", "_unsubscribers", "_animatables"]: 
+            self.invalidate()
+        return super().__setattr__(name, value)
+    
+    def __hash__(self):
+        return hash((self.built, self._invalidation_counter))
+    
+# Well there's gonna be a massive rewrite if i do this
+# so let's just leave it here
+class StatefulWidget(Widget):
+    def __init__(self):
+        super().__init__()
+        self.state = State() # user should override this
+    
+    # runtime can replace this state freely
+    @property
+    def built(self) -> UINode | None:
+        if self.state._dirty:
+            self._built = self.build()
+            self.state._dirty = False
+        return self._built
+    
+    def replace_state(self, state: State):
+        self.state = state
+
+    def __hash__(self):
+        return hash((self.built, self.state._invalidation_marker))
+    

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 import math
-from .state import State
+from .state import Observable
 
-class Animatable(State[float]):
+class Animatable(Observable[float]):
     value: float
     final_position: float 
     velocity: float

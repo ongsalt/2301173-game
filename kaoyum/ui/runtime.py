@@ -4,9 +4,9 @@ from pygame.event import Event
 from typing import Self
 from itertools import zip_longest
 from kaoyum.utils import add
-from .core import UINode, Constraints, Padding
-from .widget.common import Widget
-from .widget.input import GestureHandler
+from .core import UINode, Constraints
+from .widget.common import Widget, StatefulWidget
+from .state import State
 
 # i should just do tree transformation and be done with everything
 
@@ -14,11 +14,11 @@ from .widget.input import GestureHandler
 class UINodeTexture:
     def __init__(self, size: tuple[int, int], node: UINode | None = None):
         self.node = node
+        # We should track node reordering but whatever
+        self.state = node.state if node is not None and isinstance(node, StatefulWidget) else None
         self.surface = pygame.Surface(size, pygame.SRCALPHA, 32)
         self.children: list[UINodeTexture] = []
         self.render_hash: None | int = None
-        self.composite_hash: None | int = None
-        self.composite_placement_hash: None | int = None
         self.size = size
     
     def resize(self, size: tuple[int, int]):
@@ -69,6 +69,7 @@ class Compositor:
     def draw_to(self, screen: pygame.Surface, position: tuple[int, int]):
         screen.blit(self.screen, position)
 
+    # it's not only rendering anymore
     def render(self) -> UINodeTexture:
         def traverse(node: UINode, old_texture: None | UINodeTexture, path: str = "") -> UINodeTexture:
             # TODO: cache measure call
@@ -82,8 +83,11 @@ class Compositor:
                 old_texture.resize(size)
                 texture = old_texture
 
-            if id(node) != id(texture.node):
-                texture.node = node
+            # if isinstance(node, StatefulWidget):
+            #     if texture.state is not node.state:
+            #         texture.state = node.state
+                    # we should invalidate the hash here but it likely would never collide
+            texture.node = node
                 # we should invalidate the hash here but it likely would never collide 
 
             render_hash = hash(node)
@@ -156,6 +160,7 @@ class Compositor:
         self.composite(events or [], position)
         
         screen.blit(self.screen, position)
+
 
 class UIRuntime:
     def __init__(self, root: Widget, size: tuple[int, int], draw_bound: bool = False):

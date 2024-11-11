@@ -2,11 +2,6 @@ import pygame
 from pygame import Rect
 from dataclasses import dataclass
 from typing import Self
-from .state import State
-from .animation import Animatable
-from dataclasses import dataclass
-from typing import Self
-
 
 # Bruh this is just Flutter
 

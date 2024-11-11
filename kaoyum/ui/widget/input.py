@@ -2,22 +2,26 @@ from .common import Widget
 from ..core import UINode
 from  typing import Callable
 
+type Handler = Callable[[tuple[int, int]], None] | None
 class GestureHandler(Widget):
     node_type: str = "GestureHandler"
 
-    def __init__(self, child: UINode, on_tap: Callable[[tuple[int, int]], None] | None = None):
+    def __init__(self, child: UINode, on_tap: Handler = None, on_mouse_enter: Handler = None, on_mouse_exit: Handler = None):
         self.child = child
         super().__init__()
         self.on_tap = on_tap
+        self.on_mouse_enter = on_mouse_enter
+        self.on_mouse_exit = on_mouse_exit
+        # To implement this, gesturehandler must be a stateful widget
 
     def build(self) -> UINode:
         return self.child
     
 if __name__ == "__main__":
-    from kaoyum.ui import Spring, UIRuntime, UIText, VStack
+    from kaoyum.ui import Spring, UIRuntime, UIText, VStack, DirtyStatefulWidget
     import pygame
 
-    class ExampleWidget(Widget):
+    class ExampleWidget(DirtyStatefulWidget):
         def __init__(self):
             self.show = False
             super().__init__()

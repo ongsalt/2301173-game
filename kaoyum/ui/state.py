@@ -1,7 +1,8 @@
 from typing import TypeVar, Generic, Callable
+from random import randint
 
 K = TypeVar("K") 
-class State(Generic[K]): # an Observable
+class Observable(Generic[K]): # an Observable
     def __init__(self, value: K):
         super().__init__()
         self._value = value
@@ -24,3 +25,16 @@ class State(Generic[K]): # an Observable
         self._value = value
         for callback in self.callbacks:
             callback(value)
+
+class State: # a State
+    def __init__(self):
+        self._dirty = True
+        self._invalidation_marker = randint(0, 1000000)
+
+    def __setattr__(self, name, value):
+        if name not in ["_dirty", "_invalidation_marker"]:
+            self._dirty = True
+            self._invalidation_marker += 1
+        return super().__setattr__(name, value)
+    
+    # dirty will be set to False when the state is flushed

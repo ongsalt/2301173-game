@@ -40,7 +40,7 @@ class Stack(Box):
                 width = content_width + self.padding.width
         
         if height == None:
-            content_height = max(measureds, key=lambda x: x[0])[0]
+            content_height = max(measureds, key=lambda x: x[1])[1]
             if self.fill_max_height:
                 height = constraints.max_height
             else:
