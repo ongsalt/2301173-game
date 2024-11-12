@@ -1,7 +1,6 @@
 from pygame import Surface
 
 from kaoyum.assets_manager import AssetsManager
-from ..core import Constraints, Size, Padding
 from random import randint
 from .core import SizedNode
 
@@ -9,8 +8,8 @@ class StaticSurfaceNode(SizedNode):
     node_type: str = "StaticSurfaceNode"
     _invalidation_flags = 0
 
-    def __init__(self, surface: Surface, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
-        super().__init__(children=[], padding=padding, width=width, height=height, fill_max_width=fill_max_width, fill_max_height=fill_max_height)
+    def __init__(self, surface: Surface, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
+        super().__init__(children=[], width=width, height=height, fill_max_width=fill_max_width, fill_max_height=fill_max_height)
         self.surface = surface
         self._invalidation_flags = randint(0, 10000000)
         w, h = surface.get_size()
@@ -34,12 +33,11 @@ class Image(StaticSurfaceNode):
     node_type: str = "Image"
 
     # im too lazy to do the scaling so please just give the correct size image
-    def __init__(self, image: str, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
+    def __init__(self, image: str, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
         super().__init__(
             surface=AssetsManager().get(image),
             width=width,
             height=height,
-            padding=padding,
             fill_max_width=fill_max_width,
             fill_max_height=fill_max_height
         )

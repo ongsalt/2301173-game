@@ -4,10 +4,11 @@ from typing import Literal
 from kaoyum.utils import coerce, tint
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, screen_size: tuple[int, int], *groups):
+    def __init__(self, screen_size: tuple[int, int], hp = 100, *groups):
         super().__init__(*groups)
         self.color: Literal["red", "green", "blue"] = "red"
         self.y = 0.0
+        self.hp = hp
         self.rect = pygame.Rect(0, 0, 64, 64)
         self.screen_size = screen_size
 

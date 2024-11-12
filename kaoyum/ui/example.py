@@ -1,4 +1,5 @@
-from kaoyum.ui import UIRuntime, StatefulWidget, Spring, Padding, VStack, HStack, UIText, State, Button
+from kaoyum.ui import UIRuntime, Spring, State
+from kaoyum.ui.widget import StatefulWidget, VStack, UIText, HStack, Button
 import pygame
     
 class ExampleState(State):
@@ -21,7 +22,6 @@ class ExampleWidget(StatefulWidget):
     def build(self):
         return VStack(
             gap=10,
-            # padding=Padding(0, 0, 0, 24),
             fill_max_width=True,
             fill_max_height=True,
             alignment="center",
@@ -57,7 +57,7 @@ class ExampleWidget(StatefulWidget):
                     "Hello World", 
                     # Holy shit, antialiasing is non existent
                     # TODO: decimal position -> delegate the decimal position to draw_offset
-                    padding=Padding(right=self.state.y_padding.value * 4, top=self.state.y_padding.value), 
+                    # padding=Padding(right=self.state.y_padding.value * 4, top=self.state.y_padding.value), 
                     size=self.state.y_padding.value + 18
                 ),
             ]

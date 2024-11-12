@@ -1,10 +1,10 @@
 from pygame.locals import K_SPACE, KEYDOWN
 from pygame import Surface
 from pygame.event import Event, post as post_event
-from kaoyum.ui import UIRuntime, VStack, UIText, Padding, StatefulWidget, Stack, Image, Box, Loop, State
+from kaoyum.ui import UIRuntime, Loop, State
+from kaoyum.ui.widget import StatefulWidget, VStack, UIText, Stack, Image, Box
 from kaoyum.ui.event import NavigationEvent
 from .scene import Scene
-
 class HomeUIState(State):
     def __init__(self):
         super().__init__()
@@ -33,7 +33,6 @@ class HomeUI(StatefulWidget):
                     fill_max_width=True,
                     fill_max_height=True,
                     gap=30,
-                    padding=Padding(bottom=24),
                     children=[
                         UIText("Press space to begin", size=18, color=(255, 255, 255, state.text_opacity.rounded)),
                     ]
@@ -57,7 +56,6 @@ class HomeUI(StatefulWidget):
                     fill_max_width=True,
                     fill_max_height=True,
                     gap=6,
-                    padding=Padding(right=24, bottom=24),
                     children=[
                         UIText("Settings", size=18),
                         UIText("Exit", size=18)
@@ -71,17 +69,14 @@ class HomeScene(Scene):
         super().__init__(size)
         self.ui = HomeUI()
         self.ui_runtime = UIRuntime(
-            size=size, 
-            # draw_bound=True,
-            root=self.ui
+            draw_bound=False,
+            root=self.ui,
+            size=size
         )
-        self._event_queue = []
 
     def run(self, display: Surface, dt: int = 1000/60, events: list[Event] | None = None):
+        super().run(display, dt, events)
         display.fill((0, 0, 0))
-        for event in reversed(events or []):
-            if self.handle_event(event):
-                events.remove(event)
         self.ui_runtime.run(display, dt=dt, events=self._event_queue)
     
     def handle_event(self, event) -> bool:

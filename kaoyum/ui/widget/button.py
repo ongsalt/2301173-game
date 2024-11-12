@@ -4,7 +4,6 @@ from .input import GestureHandler
 from .stack import Stack
 from .text import UIText
 from ..animation import Spring
-from ..core import Padding
 from ..state import State
 
 class ButtonState(State):
@@ -53,7 +52,7 @@ class Button(StatefulWidget):
                 background_color=self.state.background_color,
                 border_radius=8,
                 children=[
-                    UIText(self.text, padding=Padding.all(10)),
+                    UIText(self.text),
                 ]
             )
         )
@@ -65,7 +64,8 @@ class Button(StatefulWidget):
 
 
 if __name__ == "__main__":
-    from kaoyum.ui import UIRuntime, UIText, VStack, StatefulWidget
+    from kaoyum.ui import UIRuntime
+    from kaoyum.ui.widget import UIText, VStack, StatefulWidget
     import pygame
 
     class ExampleState(State):

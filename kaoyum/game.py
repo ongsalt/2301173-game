@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import * 
+from pygame.event import Event
 from typing import Literal
 from kaoyum.player import Player
 from kaoyum.color_change import ColorChange
@@ -35,6 +36,9 @@ class Game:
 
         for score_point in self.score_points:
             score_point.draw(screen)
+
+    def handle_event(self, event: Event):
+        pass
 
     def load_block(self):
         pass

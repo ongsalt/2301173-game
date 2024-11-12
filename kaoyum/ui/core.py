@@ -30,42 +30,13 @@ class Constraints:
         # TODO: handle infinity
         return self.coerce(w, h)
 
-@dataclass(frozen=True)
-class Padding:
-    top: int = 0
-    right: int = 0
-    bottom: int = 0
-    left: int = 0
-
-    @property
-    def height(self) -> int:
-        return self.top + self.bottom
-
-    @property
-    def width(self) -> int:
-        return self.left + self.right
-    
-    @property
-    def topleft(self) -> tuple[int, int]:
-        return round(self.left), round(self.top)
-
-    def zero() -> Self:
-        return Padding(0, 0, 0, 0)
-    
-    def all(value: int) -> Self:
-        return Padding(value, value, value, value)
-
-    def both(vertical: int, horizontal: int) -> Self:
-        return Padding(vertical, horizontal, vertical, horizontal)
-
 type ChildrenProp = list[Self | None] | None
 class UINode:
     node_type: str = "UINode"
     children: list[Self]
 
-    def __init__(self, padding: Padding | None = None, children: ChildrenProp = None):
+    def __init__(self, children: ChildrenProp = None):
         self.children = [] if not children else [child for child in children if child is not None] 
-        self.padding = padding or Padding.zero()
         self._measure_cache = None
         self._measure_constraints = None
 
@@ -101,10 +72,10 @@ class UINode:
     #     return self.__hash__() == value.__hash__()
 
     def __hash__(self):
-        return hash((*self.children, self.padding))
+        return hash((*self.children, ))
     
     def __repr__(self):
-        return f"{self.node_type}(padding={self.padding})"    
+        return f"{self.node_type})"    
 
 # Need to measure bounding box
 # minimum size is reported itself
@@ -113,7 +84,6 @@ class UINode:
 # measure -> size -> placing(aka layouting) -> draw
 # after measure the parent node should set the rect of the child node
 # currently we are drawing children nodes immediately after measuring them and before parent node
-
 
 class WrapperNode(UINode):
     node_type: str = "WrapperNode"
@@ -144,4 +114,4 @@ class WrapperNode(UINode):
         self.children = [value]
 
     def __repr__(self):
-        return f"{self.node_type}(padding={self.padding}, children={self.child})"
+        return f"{self.node_type}(children={self.child})"

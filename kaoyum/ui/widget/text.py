@@ -1,13 +1,13 @@
 import pygame
 from pygame import Rect
 from kaoyum.assets_manager import AssetsManager
-from ..core import UINode, Constraints, Padding
+from ..core import UINode, Constraints
 
 class UIText(UINode):
     node_type: str = "UIText"
 
-    def __init__(self, text: str, font_name: str = "Rowdies-Light.ttf", size: int = 18, color: tuple = (255, 255, 255), padding: Padding | None = None):
-        super().__init__(padding=padding)
+    def __init__(self, text: str, font_name: str = "Rowdies-Light.ttf", size: int = 18, color: tuple = (255, 255, 255)):
+        super().__init__()
         self.texture: pygame.Surface | None = None
         self.text = text
         self.font_name = font_name
@@ -16,28 +16,26 @@ class UIText(UINode):
 
     def draw(self, target: pygame.Surface) -> bool:
         font = AssetsManager().get_font(self.font_name, self.size)
-        font.render_to(target, self.padding.topleft, self.text, self.color)
+        font.render_to(target, (0, 0), self.text, self.color)
 
     # TODO: handle baseline becuase currently it's look like shit
     def measure(self, constraints: Constraints) -> tuple[int, int]:
         font = AssetsManager().get_font(self.font_name, self.size)
         w, h = font.get_rect(self.text).size
-        w += abs(self.padding.width)
-        h += abs(self.padding.height)
         return constraints.coerce_and_round(w, h)
 
     def __hash__(self):
-        return hash((self.node_type, self.text, self.font_name, self.size, self.color, self.padding))
+        return hash((self.node_type, self.text, self.font_name, self.size, self.color))
 
     def __repr__(self):
-        return f"{self.node_type}(text={self.text}, font_name={self.font_name}, size={self.size}, color={self.color}, padding={self.padding})"
+        return f"{self.node_type}(text={self.text}, font_name={self.font_name}, size={self.size}, color={self.color})"
 
 if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     DISPLAY_SIZE = (800, 600)
     screen = pygame.display.set_mode(DISPLAY_SIZE)
-    text = UIText("Hello World", padding=Padding(left=50, top=50))
+    text = UIText("Hello World")
     size = text.measure(Constraints(0, 0, 800, 600))
     text.layout(Rect((0, 0), size))
 

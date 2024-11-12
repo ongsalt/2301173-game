@@ -1,4 +1,4 @@
-from ..core import UINode, Constraints, Padding, Size, Rect, ChildrenProp, WrapperNode
+from ..core import UINode, Constraints, Size, Rect, ChildrenProp, WrapperNode
 from ..state import State
 from ..animation import Animatable
 import pygame
@@ -7,8 +7,8 @@ from typing import Literal, Self
 
 # DONT DIRECTLY USE THIS CLASS
 class SizedNode(UINode):
-    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
-        super().__init__(padding, children)
+    def __init__(self, children: ChildrenProp = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False):
+        super().__init__(children)
         self.width = width
         self.height = height
         self.fill_max_width = fill_max_width
@@ -24,8 +24,8 @@ class SizedNode(UINode):
 type OutlineSide = Literal["top", "bottom", "left", "right"]
 type OutlineProp = bool | list[OutlineProp]
 class Box(SizedNode): # More like a div
-    def __init__(self, children: ChildrenProp = None, padding: Padding | None = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1, border_radius: int = 0):
-        super().__init__(children, padding, width, height, fill_max_width, fill_max_height)
+    def __init__(self, children: ChildrenProp = None, width: int | None = None, height: int | None = None, fill_max_width: bool = False, fill_max_height: bool = False, background_color: Color | None = None, outline: OutlineProp = False, outline_color: Color | None = None, outline_width: int = 1, border_radius: int = 0):
+        super().__init__(children, width, height, fill_max_width, fill_max_height)
         self.background_color = background_color
         self.outline = outline
         self.outline_color = outline_color
