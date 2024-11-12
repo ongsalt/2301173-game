@@ -23,5 +23,4 @@ class Obstacle:
         screen.blit(self.image,self.hitbox)
     
     def copy(self):
-        copy_image = self.image.copy() #ก็อบ Surface image
-        return Obstacle(self.x,self.y,self.width,self.height,self.damage,copy_image)
+        return Obstacle(self.x,self.y,self.width,self.height,self.damage,self.image)

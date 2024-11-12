@@ -23,5 +23,4 @@ class Scorepoint:
         screen.blit(self.image,self.hitbox)
     
     def copy(self):
-        copy_image = self.image.copy() #ก็อบ Surface image
-        return Scorepoint(self.x,self.y,self.width,self.height,self.score,copy_image)
+        return Scorepoint(self.x,self.y,self.width,self.height,self.score,self.image)
