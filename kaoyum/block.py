@@ -1,7 +1,7 @@
 import pygame
-from obstacle import Obstacle
-from scorepoint import Scorepoint
-from color_change import ColorChange
+from .obstacle import Obstacle
+from .scorepoint import Scorepoint
+from .color_change import ColorChange
 
 class Block:
     def __init__(self, obstacles: list[Obstacle], score_points: list[Scorepoint], color_changers: list[ColorChange],offset):
@@ -27,5 +27,3 @@ class Block:
             copied_cc.x += self.offset
             copied_ccs.append(copied_cc)
         return Block(copied_obs,copied_scs,copied_ccs)
-
-Blocks = list[Block] #list เก็บ block ที่ดีไซน์
