@@ -36,9 +36,6 @@ class Game:
         for score_point in self.score_points:
             score_point.draw(screen)
 
-    def handle_event(self, event: pygame.event.Event):
-        pass
-
     def load_block(self):
         pass
 

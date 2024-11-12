@@ -13,11 +13,13 @@ class SizedNode(UINode):
         self.height = height
         self.fill_max_width = fill_max_width
         self.fill_max_height = fill_max_height
+        self._width = 0
+        self._height = 0
 
     def measure(self, constraints: Constraints) -> Size:
-        width = self.width if self.width is not None else constraints.min_width if not self.fill_max_width else constraints.max_width
-        height = self.height if self.height is not None else constraints.min_height if not self.fill_max_height else constraints.max_height
-        return constraints.coerce_and_round(width, height)
+        self._width = self.width if self.width is not None else constraints.min_width if not self.fill_max_width else constraints.max_width
+        self._height = self.height if self.height is not None else constraints.min_height if not self.fill_max_height else constraints.max_height
+        return constraints.coerce_and_round(self._width, self._height)
 
 type OutlineSide = Literal["top", "bottom", "left", "right"]
 type OutlineProp = bool | list[OutlineProp]
@@ -31,7 +33,8 @@ class Box(SizedNode): # More like a div
         self.border_radius = border_radius
     
     def draw(self, target: Surface):
-        w, h = target.get_size()
+        w = self._width
+        h = self._height
         pygame.draw.rect(target, self.background_color or Color(0, 0, 0, 0), Rect(0, 0, w, h), border_radius=self.border_radius)
         if self.outline:
             if isinstance(self.outline, list):

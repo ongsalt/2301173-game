@@ -1,5 +1,8 @@
 from pygame.locals import K_SPACE, KEYDOWN
+from pygame import Surface
+from pygame.event import Event, post as post_event
 from kaoyum.ui import UIRuntime, VStack, UIText, Padding, StatefulWidget, Stack, Image, Box, Loop, State
+from kaoyum.ui.event import NavigationEvent
 from .scene import Scene
 
 class HomeUIState(State):
@@ -72,16 +75,22 @@ class HomeScene(Scene):
             # draw_bound=True,
             root=self.ui
         )
+        self._event_queue = []
 
-    def run(self, display, dt: int):
+    def run(self, display: Surface, dt: int = 1000/60, events: list[Event] | None = None):
         display.fill((0, 0, 0))
-        self.ui_runtime.run(display, dt=dt)
+        for event in reversed(events or []):
+            if self.handle_event(event):
+                events.remove(event)
+        self.ui_runtime.run(display, dt=dt, events=self._event_queue)
     
-    def handle_event(self, event) -> str | None:
+    def handle_event(self, event) -> bool:
         if event.type == KEYDOWN:
             key = event.dict["key"]
             if key == K_SPACE:
-                return "to:game"
+                post_event(NavigationEvent("game"))
+                # fire a navigation event
+                return True
         #     if key == K_s or key == K_DOWN:
         #         self.ui.selected_index = (self.ui.selected_index + 1) % 3
         #     elif key == K_w or key == K_UP:

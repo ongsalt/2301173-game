@@ -8,4 +8,5 @@ from .widget.button import Button
 from .widget.raw_surface import StaticSurfaceNode, Image
 from .animation import Animatable, Spring, Loop
 from .state import State, Observable
+from .event import NavigationEvent, NAVIGATION_EVENT
 

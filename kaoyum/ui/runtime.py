@@ -13,6 +13,10 @@ from .widget.input import GestureHandler
 
 # Should be UINodeImmediateWhatever
 class UINodeTexture:
+    meta = {
+        "texture_count": 0
+    }
+
     def __init__(self, size: tuple[int, int], node: UINode | None = None):
         self.node = node
         self.state = None
@@ -20,6 +24,8 @@ class UINodeTexture:
         self.children: list[UINodeTexture] = []
         self.render_hash: None | int = None
         self.size = size
+        self.meta["texture_count"] += 1
+        # print(f"Texture count: {self.meta['texture_count']}")
     
     def resize(self, size: tuple[int, int]):
         if not self.can_contain(size):
@@ -93,9 +99,10 @@ class Compositor:
                     texture.state = node.state
                     # print(f"Caching state [{node.state._invalidation_marker}]")
                 else:
+                    # print(f"Reusing state [{id(texture.state)}]")
                     node.retach_state(texture.state) 
-                    # print(f"Reusing state [{node.state._invalidation_marker}] [{texture.state._invalidation_marker}]")
                     # TODO: think about node insertion, deletion and reordering
+                    # TODO: do not create new state by default
                     # probably gonna need a node type and Keyed
 
             texture.node = node
@@ -157,6 +164,7 @@ class Compositor:
 
         self.screen.fill((0, 0, 0, 0))
         traverse(self.root_texture, (0, 0))
+        return events
 
     def is_event_inside(self, event: Event, rect: Rect, global_offset: tuple[int, int]) -> bool:
         if not hasattr(event, "pos"):
@@ -170,9 +178,10 @@ class Compositor:
     def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), events: list[Event] | None = None):
         self.render() # actually this will do the diffing and it will redraw the damaged part
 
-        self.composite(events or [], position)
+        unconsumed_events = self.composite(events or [], position)
         
         screen.blit(self.screen, position)
+        return unconsumed_events
 
 
 class UIRuntime:
@@ -182,7 +191,7 @@ class UIRuntime:
         self.draw_bound = draw_bound
         self.compositor.render()
 
-    def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), events: list[Event] | None = None, dt: int = 1000/60):
+    def run(self, screen: pygame.Surface, position: tuple[int, int] = (0, 0), events: list[Event] | None = None, dt: int = 1000/60) -> list[Event]:
         self.root.update(dt)
         # should i build the event listener tree
-        self.compositor.run(screen, position, events)
+        return self.compositor.run(screen, position, events[:])

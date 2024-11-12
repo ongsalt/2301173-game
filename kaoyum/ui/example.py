@@ -6,6 +6,11 @@ class ExampleState(State):
         super().__init__()
         self.time: int = 0
         self.y_padding = Spring(0)
+        self.expanded = False
+
+    def toggle(self):
+        self.expanded = not self.expanded
+        self.y_padding.animate_to(42 if self.expanded else 0)
 
 class ExampleWidget(StatefulWidget):
     state: ExampleState
@@ -43,10 +48,17 @@ class ExampleWidget(StatefulWidget):
                             ]
                         ),
                         Button(
-                            text="Click me",
-                            on_click=lambda _: print("Clicked")
-                        )
+                            text="Expand" if not self.state.expanded else "Collapse",
+                            on_click=lambda _: self.state.toggle()
+                        ),
                     ]
+                ),
+                UIText(
+                    "Hello World", 
+                    # Holy shit, antialiasing is non existent
+                    # TODO: decimal position -> delegate the decimal position to draw_offset
+                    padding=Padding(right=self.state.y_padding.value * 4, top=self.state.y_padding.value), 
+                    size=self.state.y_padding.value + 18
                 ),
             ]
         )
@@ -59,23 +71,24 @@ screen = pygame.display.set_mode(DISPLAY_SIZE)
 widget = ExampleWidget()
 ui = UIRuntime(
     size=(600, 400),
-    # draw_bound=True,
+    draw_bound=True,
     root=widget
 )
 
 while True:
-    dt = clock.tick(60)
-    unprocessed_events = []
+    dt = clock.tick(120)
+    unconsumed_events = []
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()                
 
-        unprocessed_events.append(event)
+        unconsumed_events.append(event)
 
     widget.state.time += dt
 
+    # print(1/dt * 1000)
     screen.fill((16, 163, 240))
-    ui.run(screen, dt=dt, position=(100, 100), events=unprocessed_events)
+    ui.run(screen, dt=dt, position=(100, 100), events=unconsumed_events)
 
     pygame.display.flip()
     

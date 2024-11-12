@@ -18,6 +18,7 @@ class UIText(UINode):
         font = AssetsManager().get_font(self.font_name, self.size)
         font.render_to(target, self.padding.topleft, self.text, self.color)
 
+    # TODO: handle baseline becuase currently it's look like shit
     def measure(self, constraints: Constraints) -> tuple[int, int]:
         font = AssetsManager().get_font(self.font_name, self.size)
         w, h = font.get_rect(self.text).size

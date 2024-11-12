@@ -3,8 +3,10 @@ from pygame.locals import *
 from kaoyum.scene import Scene, GameplayScene, HomeScene
 import sys
 
+from kaoyum.ui.event import NAVIGATION_EVENT
+
 pygame.init()
-pygame.freetype.init()
+# pygame.freetype.init()
 
 DISPLAY_SIZE = (800, 600)
 screen = pygame.display.set_mode(DISPLAY_SIZE)
@@ -21,19 +23,19 @@ while True:
     dt = clock.tick(60)
 
     # Event processing queue
+    unconsumed_events = []
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == NAVIGATION_EVENT:
+            if event.to == "game":
+                active_scene = scenes_stack[1]
             # cursed early return
-        message = active_scene.handle_event(event)
-        if message == "exit":
-            pygame.quit()
-            sys.exit()
-        elif message == "to:game":
-            active_scene = scenes_stack[1]
+        # print(event)
+        unconsumed_events.append(event)
     
     # Let the scene do it's thing
-    active_scene.run(screen, dt)
+    messages = active_scene.run(screen, dt, events=unconsumed_events)
 
     pygame.display.flip()

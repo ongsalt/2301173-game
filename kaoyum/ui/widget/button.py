@@ -120,14 +120,14 @@ if __name__ == "__main__":
 
     while True:
         dt = clock.tick(60)
-        unprocessed_events = []
+        unconsumed_events = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()                
 
-            unprocessed_events.append(event)
+            unconsumed_events.append(event)
 
         screen.fill((16, 163, 240))
-        ui.run(screen, dt=dt, position=(100, 100), events=unprocessed_events)
+        ui.run(screen, dt=dt, position=(100, 100), events=unconsumed_events)
 
         pygame.display.flip()

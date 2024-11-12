@@ -68,6 +68,8 @@ class Stack(Box):
 
             self.placeables.append(Rect(x, y, w, h))
             
+        self._width = width
+        self._height = height
         return constraints.coerce_and_round(width, height)
 
     def add_children(self, *children: UINode):
@@ -128,6 +130,9 @@ class VStack(Stack):
 
         if self.reverse:
             self.placeables.reverse()
+
+        self._width = width
+        self._height = height
         return constraints.coerce_and_round(width, height)
                 
 class HStack(Stack):
@@ -183,4 +188,7 @@ class HStack(Stack):
 
         if self.reverse:
             self.placeables.reverse()
+
+        self._width = width
+        self._height = height
         return constraints.coerce_and_round(width, height)
