@@ -47,10 +47,10 @@ class Game:
             if colorchanger.is_collided(self.player.rect):
                 pass # เปลี่ยนสี
 
-
         # draw
         screen.fill((253, 238, 173))
         self.player.draw(screen)
+
         for score_point in self.score_points:
             score_point.draw(screen)
         for obstacle in self.obstacles:

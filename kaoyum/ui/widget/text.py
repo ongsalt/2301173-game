@@ -1,12 +1,12 @@
 import pygame
 from pygame import Rect
-from ...assets_manager import AssetsManager
+from kaoyum.assets_manager import AssetsManager
 from ..core import UINode, Constraints, Padding
 
 class UIText(UINode):
     node_type: str = "UIText"
 
-    def __init__(self, text: str, font_name: str = "Inter-Regular.ttf", size: int = 18, color: tuple = (255, 255, 255), padding: Padding | None = None):
+    def __init__(self, text: str, font_name: str = "Rowdies-Light.ttf", size: int = 18, color: tuple = (255, 255, 255), padding: Padding | None = None):
         super().__init__(padding=padding)
         self.texture: pygame.Surface | None = None
         self.text = text
@@ -18,6 +18,7 @@ class UIText(UINode):
         font = AssetsManager().get_font(self.font_name, self.size)
         font.render_to(target, self.padding.topleft, self.text, self.color)
 
+    # TODO: handle baseline becuase currently it's look like shit
     def measure(self, constraints: Constraints) -> tuple[int, int]:
         font = AssetsManager().get_font(self.font_name, self.size)
         w, h = font.get_rect(self.text).size

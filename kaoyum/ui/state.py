@@ -1,5 +1,6 @@
 from typing import TypeVar, Generic, Callable
 from random import randint
+from .animation import Animatable
 
 K = TypeVar("K") 
 class Observable(Generic[K]): # an Observable
@@ -31,10 +32,21 @@ class State: # a State
         self._dirty = True
         self._invalidation_marker = randint(0, 1000000)
 
+    def _update_animatables(self, dt):
+        for key in dir(self):
+            prop = getattr(self, key)
+            if isinstance(prop, Animatable):
+                prop.update(dt)
+                if prop.is_animating:
+                    self._dirty = True
+                    self._invalidation_marker += 1
+
     def __setattr__(self, name, value):
         if name not in ["_dirty", "_invalidation_marker"]:
             self._dirty = True
             self._invalidation_marker += 1
+            # print(f"State is dirty: {self._invalidation_marker}")
         return super().__setattr__(name, value)
     
-    # dirty will be set to False when the state is flushed
+    def __hash__(self):
+        return self._invalidation_marker

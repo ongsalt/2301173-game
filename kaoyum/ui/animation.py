@@ -1,14 +1,16 @@
 from dataclasses import dataclass
 import math
-from .state import Observable
 
-class Animatable(Observable[float]):
+def lerp(a: float, b: float, t: float) -> float:
+    return a + (b - a) * t
+
+class Animatable:
     value: float
     final_position: float 
     velocity: float
 
     def __init__(self, value: float):
-        super().__init__(value)
+        self.value = value
         self.final_position = value
         self.velocity = 0
 
@@ -20,12 +22,47 @@ class Animatable(Observable[float]):
         if self.value != self.final_position:
             diff = self.final_position - self.value
             self.value += diff * min(1, dt * self.velocity)
-            if abs(diff) < 0.01:
+            if abs(self.value - self.final_position):
                 self.value = self.final_position
+                self.velocity = 0
+
+    @property
+    def is_animating(self):
+        return self.value != self.final_position
 
     @property
     def rounded(self):
         return round(self.value)
+
+class Loop(Animatable):
+    def __init__(self, min_value: float, max_value: float, initial_value: float | None = None, angular_frequency: float = 1.0):
+        value = initial_value if initial_value is not None else min_value
+        super().__init__(value)
+        self.min_value = min_value
+        self.max_value = max_value
+        self.angular_frequency = angular_frequency
+        self.time = 0
+
+    def animate_to(self, final_position: float, speed: float):
+        pass
+
+    def update(self, dt: float = 1000 / 60):
+        self.time += dt / 100
+        amplitude = (self.max_value - self.min_value) / 2
+        normalized = math.sin(self.time * self.angular_frequency)
+        self.value = normalized * amplitude + self.min_value + amplitude
+
+        # clamping
+        if self.value < self.min_value:
+            self.value = self.min_value
+        elif self.value > self.max_value:
+            self.value = self.max_value
+
+        # self.velocity: ignored
+
+    @property
+    def is_animating(self):
+        return True
 
 class Spring(Animatable):
     # Stiffness is natural frequency squared
@@ -34,14 +71,14 @@ class Spring(Animatable):
         self.damping_ratio = damping_ratio
         self.natural_freq = natural_freq
 
-    def animate_to(self, final_position: float, initial_velocity: float = 0.0):
+    def animate_to(self, final_position: float, initial_velocity: float | None = None):
         self.final_position = final_position
-        self.velocity = initial_velocity
+        if initial_velocity is not None:
+            self.velocity = initial_velocity
 
     # This is a modified version of the spring animation from the jetpack compose source code
     def update(self, dt = 1000 / 60):
         if not self.is_animating:
-            self.value = self.final_position
             return 
         
         dt = dt / 1000 # Convert to seconsds
@@ -82,6 +119,6 @@ class Spring(Animatable):
         self.value = displacement + self.final_position
         self.velocity = current_velocity
 
-    @property
-    def is_animating(self):
-        return abs(self.value - self.final_position) > 0.1 or abs(self.velocity) > 0.1
+        if abs(self.value - self.final_position) < 0.1 and abs(self.velocity) < 0.1:
+            self.value = self.final_position
+            self.velocity = 0
