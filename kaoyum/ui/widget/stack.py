@@ -1,7 +1,7 @@
 import pygame
 from pygame import Rect, Color
 from ..core import UINode, Constraints, ChildrenProp
-from .core import SizedNode, Box, OutlineProp
+from .layout import SizedNode, Box, OutlineProp
 from typing import Literal
 from math import inf
 

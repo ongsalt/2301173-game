@@ -1,27 +1,22 @@
-import pygame
+from math import inf
+from pygame import Surface
 from pygame import Rect
 from dataclasses import dataclass
 from typing import Self
-
-# Bruh this is just Flutter
 
 # TODO: 
 #  - click handling: GestureDetector
 #  - shadow
 #  - High level things like button, slider, dropdown, etc
 
-
-# TODO: THINK ABOUT THE LAYOUT SYSTEM
-
-
 type Size = tuple[int, int]
 
 @dataclass(frozen=True)
 class Constraints:
-    min_width: int
-    min_height: int
-    max_width: int
-    max_height: int
+    min_width: float = 0
+    min_height: float = 0
+    max_width: float = inf
+    max_height: float = inf
 
     def coerce(self, w: int, h: int) -> Size:
         w = max(min(w, self.max_width), self.min_width)
@@ -41,58 +36,31 @@ class UINode:
 
     def __init__(self, children: ChildrenProp = None):
         self.children = [] if not children else [child for child in children if child is not None] 
-        self._measure_cache = None
-        self._measure_constraints = None
-
-    # MUST BE CALL IN THIS ORDER: measure -> layout -> draw
-    # well, the runtime will do that for you so you don't have to worry about it
-    # accept parent constraints and it own size afer measuring its children
-
-    # Should have make this bottom up.
-    def measure(self, constraints: Constraints) -> Size:
-        for child in self.children:
-            child.measure(constraints)
-        return (0, 0)
+    
+    def measure(self) -> Constraints:
+        return Constraints()
 
     # return the relative position of each child node
-    def layout(self) -> list[Rect]:
+    def layout(self, size: Size) -> list[Rect]:
         return []
 
     # design to draw the node itself NOT THE CHILDREN as it will be handled by the renderer
     # target size is from the measured size
-    def draw(self, target: pygame.Surface):
+    def draw(self, target: Surface, size: Size):
         pass
 
     # in case there is something depend on time
+    # TODO: call this in the runtime
     def update(self, dt: int):        
         for child in self.children:
             # print(self, child)
             child.update(dt)
-
-    def cached_measure(self, constraints: Constraints) -> Size:
-        # if self._measure_cache is None or self._measure_constraints != constraints:
-        #     self._measure_cache = self.measure(constraints)
-        #     self._measure_constraints = constraints
-        # return self._measure_cache
-        return self.measure(constraints)
-
-    # We need to compare the pointer AND the hash
-    # def __eq__(self, value):
-    #     return self.__hash__() == value.__hash__()
 
     def __hash__(self):
         return hash((*self.children, ))
     
     def __repr__(self):
         return f"{self.node_type})"    
-
-# Need to measure bounding box
-# minimum size is reported itself
-# while maximum size is reported by the parent
-# im gonna copy jetpack compose's layout system4
-# measure -> size -> placing(aka layouting) -> draw
-# after measure the parent node should set the rect of the child node
-# currently we are drawing children nodes immediately after measuring them and before parent node
 
 class WrapperNode(UINode):
     node_type: str = "WrapperNode"
@@ -101,14 +69,13 @@ class WrapperNode(UINode):
         super().__init__()
         self.children = [child] if child else []
 
-    def measure(self, constraints: Constraints) -> Size:
-        return self.children[0].measure(constraints)
+    def measure(self) -> Constraints:
+        return self.child.measure()
 
-    def layout(self) -> list[Rect]:
-        return [Rect((0, 0), self.measure(self._measure_constraints))]
-
-    def draw(self, target: pygame.Surface):
-        pass
+    def layout(self, size: Size) -> list[Rect]:
+        return [
+            Rect((0, 0), size)
+        ]
     
     @property
     def child(self):

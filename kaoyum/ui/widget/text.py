@@ -1,7 +1,8 @@
 import pygame
+from pygame import Surface
 from pygame import Rect
 from kaoyum.assets_manager import AssetsManager
-from ..core import UINode, Constraints
+from ..core import UINode, Constraints, Size
 
 class UIText(UINode):
     node_type: str = "UIText"
@@ -11,24 +12,24 @@ class UIText(UINode):
         self.texture: pygame.Surface | None = None
         self.text = text
         self.font_name = font_name
-        self.size = size
+        self.font_size = size
         self.color = color
 
-    def draw(self, target: pygame.Surface) -> bool:
-        font = AssetsManager().get_font(self.font_name, self.size)
+    def draw(self, target: Surface, size: Size):
+        font = AssetsManager().get_font(self.font_name, self.font_size)
         font.render_to(target, (0, 0), self.text, self.color)
 
     # TODO: handle baseline becuase currently it's look like shit
-    def measure(self, constraints: Constraints) -> tuple[int, int]:
-        font = AssetsManager().get_font(self.font_name, self.size)
+    def measure(self) -> Constraints:
+        font = AssetsManager().get_font(self.font_name, self.font_size)
         w, h = font.get_rect(self.text).size
-        return constraints.coerce_and_round(w, h)
+        return Constraints(w, h, w, h)
 
     def __hash__(self):
-        return hash((self.node_type, self.text, self.font_name, self.size, self.color))
+        return hash((self.node_type, self.text, self.font_name, self.font_size, self.color))
 
     def __repr__(self):
-        return f"{self.node_type}(text={self.text}, font_name={self.font_name}, size={self.size}, color={self.color})"
+        return f"{self.node_type}(text={self.text}, font_name={self.font_name}, size={self.font_size}, color={self.color})"
 
 if __name__ == "__main__":
     pygame.init()
@@ -36,8 +37,10 @@ if __name__ == "__main__":
     DISPLAY_SIZE = (800, 600)
     screen = pygame.display.set_mode(DISPLAY_SIZE)
     text = UIText("Hello World")
-    size = text.measure(Constraints(0, 0, 800, 600))
-    text.layout(Rect((0, 0), size))
+    constraints = text.measure()
+    size = (constraints.max_width, constraints.max_height)
+    children_bound = text.layout(size)
+    print(f"{size=} {children_bound=}")
 
     while True:
         clock.tick(60)
@@ -47,6 +50,6 @@ if __name__ == "__main__":
 
         # เทสตรงนี้นะครับ
         screen.fill((0, 0, 0))
-        text.draw(screen)
+        text.draw(screen, size)
 
         pygame.display.flip()

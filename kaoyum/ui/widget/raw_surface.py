@@ -2,7 +2,7 @@ from pygame import Surface
 
 from kaoyum.assets_manager import AssetsManager
 from random import randint
-from .core import SizedNode
+from .layout import SizedNode
 
 class StaticSurfaceNode(SizedNode):
     node_type: str = "StaticSurfaceNode"
