@@ -8,10 +8,11 @@ from .core import UINode, Constraints
 from .widget.core import Widget, StatefulWidget
 from .state import State
 from .widget.input import GestureHandler
+from ..assets_manager import AssetsManager
 
 # i should just do tree transformation and be done with everything
 
-# Should be UINodeImmediateWhatever
+
 class UINodeTexture:
     meta = {
         "texture_count": 0
@@ -80,8 +81,9 @@ class Compositor:
         def traverse(node: UINode, old_texture: None | UINodeTexture, path: str = "/") -> UINodeTexture:
             # print(f"Traversing [{path}]: {node}")
 
+            size = node.measure(node._measure_constraints)
             # TODO: reattach lost state
-            size = node.cached_measure(self.constraints)
+            print(f"Node: {path} - {size}")
             # we can keep the old texture if the size is the larger than needed
             if old_texture is None:
                 # print("Creating new texture")
@@ -156,6 +158,7 @@ class Compositor:
             # self.screen.fill((0, 0, 0, 0), Rect(offset, texture.size))
             if self.draw_bound:
                 pygame.draw.rect(self.screen, (0, 255, 0), Rect(offset, texture.actual_size), 1)
+                AssetsManager().get_font().render_to(self.screen, offset, f"{texture.node.node_type} {offset} {texture.size}", (255, 0, 0, 100))
                 pygame.draw.rect(self.screen, (255, 0, 0), Rect(offset, texture.size), 1)
             self.screen.blit(texture.surface, offset)
 
@@ -195,3 +198,6 @@ class UIRuntime:
         self.root.update(dt)
         # should i build the event listener tree
         return self.compositor.run(screen, position, events[:])
+
+    def layout(self):
+        return 

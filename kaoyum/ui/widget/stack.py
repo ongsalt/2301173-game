@@ -24,12 +24,15 @@ class Stack(Box):
     def layout(self) -> list[Rect]:
         return self.placeables
     
+    # Should this return an evaluator?
+    # Fuck this 
+    # PREMATURE OPTIMIZATION IS THE ROOT OF ALL EVIL
     def measure(self, constraints: Constraints) -> tuple[int, int]:
         width = self.width
         height = self.height
 
         children_constraints = Constraints(0, 0, constraints.max_width, constraints.max_height)
-        measureds = [child.cached_measure(children_constraints) for child in self.children]
+        measureds = [child.measure(children_constraints) for child in self.children]
 
         if width == None:
             content_width = max(measureds, key=lambda x: x[0], default=(0, 0))[0]
@@ -84,8 +87,10 @@ class VStack(Stack):
         height = self.height
         children = self.children if not self.reverse else reversed(self.children)
 
-        children_constraints = Constraints(0, 0, constraints.max_width, inf)
-        measureds = [child.cached_measure(children_constraints) for child in children]
+        # if scrollable:
+        # children_constraints = Constraints(0, 0, constraints.max_width, inf)
+        children_constraints = Constraints(0, 0, constraints.max_width, constraints.max_height)
+        measureds = [child.measure(children_constraints) for child in children]
 
         content_height = sum(map(lambda x: x[1], measureds)) + max(self.gap * (len(self.children) - 1), 0) if self.arrangement != "between" else constraints.max_height
 
@@ -142,8 +147,9 @@ class HStack(Stack):
         height = self.height
         children = self.children if not self.reverse else reversed(self.children)
 
-        children_constraints = Constraints(0, 0, constraints.max_width, inf)
-        measureds = [child.cached_measure(children_constraints) for child in children]
+        # children_constraints = Constraints(0, 0, constraints.max_width, inf)
+        children_constraints = Constraints(0, 0, constraints.max_width, constraints.max_height)
+        measureds = [child.measure(children_constraints) for child in children]
 
         content_width = sum(map(lambda x: x[0], measureds)) + max(self.gap * (len(self.children) - 1), 0) if self.arrangement != "between" else constraints.max_width
 

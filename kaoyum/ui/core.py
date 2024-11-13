@@ -10,6 +10,10 @@ from typing import Self
 #  - shadow
 #  - High level things like button, slider, dropdown, etc
 
+
+# TODO: THINK ABOUT THE LAYOUT SYSTEM
+
+
 type Size = tuple[int, int]
 
 @dataclass(frozen=True)
@@ -43,7 +47,11 @@ class UINode:
     # MUST BE CALL IN THIS ORDER: measure -> layout -> draw
     # well, the runtime will do that for you so you don't have to worry about it
     # accept parent constraints and it own size afer measuring its children
+
+    # Should have make this bottom up.
     def measure(self, constraints: Constraints) -> Size:
+        for child in self.children:
+            child.measure(constraints)
         return (0, 0)
 
     # return the relative position of each child node
@@ -62,10 +70,11 @@ class UINode:
             child.update(dt)
 
     def cached_measure(self, constraints: Constraints) -> Size:
-        if self._measure_cache is None or self._measure_constraints != constraints:
-            self._measure_cache = self.measure(constraints)
-            self._measure_constraints = constraints
-        return self._measure_cache
+        # if self._measure_cache is None or self._measure_constraints != constraints:
+        #     self._measure_cache = self.measure(constraints)
+        #     self._measure_constraints = constraints
+        # return self._measure_cache
+        return self.measure(constraints)
 
     # We need to compare the pointer AND the hash
     # def __eq__(self, value):
@@ -96,12 +105,11 @@ class WrapperNode(UINode):
         return self.children[0].measure(constraints)
 
     def layout(self) -> list[Rect]:
-        return [Rect((0, 0), self.cached_measure(self._measure_constraints))]
+        return [Rect((0, 0), self.measure(self._measure_constraints))]
 
     def draw(self, target: pygame.Surface):
-        if self.child is not None:
-            self.child.draw(target)
-
+        pass
+    
     @property
     def child(self):
         # refactor this

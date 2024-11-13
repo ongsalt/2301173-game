@@ -5,6 +5,7 @@ from .stack import Stack
 from .text import UIText
 from ..animation import Spring
 from ..state import State
+from .layout import Padding
 
 class ButtonState(State):
     def __init__(self):
@@ -52,7 +53,10 @@ class Button(StatefulWidget):
                 background_color=self.state.background_color,
                 border_radius=8,
                 children=[
-                    UIText(self.text),
+                    Padding(
+                        all=10,
+                        child=UIText(self.text),
+                    )
                 ]
             )
         )

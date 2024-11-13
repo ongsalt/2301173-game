@@ -17,8 +17,16 @@ class SizedNode(UINode):
         self._height = 0
 
     def measure(self, constraints: Constraints) -> Size:
-        self._width = self.width if self.width is not None else constraints.min_width if not self.fill_max_width else constraints.max_width
-        self._height = self.height if self.height is not None else constraints.min_height if not self.fill_max_height else constraints.max_height
+        sizes = [child.measure(constraints) for child in self.children]
+        if self.height is None and not self.fill_max_width:
+            self._height = max([size[1] for size in sizes], default=0)
+        else:
+            self._height = self.height if self.height is not None else constraints.min_height if not self.fill_max_height else constraints.max_height
+
+        if self.width is None and not self.fill_max_width:
+            self._width = max([size[0] for size in sizes], default=0)
+        else:
+            self._width = self.width if self.width is not None else constraints.min_width if not self.fill_max_width else constraints.max_width
         return constraints.coerce_and_round(self._width, self._height)
 
 type OutlineSide = Literal["top", "bottom", "left", "right"]
@@ -78,7 +86,7 @@ class Widget(WrapperNode):
         self._dirty = False
 
     def measure(self, constraints: Constraints) -> Size:
-        return self.built.cached_measure(constraints) if self.built is not None else (0, 0)
+        return self.built.measure(constraints) if self.built is not None else (0, 0)
     
     def draw(self, target):
         return self.built.draw(target) if self.built is not None else None
