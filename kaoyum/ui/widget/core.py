@@ -41,7 +41,6 @@ class StatefulWidget(Widget):
 
     def __init__(self, child: UINode | None = None):
         super().__init__(child)
-        self.state = self._initialize_state()
 
     def create_state(self):
         return State()

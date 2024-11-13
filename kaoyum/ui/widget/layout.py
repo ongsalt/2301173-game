@@ -42,9 +42,6 @@ class SizedNode(UINode):
         
         return Constraints(min_w, min_h, max_w, max_h)
         
-    def layout(self, size: Size) -> list[Rect]:
-        raise NotImplementedError("SizedNode.layout should be implemented by subclass")
-
 type OutlineSide = Literal["top", "bottom", "left", "right"]
 type OutlineProp = bool | list[OutlineProp]
 class Box(SizedNode): # More like a div
@@ -56,9 +53,8 @@ class Box(SizedNode): # More like a div
         self.outline_width = outline_width
         self.border_radius = border_radius
     
-    def draw(self, target: Surface):
-        w = self._width
-        h = self._height
+    def draw(self, target: Surface, size: Size):
+        w, h = size
         pygame.draw.rect(target, self.background_color or Color(0, 0, 0, 0), Rect(0, 0, w, h), border_radius=self.border_radius)
         if self.outline:
             if isinstance(self.outline, list):
