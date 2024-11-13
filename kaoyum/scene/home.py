@@ -79,7 +79,7 @@ class HomeScene(Scene):
         super().__init__(size)
         self.ui = HomeUI()
         self.ui_runtime = UIRuntime2(
-            draw_bound=True,
+            # draw_bound=True,
             root=self.ui,
             size=size
         )

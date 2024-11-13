@@ -44,7 +44,7 @@ class GameplayScene(Scene):
         self.ui_runtime = UIRuntime2(
             root=self.status_ui,
             size=size,
-            draw_bound=True
+            # draw_bound=True
         )
         
     def update_status(self):

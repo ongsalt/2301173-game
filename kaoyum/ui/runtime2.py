@@ -41,13 +41,13 @@ class RenderTextureRegistry:
     # TODO: texture recycling
     pass
 
-class ImmediateNode:
+class IntermediateNode:
     def __init__(self, ui_node: UINode):
         self.ui_node = ui_node
         self.state: State | None = None
         self.surface = None
         self.absolute_rect: Rect | None = None
-        self.children: list[ImmediateNode] = []
+        self.children: list[IntermediateNode] = []
         self.dirty = True
 
     def resize(self, size: tuple[int, int]):
@@ -57,7 +57,7 @@ class ImmediateNode:
             self.surface = Surface(size, pygame.SRCALPHA, 32)
         elif self.surface.get_size() != size:
             # TextureRegistry.recycle(self.surface)
-            # print("[composite] Resizing immediate node")
+            # print("[composite] Resizing intermediate node")
             self.surface = Surface(size, pygame.SRCALPHA, 32)
         # check node type before reattaching the state
 
@@ -93,7 +93,7 @@ class ImmediateNode:
 class UIRuntime2:
     def __init__(self, root: Widget, size: tuple[int, int], draw_bound: bool = False, bound_color: Color | None = None):
         self.root_node = root
-        self.root_immediate_node = None
+        self.root_intermediate_node = None
         self.draw_bound = draw_bound
         self.bound_color = bound_color or (255, 0, 0)
         self.size = size
@@ -106,98 +106,98 @@ class UIRuntime2:
         self.composite()
 
     def diff_and_reattach_state(self):
-        def traverse(ui_node: UINode, immediate_node: ImmediateNode | None = None, path = "@") -> ImmediateNode:
+        def traverse(ui_node: UINode, intermediate_node: IntermediateNode | None = None, path = "@") -> IntermediateNode:
             is_stateful = isinstance(ui_node, StatefulWidget)
             dirty = False
-            if immediate_node is None:
-                # print(f"[diff] {path} Creating new immediate node")
-                immediate_node = ImmediateNode(ui_node)
+            if intermediate_node is None:
+                # print(f"[diff] {path} Creating new intermediate node")
+                intermediate_node = IntermediateNode(ui_node)
                 dirty = True
             else:
-                # print(f"[diff] {path} Reusing immediate node")
+                # print(f"[diff] {path} Reusing intermediate node")
                 pass
             
             if is_stateful:
                 # TODO: check node typ
-                if immediate_node.state is not None:
+                if intermediate_node.state is not None:
                     # print(f"[diff] {path} Reattaching state")
-                    ui_node.state = immediate_node.state
-                    dirty = immediate_node.state._dirty
+                    ui_node.state = intermediate_node.state
+                    dirty = intermediate_node.state._dirty
                     if dirty:
-                        # print(f"[diff] {path} State changed: {immediate_node.state}")
+                        # print(f"[diff] {path} State changed: {intermediate_node.state}")
                         pass
-                    immediate_node.state._dirty = False
+                    intermediate_node.state._dirty = False
                 else:
                     # print(f"[diff] {path} Initializing a new state")
-                    immediate_node.state = ui_node._initialize_state()
+                    intermediate_node.state = ui_node._initialize_state()
                 
-            if hash(ui_node) != hash(immediate_node.ui_node) or dirty:    
+            if hash(ui_node) != hash(intermediate_node.ui_node) or dirty:    
                 if is_stateful:
                     # print(f"[diff] {path} Rebuilding")
                     ui_node.rebuild() # TODO: dont rebuild if state is the same
                     
-                immediate_node.dirty = True
-                    # immediate_node.reuse(ui_node)
+                intermediate_node.dirty = True
+                    # intermediate_node.reuse(ui_node)
             else:
                 # print(f"[diff] {path} same hash: Skipping")
-                return immediate_node
+                return intermediate_node
 
             # skippable = skippable and not is_stateful
             # print(f"[diff] {path} is different: Rebuilding")
-            for index, (ui, immediate) in enumerate(zip_longest(ui_node.children, immediate_node.children)):
+            for index, (ui, intermediate) in enumerate(zip_longest(ui_node.children, intermediate_node.children)):
                 if ui is None:
                     break
-                immediate_child = traverse(ui, immediate, f"{path}/{index}")
-                immediate_node.set_nth_child(immediate_child, index)
-            immediate_node.dispose_since(len(ui_node.children))
+                intermediate_child = traverse(ui, intermediate, f"{path}/{index}")
+                intermediate_node.set_nth_child(intermediate_child, index)
+            intermediate_node.dispose_since(len(ui_node.children))
 
-            immediate_node.ui_node = ui_node
-            return immediate_node
+            intermediate_node.ui_node = ui_node
+            return intermediate_node
 
-        self.root_immediate_node = traverse(self.root_node, self.root_immediate_node)
+        self.root_intermediate_node = traverse(self.root_node, self.root_intermediate_node)
 
     def layout(self):
-        def traverse(immediate_node: ImmediateNode, size: tuple[int, int], offset: tuple[int, int], path = "@"):
-            if not immediate_node.dirty:
-                # print(f"[layout] {path} {immediate_node.absolute_rect} {immediate_node.ui_node.node_type} is not dirty: Skipping")
+        def traverse(intermediate_node: IntermediateNode, size: tuple[int, int], offset: tuple[int, int], path = "@"):
+            if not intermediate_node.dirty:
+                # print(f"[layout] {path} {intermediate_node.absolute_rect} {intermediate_node.ui_node.node_type} is not dirty: Skipping")
                 return
-            # print(f"[layout] {path} {immediate_node.ui_node.node_type} {size} {offset}")
-            immediate_node.absolute_rect = Rect(offset, size)
-            immediate_node.resize(size)
-            childden_placements = immediate_node.ui_node.layout(size)
-            # print(f"[layout] {path} {immediate_node.absolute_rect} {childden_placements}")
-            if len(childden_placements) != len(immediate_node.children):
+            # print(f"[layout] {path} {intermediate_node.ui_node.node_type} {size} {offset}")
+            intermediate_node.absolute_rect = Rect(offset, size)
+            intermediate_node.resize(size)
+            childden_placements = intermediate_node.ui_node.layout(size)
+            # print(f"[layout] {path} {intermediate_node.absolute_rect} {childden_placements}")
+            if len(childden_placements) != len(intermediate_node.children):
                 raise ValueError("WTF: Children placements must be the same as children count")
 
-            for index, (immediate, placement) in enumerate(zip(immediate_node.children, childden_placements)):
-                traverse(immediate, placement.size, add(placement.topleft, offset), f"{path}/{index}")
+            for index, (intermediate, placement) in enumerate(zip(intermediate_node.children, childden_placements)):
+                traverse(intermediate, placement.size, add(placement.topleft, offset), f"{path}/{index}")
         
         # determine root node placement
         width, height = self.size
-        if self.root_immediate_node is not None:
-            constraints = self.root_immediate_node.ui_node.measure()
+        if self.root_intermediate_node is not None:
+            constraints = self.root_intermediate_node.ui_node.measure()
             width = min(constraints.max_width, self.size[0])
             height = min(constraints.max_height, self.size[1])
-        traverse(self.root_immediate_node, (width, height), (0, 0))
+        traverse(self.root_intermediate_node, (width, height), (0, 0))
 
     def composite(self):
-        def traverse(immediate_node: ImmediateNode, path = "@"):
-            immediate_node.blit_to(self.screen)
+        def traverse(intermediate_node: IntermediateNode, path = "@"):
+            intermediate_node.blit_to(self.screen)
             if self.draw_bound:
-                pygame.draw.rect(self.screen, self.bound_color, immediate_node.absolute_rect, 1)
-            for index, child in enumerate(immediate_node.children):
+                pygame.draw.rect(self.screen, self.bound_color, intermediate_node.absolute_rect, 1)
+            for index, child in enumerate(intermediate_node.children):
                 traverse(child, f"{path}/{index}")
                 
         self.screen.fill((0, 0, 0, 0))
-        traverse(self.root_immediate_node)
+        traverse(self.root_intermediate_node)
 
     def print_tree(self):
-        def traverse(immediate_node: ImmediateNode, path = ""):
-            print(f"{path} {immediate_node.ui_node}")
-            for index, child in enumerate(immediate_node.children):
+        def traverse(intermediate_node: IntermediateNode, path = ""):
+            print(f"{path} {intermediate_node.ui_node}")
+            for index, child in enumerate(intermediate_node.children):
                 traverse(child, f"{path}  ")
                 
-        traverse(self.root_immediate_node)
+        traverse(self.root_intermediate_node)
 
     def run(self, screen: Surface, dt = 1000 /60, position: tuple[int, int] = (0, 0), events: list[Event] | None = None) -> list[Event]:
         self.diff_and_reattach_state()
