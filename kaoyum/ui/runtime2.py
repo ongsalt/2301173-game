@@ -137,7 +137,7 @@ class UIRuntime2:
     def layout(self):
         def traverse(immediate_node: ImmediateNode, size: tuple[int, int], offset: tuple[int, int], path = "@"):
             if not immediate_node.dirty:
-                print(f"[layout] {path} {immediate_node.absolute_rect} {immediate_node.ui_node.node_type} is not dirty")
+                print(f"[layout] {path} {immediate_node.absolute_rect} {immediate_node.ui_node.node_type} is not dirty: Skipping")
                 return
             immediate_node.absolute_rect = Rect(offset, size)
             immediate_node.resize(size)
@@ -162,6 +162,8 @@ class UIRuntime2:
     def composite(self):
         def traverse(immediate_node: ImmediateNode, path = "@"):
             immediate_node.blit_to(self.screen)
+            if self.draw_bound:
+                pygame.draw.rect(self.screen, (255, 0, 0), immediate_node.absolute_rect, 1)
             for index, child in enumerate(immediate_node.children):
                 traverse(child, f"{path}/{index}")
                 

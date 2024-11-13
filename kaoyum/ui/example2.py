@@ -1,6 +1,6 @@
 from kaoyum.ui import UINode
 import pygame
-from .widget import VStack, UIText
+from .widget import VStack, UIText, HStack
 from .runtime2 import UIRuntime2
 
 pygame.init()
@@ -9,12 +9,45 @@ DISPLAY_SIZE = (800, 600)
 screen = pygame.display.set_mode(DISPLAY_SIZE)
 
 widget = VStack(
+    gap=10,
+    fill_max_width=True,
+    fill_max_height=True,
+    alignment="center",
+    arrangement="center",
     children=[
-        UIText("Hello World"),
-        UIText("Hello World"),
-        # UIText("Hello World"),
-        # UIText("Hello World"),
-        # UIText("Hello World"),
+        UIText(f"from svelte style state", size=24),
+        UIText("Text 2"),
+        HStack(
+            gap=25,
+            reverse=True,
+            alignment="center",
+            arrangement="end",
+            fill_max_width=True,
+            children=[
+                UIText("1"),
+                UIText("Hello World"),
+                VStack(
+                    width=240,
+                    height=80,
+                    alignment="end",
+                    children=[
+                        UIText("Nested 1"),
+                        UIText("Nested ashufguyafkhk"),
+                    ]
+                ),
+                # Button(
+                #     text="Expand" if not self.state.expanded else "Collapse",
+                #     on_click=lambda _: self.state.toggle()
+                # ),
+            ]
+        ),
+        UIText(
+            "Hello World", 
+            # Holy shit, antialiasing is non existent
+            # TODO: decimal position -> delegate the decimal position to draw_offset
+            # padding=Padding(right=self.state.y_padding.value * 4, top=self.state.y_padding.value), 
+            size=18
+        ),
     ]
 )
 
