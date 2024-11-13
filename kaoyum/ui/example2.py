@@ -1,5 +1,5 @@
 from kaoyum.ui import UIRuntime2, Spring, State
-from kaoyum.ui.widget import StatefulWidget, VStack, UIText, HStack, Button
+from kaoyum.ui.widget import StatefulWidget, VStack, UIText, HStack, Button, Padding
 import pygame
     
 class ExampleState(State):
@@ -47,7 +47,10 @@ class ExampleWidget(StatefulWidget):
                             alignment="end",
                             children=[
                                 UIText("Nested 1"),
-                                UIText("Nested ashufguyafkhk"),
+                                Padding(
+                                    all=10,
+                                    child=UIText("Nested ashufguyafkhk"),
+                                )
                             ]
                         ),
                         # Button(

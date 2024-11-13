@@ -1,7 +1,6 @@
 from pygame import Surface
 from pygame.locals import *
 from pygame.event import Event
-from kaoyum.ui import UIRuntime, UINode
 
 # TODO: cache rendered surface
 class Scene:

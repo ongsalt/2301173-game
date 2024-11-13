@@ -2,7 +2,7 @@ from .scene import Scene
 from kaoyum.game import Game
 from pygame.surface import Surface
 from pygame.event import Event
-from kaoyum.ui import State, Loop, UIRuntime
+from kaoyum.ui import State, Loop, UIRuntime2
 from kaoyum.ui.widget import StatefulWidget, Stack, HStack, Padding, VStack, UIText
 
 class StatusUIState(State):
@@ -41,7 +41,7 @@ class GameplayScene(Scene):
         super().__init__(size)
         self.game = Game(size)
         self.status_ui = StatusUI()
-        self.ui_runtime = UIRuntime(
+        self.ui_runtime = UIRuntime2(
             root=self.status_ui,
             size=size,
             draw_bound=True

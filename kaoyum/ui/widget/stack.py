@@ -21,6 +21,56 @@ class Stack(Box):
         self.arrangement = arrangement
         self.reverse = reverse
 
+    def measure(self) -> Constraints:
+        children_constraints = [child.measure() for child in self.children]
+        min_w = 0
+        max_w = inf
+        min_h = 0
+        max_h = inf
+        if self.fill_max_width:
+            min_w = inf
+        elif self.prefered_width is not None:
+            min_w = self.prefered_width
+            max_w = self.prefered_width
+        else: 
+            for constraint in children_constraints:
+                min_w = max(min_w, constraint.min_width)
+                max_w = max(max_w, constraint.max_width)
+
+        if self.fill_max_height:
+            min_h = inf
+        elif self.prefered_height is not None:
+            min_h = self.prefered_height
+            max_h = self.prefered_height
+        else:
+            for constraint in children_constraints:
+                min_h = max(min_h, constraint.max_height)
+                max_h = max(max_h, constraint.max_height)
+        
+        return Constraints(min_w, min_h, max_w, max_h)
+
+    def layout(self, size):
+        children_constraints = [child.measure() for child in self.children]
+        placements: list[Rect] = []
+        for constraint in children_constraints:
+            w = min(constraint.min_width, size[0])
+            h = min(constraint.min_height, size[1])
+            if self.alignment == "start":
+                x = 0
+            elif self.alignment == "center":
+                x = (size[0] - w) / 2
+            else:
+                x = size[0] - w
+            if self.arrangement == "start":
+                y = 0
+            elif self.arrangement == "center":
+                y = (size[1] - h) / 2
+            else:
+                y = size[1] - h
+            placements.append(Rect(x, y, w, h))
+        
+        return placements
+
     def add_children(self, *children: UINode):
         self.children.extend(children)
     
