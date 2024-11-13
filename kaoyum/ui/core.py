@@ -60,7 +60,7 @@ class UINode:
         return hash((*self.children, ))
     
     def __repr__(self):
-        return f"{self.node_type})"    
+        return f"{self.node_type}"    
 
 class WrapperNode(UINode):
     node_type: str = "WrapperNode"

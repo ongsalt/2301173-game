@@ -44,7 +44,7 @@ class RenderTextureRegistry:
 class ImmediateNode:
     def __init__(self, ui_node: UINode):
         self.ui_node = ui_node
-        self.state = ui_node.state if isinstance(ui_node, StatefulWidget) else None
+        self.state: State | None = None
         self.surface = None
         self.absolute_rect: Rect | None = None
         self.children: list[ImmediateNode] = []
@@ -73,9 +73,9 @@ class ImmediateNode:
         for i in range(len(self.children) - 1, index, -1):
             del self.children[i]
 
-    def reuse(self, ui_node: UINode):
+    def reuse(self, ui_node: UINode, state: State | None = None):
         self.ui_node = ui_node
-        self.state = ui_node.state if isinstance(ui_node, StatefulWidget) else None
+        self.state = state
         self.absolute_rect = None
         self.dirty = True
         self.children = []
@@ -83,8 +83,9 @@ class ImmediateNode:
     def blit_to(self, target: Surface):
         position = self.absolute_rect.topleft
         if self.dirty:
-            print(f"[blit] Drawing {self.ui_node.node_type}")
+            self.surface.fill((0, 0, 0, 0))
             self.ui_node.draw(self.surface, self.absolute_rect.size)
+            print(f"[composite] Redrawing {self.ui_node.node_type}")
         self.dirty = False
         
         target.blit(self.surface, position, Rect((0, 0), self.absolute_rect.size))
@@ -97,39 +98,58 @@ class UIRuntime2:
         self.size = size
         self.screen = Surface(size, pygame.SRCALPHA, 32)
 
-    def diff_and_reattach_state(self):
-        def traverse(ui_node: UINode, immediate_node: ImmediateNode | None = None, path = "@") -> ImmediateNode:
-            is_stateful = isinstance(ui_node, StatefulWidget)
-            created_immidiate_node = False
-            if immediate_node is None:
-                print(f"[diff] Creating new immediate node: {path}")
-                immediate_node = ImmediateNode(ui_node)
-                created_immidiate_node = True
-            else:
-                print(f"[diff] Reusing immediate node: {path}")
-            
-            if hash(ui_node) != hash(immediate_node.ui_node) or created_immidiate_node:
-                if is_stateful:
-                    # TODO: check node typ
-                    if immediate_node.state is not None:
-                        ui_node.state = immediate_node.state
-                    else:
-                        immediate_node.state = ui_node._initialize_state()
-                    
-                    ui_node.rebuild() # TODO: dont rebuild if state is the same
+    def init(self):
+        self.diff_and_reattach_state()
+        self.layout()
+        self.composite()
 
-                immediate_node.reuse(ui_node)
+    def diff_and_reattach_state(self):
+        def traverse(ui_node: UINode, immediate_node: ImmediateNode | None = None, path = "@", skippable = True) -> ImmediateNode:
+            is_stateful = isinstance(ui_node, StatefulWidget)
+            dirty = False
+            if immediate_node is None:
+                print(f"[diff] {path} Creating new immediate node")
+                immediate_node = ImmediateNode(ui_node)
+                dirty = True
             else:
-                print(f"[diff] Node {path} is the same: Skipping")
+                # print(f"[diff] {path} Reusing immediate node")
+                pass
+            
+            if is_stateful:
+                # TODO: check node typ
+                if immediate_node.state is not None:
+                    print(f"[diff] {path} Reattaching state")
+                    ui_node.state = immediate_node.state
+                    dirty = immediate_node.state._dirty
+                    if dirty:
+                        print(f"[diff] {path} State changed: {immediate_node.state}")
+                    immediate_node.state._dirty = False
+                else:
+                    print(f"[diff] {path} Creating a new state")
+                    immediate_node.state = ui_node._initialize_state()
+                
+            if hash(ui_node) != hash(immediate_node.ui_node) or dirty:    
+                if is_stateful:
+                    print(f"[diff] {path} Rebuilding")
+                    ui_node.rebuild() # TODO: dont rebuild if state is the same
+                    
+                immediate_node.dirty = True
+                    # immediate_node.reuse(ui_node)
+            else:
+                # print(f"[diff] {path} same hash: Skipping")
                 return immediate_node
 
+            # skippable = skippable and not is_stateful
+            print(f"[diff] {path} is different: Rebuilding")
             for index, (ui, immediate) in enumerate(zip_longest(ui_node.children, immediate_node.children)):
                 if ui is None:
                     break
                 immediate_child = traverse(ui, immediate, f"{path}/{index}")
+                print(immediate_child.ui_node)
                 immediate_node.set_nth_child(immediate_child, index)
             immediate_node.dispose_since(len(ui_node.children))
 
+            immediate_node.ui_node = ui_node
             return immediate_node
 
         self.root_immediate_node = traverse(self.root_node, self.root_immediate_node)
@@ -137,13 +157,13 @@ class UIRuntime2:
     def layout(self):
         def traverse(immediate_node: ImmediateNode, size: tuple[int, int], offset: tuple[int, int], path = "@"):
             if not immediate_node.dirty:
-                print(f"[layout] {path} {immediate_node.absolute_rect} {immediate_node.ui_node.node_type} is not dirty: Skipping")
+                # print(f"[layout] {path} {immediate_node.absolute_rect} {immediate_node.ui_node.node_type} is not dirty: Skipping")
                 return
             immediate_node.absolute_rect = Rect(offset, size)
             immediate_node.resize(size)
             childden_placements = immediate_node.ui_node.layout(size)
 
-            print(f"[layout] {path} {immediate_node.absolute_rect} {childden_placements}")
+            # print(f"[layout] {path} {immediate_node.absolute_rect} {childden_placements}")
 
             if len(childden_placements) != len(immediate_node.children):
                 raise ValueError("WTF: Children placements must be the same as children count")
@@ -170,9 +190,18 @@ class UIRuntime2:
         self.screen.fill((0, 0, 0, 0))
         traverse(self.root_immediate_node)
 
+    def print_tree(self):
+        def traverse(immediate_node: ImmediateNode, path = ""):
+            print(f"{path} {immediate_node.ui_node}")
+            for index, child in enumerate(immediate_node.children):
+                traverse(child, f"{path}  ")
+                
+        traverse(self.root_immediate_node)
+
     def run(self, screen: Surface, dt = 1000 /60, position: tuple[int, int] = (0, 0), events: list[Event] | None = None):
         self.diff_and_reattach_state()
         self.layout()
+        # self.print_tree()
         self.composite()
+
         screen.blit(self.screen, position)
-        print("----------------------------")

@@ -64,10 +64,10 @@ class VStack(Stack):
         # TODO: handle scrollable and reverse
         y = 0
         gap = self.calculate_gap(size[1], children_constraints)
-        if self.alignment == "end":
+        if self.arrangement == "end":
             content_height = sum([constraint.min_height for constraint in children_constraints]) + gap * (len(children_constraints) - 1)
             y = size[1] - content_height
-        elif self.alignment == "center":
+        elif self.arrangement == "center":
             content_height = sum([constraint.min_height for constraint in children_constraints]) + gap * (len(children_constraints) - 1)
             y = (size[1] - content_height) / 2
         for constraint in children_constraints:
@@ -128,10 +128,10 @@ class HStack(Stack):
         placements: list[Rect] = []
         x = 0
         gap = self.calculate_gap(size[0], children_constraints)
-        if self.alignment == "end":
+        if self.arrangement == "end":
             content_width = sum([constraint.min_width for constraint in children_constraints]) + gap * (len(children_constraints) - 1)
             x = size[0] - content_width
-        elif self.alignment == "center":
+        elif self.arrangement == "center":
             content_width = sum([constraint.min_width for constraint in children_constraints]) + gap * (len(children_constraints) - 1)
             x = (size[0] - content_width) / 2
         for constraint in children_constraints:
