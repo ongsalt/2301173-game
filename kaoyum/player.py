@@ -7,9 +7,9 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, screen_size: tuple[int, int], hp = 100, *groups):
         super().__init__(*groups)
         self.color: Literal["red", "green", "blue"] = "red"
-        self.y = 0.0
         self.hp = hp
-        self.rect = pygame.Rect(0, 0, 64, 64)
+        self.y = screen_size[1] - 80
+        self.rect = pygame.Rect(0, self.y, 80, 80)
         self.screen_size = screen_size
 
         # For animation

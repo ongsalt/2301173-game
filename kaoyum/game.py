@@ -1,5 +1,4 @@
 import pygame
-import random
 from pygame.locals import * 
 from pygame.event import Event
 from typing import Literal
@@ -14,42 +13,43 @@ class Game:
         self.obstacles: list[Obstacle] = []
         self.score_points: list[Scorepoint] = []
         self.color_changers: list[ColorChange] = []
-        self.state: Literal["running", "pause"] = "pause"
+        self.state: Literal["waiting", "running", "paused", "finished"] = "waiting"
         self.player = Player(screen_size)
-        self.load_mock_block()
         self.score = 0
+        self.pause = False
+        self.load_mock_block()
 
     def run(self, screen: pygame.Surface, dt: int):
-        # update player
-        self.player.update()
-        
-        # update scorepoint
-        for score_point in self.score_points:
-           score_point.update()         
+        if self.state == "running": 
+            # update player
+            self.player.update()
+            
+            # update scorepoint
+            for score_point in self.score_points:
+                score_point.update()    
+            for score_point in self.score_points[:]:
+                if score_point.is_collided(self.player.rect):
+                    self.score += score_point.score
+                    self.score_points.remove(score_point)
 
-        for score_point in self.score_points[:]:
-            if score_point.is_collided(self.player.rect):
-                self.score += score_point.score
-                self.score_points.remove(score_point)
+            # update obstacle
+            for obstacle in self.obstacles:
+                obstacle.update()
 
-        # update obstacle
-        for obstacle in self.obstacles:
-           obstacle.update()         
+            for obstacle in self.obstacles[:]:
+                if obstacle.is_collided(self.player.rect):
+                    pass # ลดHp
+            
+            # update color_changer
+            for colorchanger in self.color_changers:
+                colorchanger.update()         
 
-        for obstacle in self.obstacles[:]:
-            if obstacle.is_collided(self.player.rect):
-                pass # ลดHp
-        
-        # update color_changer
-        for colorchanger in self.color_changers:
-           colorchanger.update()         
-
-        for colorchanger in self.color_changers[:]:
-            if colorchanger.is_collided(self.player.rect):
-                pass # เปลี่ยนสี
+            for colorchanger in self.color_changers[:]:
+                if colorchanger.is_collided(self.player.rect):
+                    pass # เปลี่ยนสี
 
         # draw
-        screen.fill((253, 238, 173))
+        screen.fill((179, 169, 160))
         self.player.draw(screen)
 
         for score_point in self.score_points:
@@ -62,7 +62,7 @@ class Game:
     def handle_event(self, event: pygame.event.Event):
         pass
 
-    def load_block(self,block: Block):
+    def load_block(self, block: Block):
         new_block = block.copy()
         for ob in new_block.obstacles:
             self.obstacles.append(ob)
@@ -73,11 +73,11 @@ class Game:
 
     def load_mock_block(self):
         image = AssetsManager().get("slime_2.gif")
-        self.obstacles.append(Obstacle(100, 100, 64, 64, 10, image))
-        self.obstacles.append(Obstacle(200, 100, 64, 64, 10, image))
-        self.score_points.append(Scorepoint(300, 100, 64, 64, 10, image))
-        self.score_points.append(Scorepoint(400, 100, 64, 64, 10, image))
-        self.score_points.append(Scorepoint(700, 100, 64, 64, 10, image))
+        self.obstacles.append(Obstacle(900, 100, 64, 64, 10, image))
+        self.obstacles.append(Obstacle(1000, 100, 64, 64, 10, image))
+        self.score_points.append(Scorepoint(1100, 100, 64, 64, 10, image))
+        self.score_points.append(Scorepoint(1200, 100, 64, 64, 10, image))
+        self.score_points.append(Scorepoint(1500, 100, 64, 64, 10, image))
 
     def remove_dead_objects(self):
         new_obstacles = self.obstacles
@@ -97,3 +97,16 @@ class Game:
            if score_point.x < 0:
               new_score_point.remove(score_point)
         self.score_points = new_score_point
+
+
+    def start(self):
+        if self.state == "waiting":
+            self.state = "running"
+
+    def pause(self):
+        if self.state == "running":
+            self.state = "paused"
+
+    def resume(self):
+        if self.state == "paused":
+            self.state = "running"

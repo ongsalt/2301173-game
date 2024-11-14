@@ -57,6 +57,9 @@ class UINode:
     def __hash__(self):
         return hash((*self.children, ))
     
+    def children_hash(self):
+        return hash((*self.children, ))
+
     def __repr__(self):
         return f"{self.node_type}"    
 

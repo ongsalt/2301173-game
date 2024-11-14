@@ -12,6 +12,3 @@ class Scene:
             if self.handle_event(event):
                 events.remove(event)
 
-    
-    def handle_event(self, event: Event) -> bool:
-        return False

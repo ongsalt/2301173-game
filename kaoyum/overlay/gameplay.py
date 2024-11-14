@@ -4,6 +4,7 @@ from pygame.surface import Surface
 from pygame.event import Event
 from kaoyum.ui import State, Loop, UIRuntime
 from kaoyum.ui.widget import StatefulWidget, Stack, HStack, Padding, VStack, UIText
+from .home import HomeUI
 
 class StatusUIState(State):
     def __init__(self):
@@ -35,28 +36,4 @@ class StatusUI(StatefulWidget):
                 ]
             )     
         )
-
-class GameplayScene(Scene):
-    def __init__(self, size: tuple[int, int]):
-        super().__init__(size)
-        self.game = Game(size)
-        self.status_ui = StatusUI()
-        self.ui_runtime = UIRuntime(
-            root=self.status_ui,
-            size=size,
-            # draw_bound=True
-        )
-        
-    def update_status(self):
-        # print(f"{self.status_ui}")
-        self.status_ui.state.score = self.game.score
-
-    def run(self, display: Surface, dt: int = 1000/60, events: list[Event] | None = None):
-        self.game.run(display, dt)
-        self.update_status()
-        events = self.ui_runtime.run(display, dt=dt, events=events)
-        for event in events:
-            self.game.handle_event(event)
     
-    def copy(self):
-        return GameplayScene(self.x, self.y) 

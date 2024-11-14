@@ -9,7 +9,7 @@ from .core import UINode, Constraints
 from .widget.core import Widget, StatefulWidget
 from .state import State
 from .widget.input import GestureHandler
-from ..assets_manager import AssetsManager
+import time
 
 # it mean we will have to diff these trees 3 times
 # Definitions Tree -> Reattach State (rebuild if needed) -> Layout (handling event????) -> Composite 
@@ -56,6 +56,7 @@ class RenderTextureRegistry:
                     surface.fill((0, 0, 0, 0))
                     return surface
 
+        # print("[recycle] Creating new surface")
         return Surface(size, pygame.SRCALPHA, 32)
     
     def recycle(self, surface: Surface):
@@ -109,21 +110,29 @@ class IntermediateNode:
     def __init__(self, ui_node: UINode):
         self.ui_node = ui_node
         self.surface = None
+        self.children_surface = None
         self.absolute_rect: Rect | None = None # well, it's still relative to runtime root node
+        self.relative_rect: Rect | None = None # relative to parent
         self.children: list[IntermediateNode] = []
         self.previous_hash: int | None = None
-        self.dirty = True
+        self.previous_children_hash: int | None = None
+
+        self.self_changed = True
+        self.children_changed = True
 
     def resize(self, size: tuple[int, int], registry: RenderTextureRegistry):
         # TODO: check if we can reuse the surface 
         if self.surface is None:
             # print("[composite] Creating new surface")
             self.surface = registry.reuse_or_create(size)
+            self.children_surface = registry.reuse_or_create(size)
         elif self.surface.get_size() != size:
             # print("[composite] Resizing intermediate node")
             registry.recycle(self.surface)
+            registry.recycle(self.children_surface)
             self.surface = registry.reuse_or_create(size)
-            self.dirty = True
+            self.children_surface = registry.reuse_or_create(size)
+            self.rect_changed = True
         # check node type before reattaching the state
 
     def set_nth_child(self, child: Self, index: int):
@@ -141,20 +150,44 @@ class IntermediateNode:
     def reuse(self, ui_node: UINode):
         self.ui_node = ui_node
         self.absolute_rect = None
-        self.dirty = True
+        self.relative_rect = None
+        self.self_changed = True
+        self.children_changed = True
         self.children = []
         self.previous_hash = None
+        self.previous_children_hash = None
 
-    # this should be in the runtime
-    def render_to(self, target: Surface):
-        position = self.absolute_rect.topleft
-        if self.dirty:
-            self.surface.fill((0, 0, 0, 0))
-            self.ui_node.draw(self.surface, self.absolute_rect.size)
-            # print(f"[composite] Redrawing {self.ui_node}")
-        self.dirty = False
-        
-        target.blit(self.surface, position, Rect((0, 0), self.absolute_rect.size))
+    def redraw(self):
+        self.surface.fill((0, 0, 0, 0))
+        self.ui_node.draw(self.surface, self.relative_rect.size)
+
+class Compositor:
+    def __init__(self, size: tuple[int, int], draw_bound: bool = False, bound_color: Color | None = None):
+        self.surface = Surface(size, pygame.SRCALPHA, 32)
+
+    def composite(self, root: IntermediateNode):
+        def traverse(intermediate_node: IntermediateNode, target: Surface, path = "@", pull_up = False) -> Rect | None: # damaged rect
+            print(f"[composite] {path} {intermediate_node.ui_node.node_type} {intermediate_node.self_changed} {intermediate_node.children_changed}")
+            if intermediate_node.self_changed:
+                intermediate_node.redraw()
+                intermediate_node.self_changed = False
+            if intermediate_node.children_changed:
+                intermediate_node.children_changed = False
+                intermediate_node.children_surface.fill((0, 0, 0, 0))
+                areas = [c.relative_rect for c in intermediate_node.children]
+                for index, child in enumerate(intermediate_node.children):
+                    damaged = traverse(child, intermediate_node.children_surface, f"{path}/{index}", pull_up=True)
+
+
+            if intermediate_node.self_changed or intermediate_node.children_changed or pull_up:
+                target.blit(intermediate_node.surface, intermediate_node.relative_rect.topleft)
+                target.blit(intermediate_node.children_surface, intermediate_node.relative_rect.topleft)
+                return intermediate_node.relative_rect
+            
+            return None
+
+        self.surface.fill((0, 0, 0, 0))
+        traverse(root, self.surface, pull_up=True)
 
 class UIRuntime:
     def __init__(self, root: Widget, size: tuple[int, int], draw_bound: bool = False, bound_color: Color | None = None, lazy: bool = False):
@@ -163,7 +196,7 @@ class UIRuntime:
         self.draw_bound = draw_bound
         self.bound_color = bound_color or (255, 0, 0)
         self.size = size
-        self.screen = Surface(size, pygame.SRCALPHA, 32)
+        self.compositor = Compositor(size, draw_bound, bound_color)
         self.state_registry = StateRegistry()
         self.render_texture_registry = RenderTextureRegistry()
         if not lazy:
@@ -171,7 +204,7 @@ class UIRuntime:
             self.update(0)
             self.to_intermediate()
             self.layout()
-            self.composite()
+            self.compositor.composite(self.root_intermediate_node)
 
     # still a dynamic widget
     def reattach_state(self):
@@ -186,6 +219,7 @@ class UIRuntime:
 
         trverse(self.root_node)
         # auto dispose the state somehow
+ 
     def update(self, dt: int):
         def traverse(ui_node: UINode, path = "@"):
             if isinstance(ui_node, StatefulWidget):
@@ -200,44 +234,61 @@ class UIRuntime:
         Will traverse the UINode tree remove every StatefulWidget to make a tree static
         this will also do the diffing
         """
-        def traverse(ui_node: UINode, intermediate_node: IntermediateNode | None = None) -> IntermediateNode:
+        def traverse(ui_node: UINode, intermediate_node: IntermediateNode | None = None, path = "@") -> IntermediateNode:
             if intermediate_node is None:
                 intermediate_node = IntermediateNode(ui_node)
 
-            ui_node_hash = hash(ui_node)
-            if ui_node_hash == intermediate_node.previous_hash:
+            ui_node_hash = hash(ui_node) # self + children
+            children_hash = ui_node.children_hash() # children only
+            different_node_hash = ui_node_hash != intermediate_node.previous_hash
+            different_children = children_hash != intermediate_node.previous_children_hash
+
+            only_self_changed = different_node_hash and not different_children
+
+            if not different_node_hash: 
+                # If everything is the same, we can skip the subtree
+                # print(f"[intermediate] {path} {ui_node.node_type} is not dirty: Skipping")
                 return intermediate_node
-            
-            intermediate_node.dirty = True
+            elif only_self_changed:
+                # print(f"[intermediate] {path} {ui_node.node_type} is changed")
+                intermediate_node.self_changed = True
+            else:
+                pass
+                # print(f"[intermediate] {path} {ui_node.node_type} children and itself is changed")
+            # intermediate_node.dirty = True # should be merged with rect_changed
             intermediate_node.previous_hash = ui_node_hash
+            intermediate_node.previous_children_hash = children_hash
             intermediate_node.ui_node = ui_node
 
-            for index, (ui, intermediate) in enumerate(zip_longest(ui_node.children, intermediate_node.children)):
-                intermediate_child = traverse(ui, intermediate)
-                intermediate_node.set_nth_child(intermediate_child, index)
-            intermediate_node.dispose_since(len(ui_node.children))
+            if different_children:
+                intermediate_node.children_changed = True
+                for index, (ui, intermediate) in enumerate(zip_longest(ui_node.children, intermediate_node.children)):
+                    intermediate_child = traverse(ui, intermediate, f"{path}/{index}")
+                    intermediate_node.set_nth_child(intermediate_child, index)
+                intermediate_node.dispose_since(len(ui_node.children))
             return intermediate_node
         
         self.root_intermediate_node = traverse(self.root_node, self.root_intermediate_node)
         return self.root_intermediate_node
         
     def layout(self):
-        def traverse(intermediate_node: IntermediateNode, size: tuple[int, int], offset: tuple[int, int], path = "@", skippable = True):
+        def traverse(intermediate_node: IntermediateNode, size: tuple[int, int], offset: tuple[int, int], relative_offset: tuple[int, int], path = "@", skippable = True):
             # print(f"[layout] {path} {intermediate_node.ui_node.node_type} {size} {offset}")
             new_rect = Rect(offset, size)
-            same_size = intermediate_node.absolute_rect == new_rect
-            if not intermediate_node.dirty and same_size:
+            intermediate_node.rect_changed = intermediate_node.absolute_rect != new_rect
+            if not intermediate_node.rect_changed:
                 # print(f"[layout] {path} {intermediate_node.absolute_rect} {intermediate_node.ui_node.node_type} is not dirty: Skipping")
                 return
+            print(f"[layout] {path} {intermediate_node.absolute_rect}")
             intermediate_node.absolute_rect = new_rect
+            intermediate_node.relative_rect = Rect(relative_offset, size)
             intermediate_node.resize(size, self.render_texture_registry)
             childden_placements = intermediate_node.ui_node.layout(size)
-            # print(f"[layout] {path} {intermediate_node.absolute_rect} {childden_placements}")
             if len(childden_placements) != len(intermediate_node.children):
                 raise ValueError("WTF: Children placements must be the same as children count")
 
             for index, (intermediate, placement) in enumerate(zip(intermediate_node.children, childden_placements)):
-                traverse(intermediate, placement.size, add(placement.topleft, offset), f"{path}/{index}")
+                traverse(intermediate, placement.size, add(placement.topleft, offset), placement.topleft, f"{path}/{index}")
         
         # determine root node placement
         width, height = self.size
@@ -245,18 +296,7 @@ class UIRuntime:
             constraints = self.root_intermediate_node.ui_node.measure()
             width = min(constraints.max_width, self.size[0])
             height = min(constraints.max_height, self.size[1])
-        traverse(self.root_intermediate_node, (width, height), (0, 0))
-
-    def composite(self):
-        def traverse(intermediate_node: IntermediateNode, path = "@"):
-            intermediate_node.render_to(self.screen)
-            if self.draw_bound:
-                pygame.draw.rect(self.screen, self.bound_color, intermediate_node.absolute_rect, 1)
-            for index, child in enumerate(intermediate_node.children):
-                traverse(child, f"{path}/{index}")
-                
-        self.screen.fill((0, 0, 0, 0))
-        traverse(self.root_intermediate_node)
+        traverse(self.root_intermediate_node, (width, height), (0, 0), (0, 0))
 
     def print_tree(self, root: UINode):
         def traverse(ui_node: UINode, path = ""):
@@ -302,23 +342,48 @@ class UIRuntime:
         # start_time = pygame.time.get_ticks()
         # print("Showing UINode tree")
         # self.print_tree(self.root_node)
-        
+        current_time = time.time()
         self.reattach_state()
+        end_time = time.time()
+        reattach_time = (end_time - current_time) * 1000
+
+        current_time = end_time
         self.update(dt)
+        end_time = time.time()
+        updating_time = (end_time - current_time) * 1000
         # print("Showing UINode tree after reattaching state")
         # self.print_tree(self.root_node)
 
+        current_time = end_time
         self.to_intermediate()
+        end_time = time.time()
+        tree_diff_time = (end_time - current_time) * 1000
         # print("Showing IntermediateNode tree")
         # self.print_tree2(self.root_intermediate_node)
 
+        current_time = end_time
         self.layout()
-        self.composite()
-        unconsumed_events = self.handle_events(events[:] if events is not None else [], offset=position)
-        screen.blit(self.screen, position)
+        end_time = time.time()
+        layout_time = (end_time - current_time) * 1000
 
-        # raise ValueError("Stop")
-        # print("=====================================")
-        end_time = pygame.time.get_ticks()
+        current_time = end_time
+        self.compositor.composite(self.root_intermediate_node)
+        end_time = time.time()
+        composite_time = (end_time - current_time) * 1000
+
+        current_time = end_time
+        unconsumed_events = self.handle_events(events[:] if events is not None else [], offset=position)
+        end_time = time.time()
+        event_handling_time = (end_time - current_time) * 1000
+
+        
+        screen.blit(self.compositor.surface, position)
+
+        print(f"[runtime] Reattach state: {reattach_time:.4f}ms")
+        print(f"[runtime] Update: {updating_time:.4f}ms")
+        print(f"[runtime] Tree diff: {tree_diff_time:.4f}ms")
+        print(f"[runtime] Layout: {layout_time:.4f}ms")
+        print(f"[runtime] Composite: {composite_time:.4f}ms")
+        print(f"[runtime] Event handling: {event_handling_time:.4f}ms")
 
         return unconsumed_events

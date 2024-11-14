@@ -3,8 +3,6 @@ from pygame import Surface
 from pygame.event import Event, post as post_event
 from kaoyum.ui import UIRuntime, Loop, State
 from kaoyum.ui.widget import StatefulWidget, VStack, UIText, Stack, Image, Box, Padding
-from kaoyum.ui.event import NavigationEvent
-from .scene import Scene
 
 class HomeUIState(State):
     def __init__(self):
@@ -25,7 +23,6 @@ class HomeUI(StatefulWidget):
         state = self.state
         return Stack(
             children=[
-                Image("bg.800x600.jpg"),
                 Padding(
                     all=12,
                     child=Stack(
@@ -73,37 +70,3 @@ class HomeUI(StatefulWidget):
                 ),
             ]
         )
-
-class HomeScene(Scene):
-    def __init__(self, size: tuple[int, int]):
-        super().__init__(size)
-        self.ui = HomeUI()
-        self.ui_runtime = UIRuntime(
-            # draw_bound=True,
-            root=self.ui,
-            size=size
-        )
-
-    def run(self, display: Surface, dt: int = 1000/60, events: list[Event] | None = None):
-        super().run(display, dt, events)
-        display.fill((0, 0, 0))
-        self.ui_runtime.run(display, dt=dt, events=self._event_queue)
-    
-    def handle_event(self, event) -> bool:
-        if event.type == KEYDOWN:
-            key = event.dict["key"]
-            if key == K_SPACE:
-                post_event(NavigationEvent("game"))
-                # fire a navigation event
-                return True
-        #     if key == K_s or key == K_DOWN:
-        #         self.ui.selected_index = (self.ui.selected_index + 1) % 3
-        #     elif key == K_w or key == K_UP:
-        #         self.ui.selected_index = (self.ui.selected_index - 1) % 3
-        #     elif key == K_RETURN or key == K_SPACE:
-        #         if self.ui.selected_index == 0:
-        #             return "to:game"
-        #         elif self.ui.selected_index == 1:
-        #             return "to:settings"
-        #         elif self.ui.selected_index == 2:
-        #             return "exit"
