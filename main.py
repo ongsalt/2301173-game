@@ -1,9 +1,7 @@
 import pygame
 from pygame.locals import *
-from kaoyum.overlay import Scene, GameplayScene
+from kaoyum.ui.scene import Scene, GameplayScene
 import sys
-
-from kaoyum.ui.event import NAVIGATION_EVENT
 
 pygame.init()
 # pygame.freetype.init()
@@ -13,10 +11,11 @@ screen = pygame.display.set_mode(DISPLAY_SIZE)
 clock = pygame.time.Clock()
 
 active_scene = GameplayScene(DISPLAY_SIZE)
+active_scene.game.start()
 
 while True:
     # fixed frame rate
-    dt = clock.tick(1)
+    dt = clock.tick(60)
 
     # Event processing queue
     unconsumed_events = []
