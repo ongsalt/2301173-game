@@ -12,14 +12,14 @@ class Widget(WrapperNode):
     def build(self) -> UINode | None:
         return self.child
     
-    def measure(self) -> Size:
-        return self.child.measure() if self.child is not None else (0, 0)
+    def measure(self) -> Constraints:
+        return self.child.measure() if self.child is not None else Constraints(0, 0, inf, inf)
     
     def draw(self, target, size: tuple[int, int]):
         pass
         
     def __hash__(self):
-        return hash(self.child)
+        return hash((*self.children, self.node_type))
     
 # Well there's gonna be a massive rewrite if i do this
 # so let's just leave it here
@@ -28,11 +28,14 @@ class StatefulWidget(Widget):
 
     def __init__(self, child: UINode | None = None):
         super().__init__(child)
+        self.state = None
+        self._initialized = False
 
     def create_state(self):
         return State()
 
     def _initialize_state(self):
+        self._initialized = True
         self.state = self.create_state()
         return self.state
     
@@ -41,9 +44,11 @@ class StatefulWidget(Widget):
 
     def __hash__(self):
         # return hash(self.built)
-        return hash((self.child, self.state))
+        # Problem is hash got called before the state is reattached
+        return hash((*self.children, self.state))
     
-    def update(self, dt: int):        
+    def update(self, dt: int):   
         super().update(dt)
+        # print(self._initialized)
         self.state._update_animatables(dt)
     

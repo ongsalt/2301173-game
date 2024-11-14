@@ -75,7 +75,7 @@ class Stack(Box):
         self.children.extend(children)
     
     def __hash__(self):
-        return hash((self.node_type, *self.children, self.alignment, self.gap))
+        return hash((*self.children, self.fill_max_width, self.fill_max_height, self.background_color, self.outline, self.outline_color, self.outline_width, self.border_radius, self.gap, self.alignment, self.arrangement, self.reverse))
 
 class VStack(Stack):
     node_type: str = "VStack"

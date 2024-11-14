@@ -9,6 +9,7 @@ class GestureHandlerState(State):
     def __init__(self):
         super().__init__()
         self.is_mouse_over = False
+        self.is_mouse_down = False
 
 type Handler = Callable[[tuple[int, int]], None] | None
 
@@ -29,8 +30,10 @@ class GestureHandler(StatefulWidget):
         return GestureHandlerState()
 
     def handle_event(self, event: Event) -> bool:
-        if not hasattr(event, "pos"):
-            return False
+        # Every event are gaurenteed to have a pos attribute by the runtime
+        # if not hasattr(event, "pos"):
+        #     return False
+        self.handle_all_event(event)
         if event.type == MOUSEMOTION:
             if not self.state.is_mouse_over:
                 self.state.is_mouse_over = True
@@ -38,21 +41,27 @@ class GestureHandler(StatefulWidget):
                     self.on_mouse_enter(event.pos)
                     return True
         elif event.type == MOUSEBUTTONDOWN:
-            if self.on_click:
-                self.on_click(event.pos)
-                return True
-        elif event.type == MOUSEBUTTONUP:
-            if self.on_mouse_up:
-                self.on_mouse_up(event.pos)
-                return True
+            if not self.state.is_mouse_down:
+                self.state.is_mouse_down = True
+                if self.on_click:
+                    self.on_click(event.pos)
+                    return True
             
         return False
 
-    def _on_mouse_leave(self, event: Event):
+    def handle_outside_event(self, event: Event) -> bool:
+        self.handle_all_event(event)
         if self.state.is_mouse_over:
             self.state.is_mouse_over = False
             if self.on_mouse_leave:
-                self.on_mouse_leave(event)
-
-    def __hash__(self):
-        return hash((self.child, self.on_click, self.on_mouse_enter, self.on_mouse_leave, self.on_mouse_up))
+                self.on_mouse_leave((0, 0)) # TODO: maybe we can use the last mouse position
+        return False
+    
+    def handle_all_event(self, event: Event) -> bool:
+        if event.type == MOUSEBUTTONUP:
+            if self.state.is_mouse_down:
+                self.state.is_mouse_down = False
+                if self.on_mouse_up:
+                    self.on_mouse_up(event.pos)
+                    return True
+        return False

@@ -33,6 +33,12 @@ class Animatable:
     @property
     def rounded(self):
         return round(self.value)
+    
+    def __hash__(self):
+        return hash((self.value, self.final_position, self.velocity))
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(value={self.value}, final_position={self.final_position}, velocity={self.velocity})"
 
 class Loop(Animatable):
     def __init__(self, min_value: float, max_value: float, initial_value: float | None = None, angular_frequency: float = 1.0):
@@ -81,6 +87,7 @@ class Spring(Animatable):
         if not self.is_animating:
             return 
         
+        # print(f"Updating spring: {self}")
         dt = dt / 1000 # Convert to seconsds
         adjusted_displacement = self.value - self.final_position
         k = self.damping_ratio ** 2

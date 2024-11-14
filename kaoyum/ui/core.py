@@ -52,9 +52,7 @@ class UINode:
     # in case there is something depend on time
     # TODO: call this in the runtime
     def update(self, dt: int):        
-        for child in self.children:
-            # print(self, child)
-            child.update(dt)
+        pass
 
     def __hash__(self):
         return hash((*self.children, ))
@@ -89,4 +87,4 @@ class WrapperNode(UINode):
         self.children = [value]
 
     def __repr__(self):
-        return f"{self.node_type}(children={self.child})"
+        return f"{self.node_type}(*)"

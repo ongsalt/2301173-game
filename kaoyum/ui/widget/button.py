@@ -14,12 +14,14 @@ class ButtonState(State):
         self.on_mouse_leave()
     
     def on_mouse_enter(self):
-        self.opacity.animate_to(40)
+        print("mouse up")
+        self.opacity.animate_to(100)
     
     def on_mouse_leave(self):
         self.opacity.animate_to(20)
 
     def on_mouse_up(self):
+        print("mouse up")
         self.opacity.animate_to(40)
 
     def on_mouse_down(self):
@@ -65,7 +67,9 @@ class Button(StatefulWidget):
         self.state.on_mouse_down()
         if self.on_click:
             self.on_click(pos)
-
+    
+    def __repr__(self):
+        return f"{self.node_type}(opacity={self.state.opacity.value})"
 
 if __name__ == "__main__":
     from kaoyum.ui import UIRuntime

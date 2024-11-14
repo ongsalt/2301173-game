@@ -41,7 +41,10 @@ class SizedNode(UINode):
                 max_h = max(max_h, constraint.max_height)
         
         return Constraints(min_w, min_h, max_w, max_h)
-        
+    
+    def __hash__(self):
+        return hash((self.prefered_width, self.prefered_height, self.fill_max_width, self.fill_max_height, *self.children))
+
 type OutlineSide = Literal["top", "bottom", "left", "right"]
 type OutlineProp = bool | list[OutlineProp]
 class Box(SizedNode): # More like a div
@@ -74,6 +77,9 @@ class Box(SizedNode): # More like a div
         elif side == "right":
             pygame.draw.rect(target, self.outline_color, Rect(self.width - self.outline_width, 0, self.outline_width, self.height))
 
+    def __hash__(self):
+        # TODO: fix this
+        return hash((self.background_color, self.outline, self.outline_color, self.outline_width, self.border_radius, *self.children))
 
 class Padding(WrapperNode):
     node_type: str = "Padding"
@@ -97,3 +103,5 @@ class Padding(WrapperNode):
         h = size[1] - self.top - self.bottom
         return [Rect(self.left, self.top, w, h)]
 
+    def __hash__(self):
+        return hash((self.left, self.top, self.right, self.bottom, *self.children))

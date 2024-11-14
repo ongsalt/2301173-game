@@ -40,13 +40,13 @@ class State: # a State
                 if prop.is_animating:
                     self._dirty = True
                     self._invalidation_marker += 1
+                    print(self._invalidation_marker)
 
     def __setattr__(self, name, value):
         if name not in ["_dirty", "_invalidation_marker"]:
             self._dirty = True
             self._invalidation_marker += 1
-            # print(f"State is dirty: {self._invalidation_marker}")
         return super().__setattr__(name, value)
     
     def __hash__(self):
-        return self._invalidation_marker
+        return hash((self._invalidation_marker, self._dirty))

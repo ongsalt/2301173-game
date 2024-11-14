@@ -53,17 +53,16 @@ class ExampleWidget(StatefulWidget):
                                 )
                             ]
                         ),
-                        # Button(
-                        #     text="Expand" if not self.state.expanded else "Collapse",
-                        #     on_click=lambda _: self.state.toggle()
-                        # ),
+                        Button(
+                            text="Expand" if not self.state.expanded else "Collapse",
+                            on_click=lambda _: self.state.toggle()
+                        ),
                     ]
                 ),
                 UIText(
                     "Hello World", 
                     # Holy shit, antialiasing is non existent
                     # TODO: decimal position -> delegate the decimal position to draw_offset
-                    # padding=Padding(right=self.state.y_padding.value * 4, top=self.state.y_padding.value), 
                     size=self.state.y_padding.value + 18
                 ),
             ]
@@ -81,8 +80,6 @@ ui = UIRuntime2(
     root=widget
 )
 
-ui.init()
-
 while True:
     dt = clock.tick(60)
     unconsumed_events = []
@@ -94,7 +91,7 @@ while True:
 
 
     # print(1/dt * 1000)
-    widget.state.time += dt
+    # widget.state.time += dt
     screen.fill((16, 163, 240))
     ui.run(screen, dt=dt, position=(100, 100), events=unconsumed_events)
 
