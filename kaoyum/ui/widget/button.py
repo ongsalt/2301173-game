@@ -14,14 +14,12 @@ class ButtonState(State):
         self.on_mouse_leave()
     
     def on_mouse_enter(self):
-        print("mouse up")
-        self.opacity.animate_to(100)
+        self.opacity.animate_to(40)
     
     def on_mouse_leave(self):
         self.opacity.animate_to(20)
 
     def on_mouse_up(self):
-        print("mouse up")
         self.opacity.animate_to(40)
 
     def on_mouse_down(self):

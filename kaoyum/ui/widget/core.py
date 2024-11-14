@@ -3,6 +3,8 @@ from ..core import UINode, Constraints, Size, Rect, ChildrenProp, WrapperNode
 from ..state import State
 
 # TODO: make child accept a builder lambda
+# THIS MUST HAVE ONLY ONE CHILD 
+# generally you should build the child in the build method and not temper with UINode.children
 class Widget(WrapperNode):
     node_type: str = "Widget"
 
@@ -12,6 +14,10 @@ class Widget(WrapperNode):
     def build(self) -> UINode | None:
         return self.child
     
+    def rebuild(self):
+        self.child = self.build()
+        return self.child
+
     def measure(self) -> Constraints:
         return self.child.measure() if self.child is not None else Constraints(0, 0, inf, inf)
     
@@ -39,9 +45,6 @@ class StatefulWidget(Widget):
         self.state = self.create_state()
         return self.state
     
-    def rebuild(self):
-        self.child = self.build()
-
     def __hash__(self):
         # return hash(self.built)
         # Problem is hash got called before the state is reattached
@@ -51,4 +54,7 @@ class StatefulWidget(Widget):
         super().update(dt)
         # print(self._initialized)
         self.state._update_animatables(dt)
+
+    def __repr__(self):
+        return f"{self.node_type}(state={self.state})"
     

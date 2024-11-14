@@ -48,6 +48,7 @@ class GameplayScene(Scene):
         )
         
     def update_status(self):
+        # print(f"{self.status_ui}")
         self.status_ui.state.score = self.game.score
 
     def run(self, display: Surface, dt: int = 1000/60, events: list[Event] | None = None):

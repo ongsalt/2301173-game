@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import pygame
 from pygame import Rect, Surface, Color
 from pygame.event import Event
@@ -67,11 +68,48 @@ class RenderTextureRegistry(metaclass=Singleton):
         if len(self.recycled) > 50:
             for surface in self.recycled:
                 del surface
+    
+# Should not be a singleton | should be a part of the runtime
+type KeyPath2 = tuple[str | int, ...]
+class StateRegistry:
+    def __init__(self):
+        # registry oh hash(keypath) to (owner node type, state)
+        self.registry: dict[KeyPath2, (type, State)] = {}
+
+        # registry of a path without index prefix
+        self.relative_registry: dict[KeyPath2, (type, State)] = {}
+
+    def get_or_create(self, path: list[str | int], node: StatefulWidget) -> State:
+        # Resolution order:
+        #  - longest match win
+
+        path = tuple(path)
+        relative_path = self.to_relative(path)
+        if path in self.registry:
+            # print(f"[state] Reusing state for {node.node_type} at {path}")
+            state = self.registry[path]
+            return state
+        # well, this is not a good way to do it
+        if relative_path in self.relative_registry:
+            # print(f"[state] Reusing state for {node.node_type} at [relative]{relative_path} [full]{path}")
+            state = self.relative_registry[relative_path]
+            return self.relative_registry[relative_path]
+        
+        state = node._initialize_state()
+        self.registry[path] = state
+        self.relative_registry[relative_path] = state
+        print(f"[state] Created new state for {node.node_type} at {path}: {state}")
+        return state
+
+    def to_relative(self, path: KeyPath2) -> KeyPath2:
+        for index, key in enumerate(path):
+            if isinstance(key, str):
+                return path[index:]
+        return path
 
 class IntermediateNode:
     def __init__(self, ui_node: UINode):
         self.ui_node = ui_node
-        self.state: State | None = None
         self.surface = None
         self.absolute_rect: Rect | None = None # well, it's still relative to runtime root node
         self.children: list[IntermediateNode] = []
@@ -102,9 +140,8 @@ class IntermediateNode:
         for i in range(len(self.children) - 1, index, -1):
             del self.children[i]
 
-    def reuse(self, ui_node: UINode, state: State | None = None):
+    def reuse(self, ui_node: UINode):
         self.ui_node = ui_node
-        self.state = state
         self.absolute_rect = None
         self.dirty = True
         self.children = []
@@ -129,80 +166,62 @@ class UIRuntime2:
         self.bound_color = bound_color or (255, 0, 0)
         self.size = size
         self.screen = Surface(size, pygame.SRCALPHA, 32)
+        self.state_registry = StateRegistry()
         if not lazy:
-            self.diff_and_reattach_state(0)
+            self.reattach_state()
+            self.update(0)
+            self.to_intermediate()
             self.layout()
             self.composite()
 
-    def diff_and_reattach_state(self, dt = 1000 / 60):
-        def traverse(ui_node: UINode, intermediate_node: IntermediateNode | None = None, path = "@") -> IntermediateNode:
-            nonlocal dt
-            is_stateful = isinstance(ui_node, StatefulWidget)
-            dirty = False
-            if intermediate_node is None:
-                print(f"[diff] {path} Creating new intermediate node")
-                intermediate_node = IntermediateNode(ui_node)
-                dirty = True
-            else:
-                # print(f"[diff] {path} Reusing intermediate node")
-                pass
-            
-            if is_stateful:
-                # TODO: check node typ
-                if intermediate_node.state is not None:
-                    # print(f"[diff] {path} Reattaching state")
-                    ui_node.state = intermediate_node.state
-                    dirty = intermediate_node.state._dirty
-                    if dirty:
-                        print(f"[diff] {path} State changed: {intermediate_node.state}")
-                        pass
-                    intermediate_node.state._dirty = False
-                else:
-                    # print(f"[diff] {path} Initializing a new state for {ui_node.node_type}")
-                    intermediate_node.state = ui_node._initialize_state()
-                    print(f"[diff] {path} State initialized: {ui_node.state}")
-                    print(f"[diff] {intermediate_node.ui_node}")
-                    dirty = True
+    # still a dynamic widget
+    def reattach_state(self):
+        def trverse(ui_node: UINode, path = ()):
+            if isinstance(ui_node, StatefulWidget):
+                state = self.state_registry.get_or_create(path, ui_node)
+                ui_node.state = state
+                if state._dirty:
+                    ui_node.rebuild()
+            for index, ui in enumerate(ui_node.children):
+                trverse(ui, (*path, index))
 
-                # print(f"[diff] {path} {ui_node} is stateful")
-                
+        trverse(self.root_node)
+        # auto dispose the state somehow
+    def update(self, dt: int):
+        def traverse(ui_node: UINode, path = "@"):
+            if isinstance(ui_node, StatefulWidget):
+                ui_node.update(dt)
+            for index, child in enumerate(ui_node.children):
+                traverse(child, f"{path}/{index}")
+
+        traverse(self.root_node)
+
+    def to_intermediate(self):
+        """
+        Will traverse the UINode tree remove every StatefulWidget to make a tree static
+        this will also do the diffing
+        """
+        def traverse(ui_node: UINode, intermediate_node: IntermediateNode | None = None) -> IntermediateNode:
+            if intermediate_node is None:
+                intermediate_node = IntermediateNode(ui_node)
+
             ui_node_hash = hash(ui_node)
-            if ui_node_hash == intermediate_node.previous_hash and not dirty:   
-                # print(f"[diff] {path} {ui_node} same hash: Skipping")
+            if ui_node_hash == intermediate_node.previous_hash:
                 return intermediate_node
- 
+            
             intermediate_node.dirty = True
             intermediate_node.previous_hash = ui_node_hash
             intermediate_node.ui_node = ui_node
 
-            if is_stateful:
-                # print(f"[diff] {path} Rebuilding")
-                ui_node.rebuild() # TODO: dont rebuild if state is the same
-                    
-                    # intermediate_node.reuse(ui_node)
-            # skippable = skippable and not is_stateful
-            print(f"[diff] {path} {ui_node} is different: Rebuilding")
             for index, (ui, intermediate) in enumerate(zip_longest(ui_node.children, intermediate_node.children)):
-                if ui is None:
-                    break
-                intermediate_child = traverse(ui, intermediate, f"{path}/{index}")
+                intermediate_child = traverse(ui, intermediate)
                 intermediate_node.set_nth_child(intermediate_child, index)
             intermediate_node.dispose_since(len(ui_node.children))
-
             return intermediate_node
-
+        
         self.root_intermediate_node = traverse(self.root_node, self.root_intermediate_node)
-
-    def update(self, dt: int):
-        def traverse(intermediate_node: IntermediateNode, path = "@"):
-            nonlocal dt
-            for index, child in enumerate(intermediate_node.children):
-                traverse(child, f"{path}/{index}")
-            intermediate_node.ui_node.update(dt)
-            # print(f"[update] {path} {intermediate_node.ui_node.node_type} {intermediate_node.state}")
-                
-        traverse(self.root_intermediate_node)
-
+        return self.root_intermediate_node
+        
     def layout(self):
         def traverse(intermediate_node: IntermediateNode, size: tuple[int, int], offset: tuple[int, int], path = "@", skippable = True):
             # print(f"[layout] {path} {intermediate_node.ui_node.node_type} {size} {offset}")
@@ -245,17 +264,16 @@ class UIRuntime2:
             print(f"{path} {ui_node}")
             for index, child in enumerate(ui_node.children):
                 traverse(child, f"{path}  ")
-                
         traverse(root)
 
     def print_tree2(self, root: IntermediateNode):
         def traverse(node: IntermediateNode, path = ""):
-            print(f"{path} {node.ui_node.node_type} {node.state}")
+            print(f"{path} {node.ui_node}")
             # if isinstance(node.ui_node, StatefulWidget):
                 # print(f"{path} - {node.ui_node.state}")
             for index, child in enumerate(node.children):
                 traverse(child, f"{path}  ")
-                
+
         traverse(root)
 
     def handle_events(self, events: list[Event], offset: tuple[int, int] = (0, 0)) -> list[Event]:
@@ -283,8 +301,16 @@ class UIRuntime2:
 
     def run(self, screen: Surface, dt = 1000 /60, position: tuple[int, int] = (0, 0), events: list[Event] | None = None) -> list[Event]:
         # start_time = pygame.time.get_ticks()
-        self.diff_and_reattach_state(dt)
+        # print("Showing UINode tree")
+        # self.print_tree(self.root_node)
+        
+        self.reattach_state()
         self.update(dt)
+        # print("Showing UINode tree after reattaching state")
+        # self.print_tree(self.root_node)
+
+        self.to_intermediate()
+        # print("Showing IntermediateNode tree")
         # self.print_tree2(self.root_intermediate_node)
 
         self.layout()
