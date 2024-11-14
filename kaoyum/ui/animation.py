@@ -129,3 +129,28 @@ class Spring(Animatable):
         if abs(self.value - self.final_position) < 0.1 and abs(self.velocity) < 0.1:
             self.value = self.final_position
             self.velocity = 0
+
+class Acceleration(Animatable):
+    def __init__(self, value: float, acceleration: float = 1000, max_speed: float = 1000, initial_velocity: float | None = None):
+        super().__init__(value)
+        self.acceleration = abs(acceleration)
+        self.max_speed = abs(max_speed)
+        self.velocity = initial_velocity or 0
+
+    def animate_to(self, final_position: float, acceleration: float | None = None, max_speed: float | None = None, initial_velocity: float | None = None):
+        self.final_position = final_position 
+        self.acceleration = abs(acceleration or self.acceleration)
+        self.max_speed = abs(max_speed or self.max_speed)
+        self.velocity = initial_velocity or 0
+
+    def update(self, dt: float = 1000 / 60):
+        if not self.is_animating:
+            return
+        
+        dt /= 1000
+        
+        direction = 1 if self.final_position > self.value else -1
+        self.velocity += self.acceleration * dt
+        self.velocity = min(self.max_speed, self.velocity)
+        # print(self.velocity, self.acceleration, dt)
+        self.value += (self.velocity * dt + 0.5 * self.acceleration * dt ** 2) * direction

@@ -3,8 +3,8 @@ from pygame.locals import *
 from pygame.event import Event
 from kaoyum.game import Game
 
-from .widget.home import HomeUI
-from .widget.game_overlay import GameOverlay
+from .overlay.home import HomeUI
+from .overlay.game_overlay import GameOverlay
 from .animation import Spring
 
 class Scene:

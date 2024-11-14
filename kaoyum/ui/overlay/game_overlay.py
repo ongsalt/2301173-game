@@ -2,9 +2,9 @@ from pygame import SRCALPHA
 from pygame.surface import Surface
 from kaoyum.game import Game
 from kaoyum.assets_manager import AssetsManager
-from .widget import Widget
+from ..widget.widget import Widget
 from kaoyum.ui.animation import Spring
-from .text import Text
+from ..widget.text import Text
 
 class GameOverlay(Widget):
     def __init__(self, game: Game, size: tuple[int, int]):
