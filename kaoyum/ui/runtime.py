@@ -28,9 +28,7 @@ from ..assets_manager import AssetsManager
 #   - PARENT UI NODE MUST REPORT THE CHILDREN PLACEMENT after it's got it's size determined : layout(w, h)
 #     - must take fill_max_size into account (via min_size inf)
 
-# Node list:
-#   - GestureHandler
-class RenderTextureRegistry(metaclass=Singleton):
+class RenderTextureRegistry:
     def __init__(self):
         self.registry: dict[str, Surface] = {}
         self.recycled: list[Surface] = []
@@ -116,15 +114,15 @@ class IntermediateNode:
         self.previous_hash: int | None = None
         self.dirty = True
 
-    def resize(self, size: tuple[int, int]):
+    def resize(self, size: tuple[int, int], registry: RenderTextureRegistry):
         # TODO: check if we can reuse the surface 
         if self.surface is None:
             # print("[composite] Creating new surface")
-            self.surface = RenderTextureRegistry().reuse_or_create(size)
+            self.surface = registry.reuse_or_create(size)
         elif self.surface.get_size() != size:
             # print("[composite] Resizing intermediate node")
-            RenderTextureRegistry().recycle(self.surface)
-            self.surface = RenderTextureRegistry().reuse_or_create(size)
+            registry.recycle(self.surface)
+            self.surface = registry.reuse_or_create(size)
             self.dirty = True
         # check node type before reattaching the state
 
@@ -158,7 +156,7 @@ class IntermediateNode:
         
         target.blit(self.surface, position, Rect((0, 0), self.absolute_rect.size))
 
-class UIRuntime2:
+class UIRuntime:
     def __init__(self, root: Widget, size: tuple[int, int], draw_bound: bool = False, bound_color: Color | None = None, lazy: bool = False):
         self.root_node = root
         self.root_intermediate_node = None
@@ -167,6 +165,7 @@ class UIRuntime2:
         self.size = size
         self.screen = Surface(size, pygame.SRCALPHA, 32)
         self.state_registry = StateRegistry()
+        self.render_texture_registry = RenderTextureRegistry()
         if not lazy:
             self.reattach_state()
             self.update(0)
@@ -231,7 +230,7 @@ class UIRuntime2:
                 # print(f"[layout] {path} {intermediate_node.absolute_rect} {intermediate_node.ui_node.node_type} is not dirty: Skipping")
                 return
             intermediate_node.absolute_rect = new_rect
-            intermediate_node.resize(size)
+            intermediate_node.resize(size, self.render_texture_registry)
             childden_placements = intermediate_node.ui_node.layout(size)
             # print(f"[layout] {path} {intermediate_node.absolute_rect} {childden_placements}")
             if len(childden_placements) != len(intermediate_node.children):

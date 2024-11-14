@@ -1,4 +1,4 @@
-from kaoyum.ui import UIRuntime2, Spring, State
+from kaoyum.ui import UIRuntime, Spring, State
 from kaoyum.ui.widget import StatefulWidget, VStack, UIText, HStack, Button, Padding
 import pygame
     
@@ -74,7 +74,7 @@ DISPLAY_SIZE = (800, 600)
 screen = pygame.display.set_mode(DISPLAY_SIZE)
 
 widget = ExampleWidget()
-ui = UIRuntime2(
+ui = UIRuntime(
     size=(600, 400),
     draw_bound=True,
     root=widget
@@ -91,7 +91,7 @@ while True:
 
 
     # print(1/dt * 1000)
-    # widget.state.time += dt
+    widget.state.time += dt
     screen.fill((16, 163, 240))
     ui.run(screen, dt=dt, position=(100, 100), events=unconsumed_events)
 

@@ -1,7 +1,7 @@
 from pygame.locals import K_SPACE, KEYDOWN
 from pygame import Surface
 from pygame.event import Event, post as post_event
-from kaoyum.ui import UIRuntime2, Loop, State
+from kaoyum.ui import UIRuntime, Loop, State
 from kaoyum.ui.widget import StatefulWidget, VStack, UIText, Stack, Image, Box, Padding
 from kaoyum.ui.event import NavigationEvent
 from .scene import Scene
@@ -78,7 +78,7 @@ class HomeScene(Scene):
     def __init__(self, size: tuple[int, int]):
         super().__init__(size)
         self.ui = HomeUI()
-        self.ui_runtime = UIRuntime2(
+        self.ui_runtime = UIRuntime(
             # draw_bound=True,
             root=self.ui,
             size=size
