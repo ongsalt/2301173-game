@@ -22,8 +22,8 @@ class Game:
 
     def run(self, screen: pygame.Surface, dt: int):
         # update player
-        self.player.update(should_move=self.state == "running")
         if self.state == "running": 
+            self.player.update(dt)
             
             # update scorepoint
             for score_point in self.score_points:
@@ -108,6 +108,7 @@ class Game:
     def start(self):
         if self.state == "waiting":
             self.state = "running"
+            self.player.start_moving()
 
     def pause(self):
         if self.state == "running":

@@ -11,12 +11,12 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, screen_size: tuple[int, int], hp = 100, *groups):
         super().__init__(*groups)
         self.color: Literal["red", "green", "blue"] = "green"
-        self.state: Literal["standard", "transitioning", "flying"] = "standard"
+        self.state: Literal["standard", "transitioning", "flying", "dying"] = "standard"
         self.hp = hp
         self.y = (screen_size[1] - 100) / 2
         self.y_offset = Spring(self.y - 48, natural_freq=10)
         self.x = Spring((screen_size[0] - 100) / 2, natural_freq=2)
-        self.rect = pygame.Rect(self.x.value, self.y, 100, 100)
+        self.rect = pygame.Rect(self.x.value, self.y + self.y_offset.value, 100, 100)
         self.screen_size = screen_size
         self.rotation = Spring(0, natural_freq=12, damping_ratio=0.8)
 
@@ -38,22 +38,23 @@ class Player(pygame.sprite.Sprite):
     def _load_frames(self, prefix, postfix = ".png", frame_count = 3) -> Surface:
         return [AssetsManager().get(f"{prefix}{i+1}{postfix}", (128, 128)) for i in range(frame_count)]
 
-    def update(self, dt: int = 1000 // 60, should_move = False):
+    def update(self, dt: int = 1000 // 60):
         self._rotate_frame(dt)
         self.rotation.update(dt)
         self.x.update(dt)
         self.y_offset.update(dt)
 
-        if should_move:
-            if self.state == "standard":
-                self.state = "transitioning"
-                self.rotation.animate_to(360)
-                self.x.animate_to(25)
-                self.y_offset.animate_to(0)
-            if not self.rotation.is_animating and self.state == "transitioning":
+        if self.state == "transitioning":
+            self.rotation.animate_to(360)
+            self.x.animate_to(25)
+            self.y_offset.animate_to(0)
+            if not self.rotation.is_animating:
                 self.state = "flying"
-            
+
+        if self.state == "flying" or self.state == "transitioning":    
             self.process_key_pressed()
+            # self.y = self.y_offset.value
+            # self.y = coerce(self.y, 0, self.screen_size[1] - self.rect.height)
 
         self.rect.y = self.y + self.y_offset.value
         self.rect.x = self.x.value
@@ -63,6 +64,12 @@ class Player(pygame.sprite.Sprite):
 
         surface.blit(self.current_frame, add(self.rect.topleft, self.texture_offset))
         pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
+
+    def start_moving(self):
+        self.state = "transitioning"
+
+    def change_color(self, color: Literal["red", "green", "blue"]):
+        self.color = color
 
     @property
     def texture_offset(self):
@@ -110,6 +117,3 @@ class Player(pygame.sprite.Sprite):
         elif key_down and not key_up:
             self.y += 8
         self.y = coerce(self.y, 0, self.screen_size[1] - self.rect.height)
-
-    def start_moving(self):
-        self.state = "flying"
