@@ -22,6 +22,8 @@ class Game:
 
     def run(self, screen: pygame.Surface, dt: int):
         # update player
+        self.player.rotate_frame(dt)
+
         if self.state == "running": 
             self.player.update(dt)
             

@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
         return [AssetsManager().get(f"{prefix}{i+1}{postfix}", (128, 128)) for i in range(frame_count)]
 
     def update(self, dt: int = 1000 // 60):
-        self._rotate_frame(dt)
+        self.rotate_frame(dt)
         self.rotation.update(dt)
         self.x.update(dt)
         self.y_offset.update(dt)
@@ -99,7 +99,7 @@ class Player(pygame.sprite.Sprite):
         else:
             return self.textures["flying"][self.color]
     
-    def _rotate_frame(self, dt: int):
+    def rotate_frame(self, dt: int):
         self._frame_time_counter += dt
         # print(self._frame_time_counter)
         if self._frame_time_counter > 250: # 250ms per frame
