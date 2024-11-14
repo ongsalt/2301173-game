@@ -11,7 +11,6 @@ screen = pygame.display.set_mode(DISPLAY_SIZE)
 clock = pygame.time.Clock()
 
 active_scene = GameplayScene(DISPLAY_SIZE)
-active_scene.game.start()
 
 while True:
     # fixed frame rate

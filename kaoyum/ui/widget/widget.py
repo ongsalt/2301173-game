@@ -6,4 +6,3 @@ class Widget:
 
     def draw(self, display: Surface, offset: tuple[int, int] = (0, 0)):
         pass
-
