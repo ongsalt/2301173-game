@@ -4,7 +4,8 @@ from kaoyum.utils import Singleton
 
 class AssetsManager(metaclass=Singleton):
     def __init__(self):
-        self.surfaces: dict[str, pygame.Surface] = {}
+        # key is (path, size)
+        self.surfaces: dict[tuple[str, tuple[int, int]], pygame.Surface] = {}
 
         # key is a tuple of font path and font size
         self.fonts: dict[tuple[str, int], pygame.Surface] = {}
@@ -12,11 +13,20 @@ class AssetsManager(metaclass=Singleton):
     # DON'T EVER MUTATE THE SURFACE RETURNED BY THIS FUNCTION
     # If you need to mutate it, copy it first
     # If not please use this method
-    def get(self, path: str) -> pygame.Surface:
+    def get(self, path: str, size: tuple[int, int] | None = None) -> pygame.Surface:
         path = f"Assets/images/{path}"
-        if path not in self.surfaces:
-            self.surfaces[path] = pygame.image.load(path)
-        return self.surfaces[path]
+        sized_key = (path, size)
+        defualt_key = (path, None)
+        if defualt_key not in self.surfaces:
+            self.surfaces[defualt_key] = pygame.image.load(path)
+        
+        if sized_key not in self.surfaces:
+            if size == self.surfaces[defualt_key].get_size():
+                self.surfaces[sized_key] = self.surfaces[defualt_key]
+            else:
+                self.surfaces[sized_key] = pygame.transform.scale(self.surfaces[defualt_key], size)
+
+        return self.surfaces[sized_key]
     
     def set(self, path: str, surface: pygame.Surface) -> None:
         self.surfaces[path] = surface

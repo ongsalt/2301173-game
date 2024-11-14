@@ -21,9 +21,9 @@ class Game:
         self.load_mock_block()
 
     def run(self, screen: pygame.Surface, dt: int):
+        # update player
+        self.player.update(should_move=self.state == "running")
         if self.state == "running": 
-            # update player
-            self.player.update()
             
             # update scorepoint
             for score_point in self.score_points:

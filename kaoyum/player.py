@@ -1,59 +1,115 @@
+import math
 import pygame
 from pygame.locals import * 
+from pygame import Surface
 from typing import Literal
-from kaoyum.utils import coerce, tint
+from kaoyum.utils import coerce, tint, add
+from kaoyum.assets_manager import AssetsManager
+from kaoyum.ui.animation import Spring
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen_size: tuple[int, int], hp = 100, *groups):
         super().__init__(*groups)
-        self.color: Literal["red", "green", "blue"] = "red"
+        self.color: Literal["red", "green", "blue"] = "green"
+        self.state: Literal["standard", "transitioning", "flying"] = "standard"
         self.hp = hp
-        self.y = screen_size[1] - 80
-        self.rect = pygame.Rect(0, self.y, 80, 80)
+        self.y = (screen_size[1] - 100) / 2
+        self.y_offset = Spring(self.y - 48, natural_freq=10)
+        self.x = Spring((screen_size[0] - 100) / 2, natural_freq=2)
+        self.rect = pygame.Rect(self.x.value, self.y, 100, 100)
         self.screen_size = screen_size
+        self.rotation = Spring(0, natural_freq=12, damping_ratio=0.8)
 
         # For animation
-        self.frame_counter = 0
-        self.animation_frame = 0
+        self._frame_time_counter = 0
+        self._animation_frame = 0
         
         # This will be tinted programmatically
         self.textures = {
-            "placeholder": pygame.image.load("Assets/images/tee.png"),
+            # "placeholder": AssetsManager().get("tee.png"),
+            "standard": self._load_frames("StandardPlayer/Main_Stand", frame_count=2),
+            "flying":{
+                "red": self._load_frames("RedPlayer/Red_Main_fly"),
+                "green": self._load_frames("GreenPlayer/Green_Main_fly"),
+                "blue": self._load_frames("BluePlayer/Blue_Main_fly"),
+            },
         }
 
-    def update(self):
-        self.process_key_pressed()
-        self.rotate_frame()
+    def _load_frames(self, prefix, postfix = ".png", frame_count = 3) -> Surface:
+        return [AssetsManager().get(f"{prefix}{i+1}{postfix}", (128, 128)) for i in range(frame_count)]
+
+    def update(self, dt: int = 1000 // 60, should_move = False):
+        self._rotate_frame(dt)
+        self.rotation.update(dt)
+        self.x.update(dt)
+        self.y_offset.update(dt)
+
+        if should_move:
+            if self.state == "standard":
+                self.state = "transitioning"
+                self.rotation.animate_to(360)
+                self.x.animate_to(25)
+                self.y_offset.animate_to(0)
+            if not self.rotation.is_animating and self.state == "transitioning":
+                self.state = "flying"
+            
+            self.process_key_pressed()
+
+        self.rect.y = self.y + self.y_offset.value
+        self.rect.x = self.x.value
 
     def draw(self, surface: pygame.Surface):
         # I should precompute the tinted frames
-        tinted_frame = tint(self.textures["placeholder"], (255, 0, 0))
-        surface.blit(tinted_frame, self.rect)
+
+        surface.blit(self.current_frame, add(self.rect.topleft, self.texture_offset))
         pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
 
     @property
-    def state(self) -> Literal["running", "flying", "dying"]:
-        return "running"
+    def texture_offset(self):
+        texture = self.current_frame
+        w, h = texture.get_size()
+        return ((self.rect.width - w) // 2, (self.rect.height - h) // 2)
     
     @property
     def hitbox(self) -> pygame.Rect:
         return self.rect
+
+    @property
+    def current_frame(self):
+        if self.state == "transitioning":
+            if self.rotation.value < 180:
+                frame = self.textures["standard"][self._animation_frame % 2]
+            else:
+                frame = self.textures["flying"]["green"][self._animation_frame]
+            return pygame.transform.rotate(frame, self.rotation.value)
+
+        return self.active_frames[self._animation_frame]
+
+    @property
+    def active_frames(self):
+        if self.state == "standard":
+            return self.textures["standard"]
+        else:
+            return self.textures["flying"][self.color]
     
-    def rotate_frame(self):
-        self.frame_counter += 1
-        if self.frame_counter == 3:
-            self.frame_counter = 0
-            self.animation_frame += 1
-            # if self.animation_frame == len(frames):
-            #     self.animation_frame = 0
+    def _rotate_frame(self, dt: int):
+        self._frame_time_counter += dt
+        # print(self._frame_time_counter)
+        if self._frame_time_counter > 250: # 250ms per frame
+            self._frame_time_counter -= 250
+            self._animation_frame += 1
+            if self._animation_frame == len(self.active_frames):
+                self._animation_frame = 0
 
     def process_key_pressed(self):
         keys_pressed = pygame.key.get_pressed()
         key_up = keys_pressed[K_w] or keys_pressed[K_UP]
         key_down = keys_pressed[K_s] or keys_pressed[K_DOWN]
         if key_up and not key_down:
-            self.y -= 10
+            self.y -= 8
         elif key_down and not key_up:
-            self.y += 10
+            self.y += 8
         self.y = coerce(self.y, 0, self.screen_size[1] - self.rect.height)
-        self.rect.y = self.y
+
+    def start_moving(self):
+        self.state = "flying"
