@@ -20,7 +20,8 @@ class Text(Widget):
         if self.dirty:
             font = AssetsManager().get_font(self.font_name, self.font_size)
             w, h = font.get_rect(self.text).size
-            if self.surface is None or self.size[0] < w or self.size[1] < h:
+            size = self.surface.get_size() if self.surface is not None else (0, 0)
+            if size[0] < w or size[1] < h:
                 self.surface = Surface((w, h), SRCALPHA, 32)
             self.surface.fill((0, 0, 0, 0))
             font.render_to(self.surface, (0, 0), self.text, self.color_without_alpha)
@@ -39,7 +40,7 @@ class Text(Widget):
     
     @property
     def size(self) -> tuple[int, int]:
-        if self.surface is None:
+        if self.surface is None or self.dirty:
             self.render()
         return self.surface.get_size()
 

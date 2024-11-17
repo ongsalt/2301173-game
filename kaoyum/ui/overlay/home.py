@@ -14,7 +14,6 @@ class HomeUI(Widget):
         self.description_text = Text("Press Space to start", "upheavtt.ttf", 20, (255, 255, 255))
         self.description_text_opacity = Loop(160, 235, angular_frequency=.5)
 
-
     def draw(self, display: Surface, offset: tuple[int, int] = (0, 0)):
         self.description_text.color = (255, 255, 255, self.description_text_opacity.value)
         self.surface.fill((0, 0, 0, 0))

@@ -17,7 +17,6 @@ def blur(surface: Surface, radius: int, step: int = 2):
 
     return cache_surface
 
-
 def pixelate(surface: Surface, radius: int):
     if radius <= 1:
         return surface

@@ -8,11 +8,11 @@ from kaoyum.ui.animation import Spring
 from ..widget.text import Text
 
 class GameOverlay(Widget):
-    def __init__(self, game: Game, size: tuple[int, int]):
+    def __init__(self, size: tuple[int, int]):
         self.surface = Surface(size, SRCALPHA, 32)
         self.size = size
         self._score = 0
-        self.hp = 100
+        self._hp = Spring(100) 
         self.max_hp = 100
         self.opacity = Spring(0, natural_freq=6)
         self.offset_x = Spring(40, natural_freq=6)
@@ -20,6 +20,7 @@ class GameOverlay(Widget):
 
     def update(self, dt: float = 1000 / 60):
         self.opacity.update(dt)
+        self._hp.update(dt)
         self.offset_x.update(dt)
         self.score_text.text = str(self.score)
 
@@ -33,7 +34,7 @@ class GameOverlay(Widget):
         hp_bar_width = 400
         hp_bar_height = 4
         pygame.draw.rect(self.surface, (80, 80, 80, 80), (24, 24, hp_bar_width, hp_bar_height))
-        pygame.draw.rect(self.surface, (255, 255, 255), (24, 24, self.hp / self.max_hp * hp_bar_width, hp_bar_height))
+        pygame.draw.rect(self.surface, (255, 255, 255), (24, 24, self._hp.value / self.max_hp * hp_bar_width, hp_bar_height))
 
         display.blit(self.surface, (offset[0] + self.offset_x.value, offset[1]))
 
@@ -54,3 +55,11 @@ class GameOverlay(Widget):
         # if self._score != score:
             # self.notify("score", score)
         self._score = score
+
+    @property
+    def hp(self) -> int:
+        return self._hp.value
+    
+    @hp.setter
+    def hp(self, hp: int):
+        self._hp.animate_to(hp)

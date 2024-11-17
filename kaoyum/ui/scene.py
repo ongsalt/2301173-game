@@ -24,7 +24,7 @@ class GameplayScene(Scene):
         self.size = size
         self.game = Game(size)
         self.home_ui = HomeUI(size)
-        self.game_overlay = GameOverlay(self.game, size)
+        self.game_overlay = GameOverlay(size)
         self.pause_menu = PauseMenu(size)
         self.game_over_ui = GameOverUI(size)
         self.lower_layer = Surface(size)
@@ -48,32 +48,31 @@ class GameplayScene(Scene):
     def update(self, dt: int):
         self.update_animation(dt)
 
-        if self.game.state == "waiting":
+        if self.state == "waiting":
             self.game_overlay.hide()
             self.pixelate_radius.animate_to(0)
 
-        elif self.game.state == "running":
+        elif self.state == "running":
             self.game_overlay.show()
             self.pause_menu.hide()
             self.pixelate_radius.animate_to(0)
         
-        elif self.game.state == "paused":
+        elif self.state == "paused":
             self.game_overlay.show()
             self.pause_menu.show()
             self.pixelate_radius.animate_to(24)
 
-        elif self.game.state == "finished":
-            self.game_overlay.hide()
+        elif self.state == "finished":
+            # self.game_overlay.hide()
             self.game_over_ui.show()
             self.pixelate_radius.animate_to(24)
-
 
         self.game.run(self.lower_layer, dt)
         self.game_overlay.score = self.game.score
         self.game_overlay.hp = self.game.player.hp
         self.game_over_ui.score = self.game.score
 
-        if self.game.state != "paused":
+        if self.state != "paused":
             self.home_ui.update(dt=dt, is_game_started=self.game.is_started)
         self.game_overlay.update(dt)
         self.pause_menu.update(dt)
@@ -89,7 +88,6 @@ class GameplayScene(Scene):
         # blurred_lower_layer = blur(self.lower_layer, 2 * self.pixelate_radius.value, step=4)
         # blurred_lower_layer = pixelate(self.lower_layer, self.pixelate_radius.value)
         blurred_lower_layer = smooth_pixelate(self.lower_layer, self.pixelate_radius.value)
-        # blurred_lower_layer = smooth_pixelate(self.lower_layer, 4)
         display.blit(blurred_lower_layer, (0, 0))
         self.game_over_ui.draw(display)
         self.pause_menu.draw(display)
@@ -98,19 +96,24 @@ class GameplayScene(Scene):
 
     def handle_event(self, event: Event):
         if event.type == KEYDOWN:
-            # print(event)
-            if event.key == 32:
-                if self.game.state == "waiting":
+            if self.state == "waiting":
+                if event.key == 32:
                     self.game.start()
-                elif self.game.state == "finished":
-                    self.reset()
                 return True
             
-            if event.key == 27:
-                if self.game.state == "running":
+            if self.state == "running":
+                if event.key == 27:
                     self.game.pause()
-                elif self.game.state == "paused":
+                return True
+            
+            if self.state == "paused":
+                if event.key == 27:
                     self.game.resume()
+                return True
+            
+            if self.state == "finished":
+                if event.key == 32 and not self.transition.is_in_progress:
+                    self.reset()
                 return True
             
         return False
@@ -123,8 +126,12 @@ class GameplayScene(Scene):
     def _reset(self):
         self.game = Game(self.size)
         self.home_ui = HomeUI(self.size)
-        self.game_overlay = GameOverlay(self.game, self.size)
+        self.game_overlay = GameOverlay(self.size)
         self.pause_menu = PauseMenu(self.size)
         self.game_over_ui = GameOverUI(self.size)
         self.lower_layer = Surface(self.size)
         self.pixelate_radius.value = 0
+
+    @property
+    def state(self):
+        return self.game.state
