@@ -80,7 +80,7 @@ class Game:
 
     def load_mock_block(self):
         image = AssetsManager().get("slime_2.gif")
-        self.obstacles.append(Obstacle(900, 100, 64, 64, 10, image))
+        self.obstacles.append(Obstacle(1800, 100, 64, 64, 100, image))
         self.obstacles.append(Obstacle(1000, 100, 64, 64, 10, image))
         self.score_points.append(Scorepoint(1100, 100, 64, 64, 10, image))
         self.score_points.append(Scorepoint(1200, 100, 64, 64, 10, image))
