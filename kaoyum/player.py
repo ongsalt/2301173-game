@@ -20,6 +20,9 @@ class Player(pygame.sprite.Sprite):
         self.screen_size = screen_size
         self.rotation = Spring(0, natural_freq=12, damping_ratio=0.8)
 
+        # For iframe
+        self._iframe_cool_down = 0
+
         # For animation
         self._frame_time_counter = 0
         self._animation_frame = 0
@@ -43,6 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.rotation.update(dt)
         self.x.update(dt)
         self.y_offset.update(dt)
+        self._iframe_cool_down = max(0, self._iframe_cool_down - dt)
 
         if self.state == "transitioning":
             self.rotation.animate_to(360)
@@ -71,6 +75,18 @@ class Player(pygame.sprite.Sprite):
     def change_color(self, color: Literal["red", "green", "blue"]):
         self.color = color
 
+    def take_damage(self, damage: int):
+        if self._iframe_cool_down > 0:
+            return
+        self.hp -= damage
+        self._iframe_cool_down = 300
+        if self.hp <= 0:
+            self.state = "dying"
+
+    def shake(self, intensity: int):
+        # self.x.damping_ratio = 0.5
+        pass
+
     @property
     def texture_offset(self):
         texture = self.current_frame
@@ -90,6 +106,8 @@ class Player(pygame.sprite.Sprite):
                 frame = self.textures["flying"]["green"][self._animation_frame]
             return pygame.transform.rotate(frame, self.rotation.value)
 
+        if self._iframe_cool_down > 200:
+            return tint(self.active_frames[self._animation_frame], (255, 200, 200))
         return self.active_frames[self._animation_frame]
 
     @property
@@ -98,7 +116,7 @@ class Player(pygame.sprite.Sprite):
             return self.textures["standard"]
         else:
             return self.textures["flying"][self.color]
-    
+            
     def rotate_frame(self, dt: int):
         self._frame_time_counter += dt
         # print(self._frame_time_counter)

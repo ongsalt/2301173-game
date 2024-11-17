@@ -1,18 +1,21 @@
 import pygame
+from typing import Literal
 
-def tint_inp(surface: pygame.Surface, tint_color) -> pygame.Surface:
+def tint_inp(surface: pygame.Surface, tint_color, mode: Literal["multiply", "add"] = "multiply") -> pygame.Surface:
     """This WILL mutate the surface passed in.
     """
-    surface.fill(tint_color[0:3] + (0,), None, pygame.BLEND_MULT)
-    # surface.fill(tint_color[0:3] + (0,), None, pygame.BLEND_ADD)
+    if mode == "multiply":
+        surface.fill(tint_color[0:3] + (0,), None, pygame.BLEND_MULT)
+    else:
+        surface.fill(tint_color[0:3] + (0,), None, pygame.BLEND_ADD)
     return surface
 
 # This won't
-def tint(surface: pygame.Surface, tint_color) -> pygame.Surface:
+def tint(surface: pygame.Surface, tint_color, mode: Literal["multiply", "add"] = "multiply") -> pygame.Surface:
     """ adds tint_color onto surface.
     """
     surface = surface.copy()
-    return tint_inp(surface, tint_color)
+    return tint_inp(surface, tint_color, mode)
 
 type Number = float | int
 

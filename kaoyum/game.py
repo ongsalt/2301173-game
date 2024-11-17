@@ -22,7 +22,8 @@ class Game:
 
     def run(self, screen: pygame.Surface, dt: int):
         # update player
-        self.player.rotate_frame(dt)
+        if self.state == "running" or self.state == "waiting":
+            self.player.rotate_frame(dt)
 
         if self.state == "running": 
             self.player.update(dt)
@@ -41,7 +42,7 @@ class Game:
 
             for obstacle in self.obstacles[:]:
                 if obstacle.is_collided(self.player.rect):
-                    pass # ลดHp
+                    self.player.take_damage(obstacle.damage)
             
             # update color_changer
             for colorchanger in self.color_changers:
@@ -50,6 +51,9 @@ class Game:
             for colorchanger in self.color_changers[:]:
                 if colorchanger.is_collided(self.player.rect):
                     pass # เปลี่ยนสี
+
+            if self.player.hp <= 0:
+                self.state = "finished"
 
         # draw
         screen.fill((179, 169, 160))
