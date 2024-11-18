@@ -34,6 +34,7 @@ class Game:
             for score_point in self.score_points[:]:
                 if score_point.is_collided(self.player.rect):
                     self.score += score_point.score
+                    self.player.hp += 5
                     self.score_points.remove(score_point)
 
             # update obstacle
@@ -65,6 +66,11 @@ class Game:
             obstacle.draw(screen)
         for colorchanger in self.color_changers:
             colorchanger.draw(screen)
+
+        # should_append_block
+        # if should_append_block:
+        #     block = random.choice(self.blocks)
+        #     self.load_block(block)
 
     def handle_event(self, event: pygame.event.Event):
         pass
