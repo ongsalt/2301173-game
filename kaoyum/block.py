@@ -3,6 +3,7 @@ import pygame
 from .obstacle import Obstacle
 from .scorepoint import Scorepoint
 from .color_change import ColorChange
+from .assets_manager import AssetsManager
 
 class Block:
     def __init__(self, obstacles: list[Obstacle], score_points: list[Scorepoint], color_changers: list[ColorChange], offset):

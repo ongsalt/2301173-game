@@ -7,7 +7,8 @@ from kaoyum.color_change import ColorChange
 from kaoyum.scorepoint import Scorepoint
 from kaoyum.obstacle import Obstacle
 from kaoyum.assets_manager import AssetsManager
-from kaoyum.block import Block
+from kaoyum.block import Block, initialize_block
+
 class Game:
     def __init__(self, screen_size: tuple[int, int]):
         self.obstacles: list[Obstacle] = []
@@ -16,6 +17,7 @@ class Game:
         self.state: Literal["waiting", "running", "paused", "finished"] = "waiting"
         self.player = Player(screen_size)
         self.score = 0
+        self.blocks = initialize_block()
         self.load_mock_block()
 
     def run(self, screen: pygame.Surface, dt: int):
@@ -69,9 +71,6 @@ class Game:
         # if should_append_block:
         #     block = random.choice(self.blocks)
         #     self.load_block(block)
-
-    def handle_event(self, event: pygame.event.Event):
-        pass
 
     def load_block(self, block: Block):
         new_block = block.copy()
