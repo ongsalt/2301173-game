@@ -1,5 +1,7 @@
+import sys
 from typing import Literal
 from pygame import Surface
+import pygame
 from pygame.locals import *
 from pygame.event import Event
 
@@ -65,6 +67,7 @@ class GameplayScene(Scene):
         elif self.state == "finished":
             # self.game_overlay.hide()
             self.game_over_ui.show()
+            self.pause_menu.hide()
             self.pixelate_radius.animate_to(24)
 
         self.game.run(self.lower_layer, dt)
@@ -99,6 +102,9 @@ class GameplayScene(Scene):
             if self.state == "waiting":
                 if event.key == 32:
                     self.game.start()
+                if event.key == 27:
+                    pygame.quit()
+                    sys.exit()
                 return True
             
             if self.state == "running":
@@ -107,12 +113,12 @@ class GameplayScene(Scene):
                 return True
             
             if self.state == "paused":
-                if event.key == 27:
+                if event.key == 27 or event.key == 32:
                     self.game.resume()
                 return True
             
             if self.state == "finished":
-                if event.key == 32 and not self.transition.is_in_progress:
+                if (event.key == 27 or event.key == 32) and not self.transition.is_in_progress:
                     self.reset()
                 return True
             

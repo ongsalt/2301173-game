@@ -58,3 +58,4 @@ class Transition(Widget):
     @property
     def is_in_progress(self):
         return self.start_progress.value > 0 and self.end_progress.value != 1
+    

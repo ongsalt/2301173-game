@@ -8,7 +8,6 @@ from kaoyum.scorepoint import Scorepoint
 from kaoyum.obstacle import Obstacle
 from kaoyum.assets_manager import AssetsManager
 from kaoyum.block import Block
-from kaoyum.camera import Camera
 class Game:
     def __init__(self, screen_size: tuple[int, int]):
         self.obstacles: list[Obstacle] = []
@@ -17,7 +16,6 @@ class Game:
         self.state: Literal["waiting", "running", "paused", "finished"] = "waiting"
         self.player = Player(screen_size)
         self.score = 0
-        self.camera = Camera(size=screen_size)
         self.load_mock_block()
 
     def run(self, screen: pygame.Surface, dt: int):

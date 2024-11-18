@@ -6,6 +6,14 @@ import sys
 pygame.init()
 # pygame.freetype.init()
 
+# screen_info = pygame.display.Info()
+# WIDTH = screen_info.current_w
+# HEIGHT = screen_info.current_h
+
+# DISPLAY_SIZE = (WIDTH, HEIGHT)
+# screen = pygame.display.set_mode(
+#     DISPLAY_SIZE, pygame.SCALED | pygame.FULLSCREEN)
+
 DISPLAY_SIZE = (800, 600)
 screen = pygame.display.set_mode(DISPLAY_SIZE)
 clock = pygame.time.Clock()

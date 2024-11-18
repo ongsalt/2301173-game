@@ -13,6 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.color: Literal["red", "green", "blue"] = "green"
         self.state: Literal["standard", "transitioning", "flying", "dying"] = "standard"
         self.hp = hp
+        self.max_hp = 100
         self.y = (screen_size[1] - 100) / 2
         self.y_offset = Spring(self.y - 48, natural_freq=10)
         self.x = Spring((screen_size[0] - 100) / 2, natural_freq=2)
