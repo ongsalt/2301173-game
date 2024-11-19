@@ -8,12 +8,12 @@ from kaoyum.assets_manager import AssetsManager
 from kaoyum.ui.animation import Spring
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, screen_size: tuple[int, int], hp = 100, *groups):
+    def __init__(self, screen_size: tuple[int, int], max_hp = 100, *groups):
         super().__init__(*groups)
         self.color: Literal["red", "green", "blue"] = "green"
         self.state: Literal["standard", "transitioning", "flying", "dying"] = "standard"
-        self.hp = hp
-        self.max_hp = 100
+        self._hp = max_hp
+        self._max_hp = max_hp
         self.y = (screen_size[1] - 100) / 2
         self.y_offset = Spring(self.y , natural_freq=10)
         self.x = Spring((screen_size[0] - 100) / 2, natural_freq=2)
@@ -137,3 +137,11 @@ class Player(pygame.sprite.Sprite):
         elif key_down and not key_up:
             self.y += 8
         self.y = coerce(self.y, 0, self.screen_size[1] - self.rect.height)
+
+    @property
+    def hp(self):
+        return self._hp
+
+    @hp.setter
+    def hp(self, value):
+        self._hp = coerce(value, 0, self._max_hp)

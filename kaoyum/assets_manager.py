@@ -18,13 +18,13 @@ class AssetsManager(metaclass=Singleton):
         sized_key = (path, size)
         defualt_key = (path, None)
         if defualt_key not in self.surfaces:
-            self.surfaces[defualt_key] = pygame.image.load(path)
+            self.surfaces[defualt_key] = pygame.image.load(path).convert_alpha()
         
         if sized_key not in self.surfaces:
             if size == self.surfaces[defualt_key].get_size():
                 self.surfaces[sized_key] = self.surfaces[defualt_key]
             else:
-                self.surfaces[sized_key] = pygame.transform.scale(self.surfaces[defualt_key], size)
+                self.surfaces[sized_key] = pygame.transform.scale(self.surfaces[defualt_key], size).convert_alpha()
 
         return self.surfaces[sized_key]
     

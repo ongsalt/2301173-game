@@ -1,3 +1,4 @@
+import random
 import pygame
 from pygame.locals import * 
 from pygame.event import Event
@@ -20,7 +21,9 @@ class Game:
         self.background = Background(screen_size)
         self.score = 0
         self.blocks = initialize_block()
-        self.load_mock_block()
+        self.block_loading_timer = 0
+
+        self.load_random_block()
 
     def run(self, screen: pygame.Surface, dt: int):
         # update player
@@ -28,9 +31,13 @@ class Game:
             self.player.rotate_frame(dt)
 
         if self.state == "running": 
+            self.block_loading_timer -= 10
             self.player.update(dt)
             self.background.update(dt)
-            
+
+            if self.block_loading_timer <= 0:
+                self.load_random_block()
+
             # update scorepoint
             for score_point in self.score_points:
                 score_point.update()    
@@ -75,6 +82,11 @@ class Game:
         # if should_append_block:
         #     block = random.choice(self.blocks)
         #     self.load_block(block)
+
+    def load_random_block(self):
+        block = random.choice(self.blocks)
+        self.load_block(block)
+        self.block_loading_timer = 800 #px
 
     def load_block(self, block: Block):
         new_block = block.copy()
