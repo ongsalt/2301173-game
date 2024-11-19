@@ -83,7 +83,6 @@ class Player(pygame.sprite.Sprite):
         if self._color == color:
             return
         self._color = color
-        print("Color changed to", color)
         self.rotation.value = 0
         self.rotation.animate_to(360)
 

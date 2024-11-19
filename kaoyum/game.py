@@ -1,4 +1,6 @@
+import asyncio
 import random
+from threading import Thread
 import pygame
 from pygame.locals import * 
 from pygame.event import Event
@@ -22,11 +24,21 @@ class Game:
         self.player = Player(screen_size)
         self.background = Background(screen_size)
         self.score = 0
-        self.blocks = initialize_blocks()
+        self.p_timer = Timer()
+
+        self.blocks = []
         self.block_loading_timer = 0
 
-        # self.p_timer = Timer()
-        self.load_random_block()
+        self.initialize_blocks()
+        # self.load_random_block()
+
+    def initialize_blocks(self):
+        def wrapper(buffer: list[Block]):
+            res = initialize_blocks()
+            buffer.extend(res)
+        
+        self.thread = Thread(target=wrapper, args=(self.blocks, )) # Might explode later
+        self.thread.start()
 
     def run(self, screen: pygame.Surface, dt: int):
         # update player

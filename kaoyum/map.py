@@ -1,3 +1,4 @@
+import asyncio
 from typing import Literal
 from pygame import Rect
 from kaoyum.block import Block
@@ -123,4 +124,4 @@ def initialize_blocks():
         offset=SCREEN_WIDTH
     )
 
-    return [block1, block2, block3]
+    return [block1, block2, block3] 
