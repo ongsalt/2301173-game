@@ -25,7 +25,7 @@ class Game:
         self.blocks = initialize_blocks()
         self.block_loading_timer = 0
 
-        self.p_timer = Timer()
+        # self.p_timer = Timer()
         self.load_random_block()
 
     def run(self, screen: pygame.Surface, dt: int):
@@ -71,6 +71,7 @@ class Game:
 
 
         # draw
+        # self.p_timer.start("draw")
         screen.fill((179, 169, 160))
         self.background.draw(screen)
         self.player.draw(screen)
@@ -82,6 +83,7 @@ class Game:
         for colorchanger in self.color_changers:
             colorchanger.draw(screen)
 
+        # self.p_timer.stop()
         # should_append_block
         # if should_append_block:
         #     block = random.choice(self.blocks)

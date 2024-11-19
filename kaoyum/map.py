@@ -77,4 +77,50 @@ def initialize_blocks():
         offset=SCREEN_WIDTH
     )
 
-    return [block1]
+    block2 = Block(
+        obstacles=[
+            bat(0, 100),
+            bird(200, 120),
+            bat(400, 0),
+            bird(600, 100),
+        ],
+        score_points=[
+            coin(40, 320, "blue"),
+            coin(80, 320, "blue"),
+            coin(120, 320, "blue"),
+        ],
+        color_changers=[],
+        offset=SCREEN_WIDTH
+    )
+
+    block3 = Block(
+        obstacles=[
+            plane(0, 0),
+            plane(0, 200),
+            plane(0, 400),
+            plane(0, 600),
+        ],
+        score_points=[
+            coin(200 + 300, 120, "green"),
+            coin(200 + 340, 120, "green"),
+            coin(200 + 380, 120, "green"),
+            coin(200 + 420, 120, "green"),
+            coin(200 + 460, 120, "green"),
+            coin(200 + 300, 150, "blue"),
+            coin(200 + 340, 150, "blue"),
+            coin(200 + 380, 150, "blue"),
+            coin(200 + 420, 150, "blue"),
+            coin(200 + 460, 150, "blue"),
+            coin(200 + 300, 180, "red"),
+            coin(200 + 340, 180, "red"),
+            coin(200 + 380, 180, "red"),
+            coin(200 + 420, 180, "red"),
+            coin(200 + 460, 180, "red"),
+        ],
+        color_changers=[
+            color_changer(800, "blue"),
+        ],
+        offset=SCREEN_WIDTH
+    )
+
+    return [block1, block2, block3]
