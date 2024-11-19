@@ -1,8 +1,10 @@
 from pygame import Surface, SRCALPHA
+from pygame.locals import * 
+from kaoyum.assets_manager import AssetsManager
 from ..widget.widget import Widget
 from ..widget.text import Text
-from kaoyum.assets_manager import AssetsManager
 from ..animation import Loop, Spring, Acceleration
+
 
 class HomeUI(Widget):
     def __init__(self, size):
@@ -25,27 +27,27 @@ class HomeUI(Widget):
         self.static_surface.blit(w_key, (x, y))
         up_key = AssetsManager().get("keys/up.png", (32, 32))
         self.static_surface.blit(up_key, (x + 32, y))
-        text = Text("Move Up", "upheavtt.ttf", 20, (255, 255, 255))
+        text = Text("Move Up", "upheavtt.ttf", 18, (255, 255, 255))
         text.draw(self.static_surface, (x + 68, y + 10))
 
-        x = text.size[0] + 92 + 24
+        x = text.size[0] + 92 + 20
 
         s_key = AssetsManager().get("keys/s.png", (32, 32))
         self.static_surface.blit(s_key, (x, y))
         down_key = AssetsManager().get("keys/down.png", (32, 32))
         self.static_surface.blit(down_key, (x + 32, y))
-        text = Text("Move Down", "upheavtt.ttf", 20, (255, 255, 255))
+        text = Text("Move Down", "upheavtt.ttf", 18, (255, 255, 255))
         text.draw(self.static_surface, (x + 68, y + 10))
 
         x = self.size[0] - 12
-        text = Text("Start / Restart", "upheavtt.ttf", 20, (255, 255, 255))
+        text = Text("Start", "upheavtt.ttf", 18, (255, 255, 255))
         x -= text.size[0]
         text.draw(self.static_surface, (x, y + 10))
         x -= 72
         space_key = AssetsManager().get("keys/space.png", (64, 32))
         self.static_surface.blit(space_key, (x, y))
 
-        text = Text("Pause", "upheavtt.ttf", 20, (255, 255, 255))
+        text = Text("Pause/Exit", "upheavtt.ttf", 18, (255, 255, 255))
         x -= text.size[0] + 24
         text.draw(self.static_surface, (x, y + 10))
         x -= 60

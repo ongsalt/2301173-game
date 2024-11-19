@@ -113,8 +113,21 @@ class GameplayScene(Scene):
                 return True
             
             if self.state == "paused":
-                if event.key == 27 or event.key == 32:
+                if event.key == 27:
                     self.game.resume()
+                if event.key == 119 or event.key == K_UP:
+                    self.pause_menu.select_previous()
+                if event.key == 115 or event.key == K_DOWN:
+                    self.pause_menu.select_next()
+                if event.key == 32 or event.key == 13:
+                    message = self.pause_menu.activate_selected()
+                    if message == "resume":
+                        self.game.resume()
+                    elif message == "restart":
+                        self.reset()
+                    elif message == "quit":
+                        pygame.quit()
+                        sys.exit()
                 return True
             
             if self.state == "finished":

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import math
 
+from pygame import Rect
+
 def lerp(a: float, b: float, t: float) -> float:
     return a + (b - a) * t
 
@@ -154,3 +156,35 @@ class Acceleration(Animatable):
         self.velocity = min(self.max_speed, self.velocity)
         # print(self.velocity, self.acceleration, dt)
         self.value += (self.velocity * dt + 0.5 * self.acceleration * dt ** 2) * direction
+
+
+class SpringRect:
+    def __init__(self, x=0, y=0, w=0, h=0, natural_freq=15, damping_ratio=1):
+        self.x = Spring(0, damping_ratio, natural_freq)
+        self.y = Spring(0, damping_ratio, natural_freq)
+        self.w = Spring(0, damping_ratio, natural_freq)
+        self.h = Spring(0, damping_ratio, natural_freq)
+
+    def update(self, dt: float):
+        self.x.update(dt)
+        self.y.update(dt)
+        self.w.update(dt)
+        self.h.update(dt)
+
+    @property
+    def rect(self):
+        return Rect(self.x.value, self.y.value, self.w.value, self.h.value)
+    
+    @property
+    def rect_value(self):
+        return (self.x.value, self.y.value, self.w.value, self.h.value)
+
+    def animate_to(self, x: int | None = None, y: int | None = None, w: int | None = None, h: int | None = None):
+        if x is not None:
+            self.x.animate_to(x)
+        if y is not None:
+            self.y.animate_to(y)
+        if w is not None:
+            self.w.animate_to(w)
+        if h is not None:
+            self.h.animate_to(h)    

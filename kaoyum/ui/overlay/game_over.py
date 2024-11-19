@@ -13,7 +13,7 @@ class GameOverUI(Widget):
         self.size = size
         self.score = 0
         self._score = Spring(0, natural_freq=4)
-        self.timer = Spring(0, natural_freq=7)
+        self.timer = Spring(0, natural_freq=10)
         self.restart_text_opacity = Loop(160, 225, angular_frequency=.4)
 
         self.title = Text("Game Over", font_name="upheavtt.ttf", font_size=100, color=(255, 255, 255))
