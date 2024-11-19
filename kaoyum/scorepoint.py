@@ -18,6 +18,7 @@ class Scorepoint:
         return player_hitbox.colliderect(self.hitbox)
         
     def update(self):
+        self.x -= 10
         self.hitbox.move_ip(-10,0)
 
     def draw(self, screen: pygame.Surface):

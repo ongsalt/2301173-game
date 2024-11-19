@@ -1,4 +1,3 @@
-import asyncio
 from typing import Literal
 from pygame import Rect
 from kaoyum.block import Block
@@ -7,6 +6,8 @@ from kaoyum.scorepoint import Scorepoint
 from kaoyum.color_change import ColorChange
 from kaoyum.assets_manager import AssetsManager
 from kaoyum.utils import tint
+
+# Google factory pattern for more information
 
 def bird(x: int, y: int, variant = 1) -> Obstacle:
     return Obstacle(

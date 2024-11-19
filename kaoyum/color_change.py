@@ -21,6 +21,7 @@ class ColorChange(pygame.sprite.Sprite):
     def copy(self):
         return ColorChange(self.rect.x,self.color)
     def update(self):
+        self.x -= 10
         self.rect.x -= 10
     def is_collided(self, player_hitbox: pygame.Rect) -> bool:
         return self.rect.colliderect(player_hitbox)
