@@ -12,7 +12,7 @@ class Transition(Widget):
         self.start_progress = Spring(0, natural_freq=12) # First ripple
         self.end_progress = Spring(0, natural_freq=12) # Second ripple
         self.wait_timer = 0
-        self.square_surface = Surface((square_size, square_size))
+        self.square_surface = Surface((square_size, square_size)).convert_alpha()
         # self.square_surface.fill((0, 0, 0))
         self.square_surface.fill((255, 255, 255))
 

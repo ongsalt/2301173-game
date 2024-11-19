@@ -55,9 +55,9 @@ def color_changer(x: int, color: str) -> ColorChange:
 def initialize_blocks():
     SCREEN_WIDTH = 800
     default_coin = AssetsManager().get("Coins/1.png")
-    AssetsManager().set("Coins/red.png", tint(default_coin, (255, 0, 0)))
-    AssetsManager().set("Coins/green.png", tint(default_coin, (0, 255, 0)))
-    AssetsManager().set("Coins/blue.png", tint(default_coin, (0, 0, 255)))
+    AssetsManager().set("Coins/red.png", tint(default_coin, (255, 100, 100)))
+    AssetsManager().set("Coins/green.png", tint(default_coin, (100, 255, 100)))
+    AssetsManager().set("Coins/blue.png", tint(default_coin, (100, 130, 255)))
 
     block1 = Block(
         obstacles=[

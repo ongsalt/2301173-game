@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.state == "transitioning":
             self.rotation.animate_to(360)
-            self.x.animate_to(25)
+            self.x.animate_to(32)
             self.y_offset.animate_to(0)
             if not self.rotation.is_animating:
                 self.state = "flying"
