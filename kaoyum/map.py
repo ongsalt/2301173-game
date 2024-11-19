@@ -124,4 +124,22 @@ def initialize_blocks():
         offset=SCREEN_WIDTH
     )
 
-    return [block1, block2, block3] 
+    block4 = Block(
+        obstacles=[
+            plane(0, -50),
+            plane(0, 100),
+            plane(0, 300),
+            plane(0, 500),
+        ],
+        score_points=[
+            coin(450, 120, "green"),
+            coin(490, 120, "red"),
+            coin(530, 120, "blue"),
+        ],
+        color_changers=[
+            color_changer(800, "green"),
+        ],
+        offset=SCREEN_WIDTH
+    )
+
+    return [block1, block2, block3, block4] 
