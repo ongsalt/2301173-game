@@ -64,7 +64,7 @@ class Game:
 
             for colorchanger in self.color_changers[:]:
                 if colorchanger.is_collided(self.player.rect):
-                    pass # เปลี่ยนสี
+                    self.player.color = colorchanger.color
 
             if self.player.hp <= 0:
                 self.state = "finished"

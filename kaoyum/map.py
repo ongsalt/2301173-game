@@ -44,11 +44,9 @@ def coin(x: int, y: int, color: Literal["red", "green", "blue"] = "red") -> Scor
         image=AssetsManager().get(f"Coins/{color}.png", (32, 32)),
     )
 
-def color_changer(x: int, y: int, color: str) -> ColorChange:
+def color_changer(x: int, color: str) -> ColorChange:
     return ColorChange(
         x=x,
-        width=32,
-        height=32,
         color=color,
     )
 
@@ -73,7 +71,9 @@ def initialize_blocks():
             coin(240, 540, "green"),
             coin(280, 540, "green"),
         ],
-        color_changers=[],
+        color_changers=[
+            color_changer(800, "red"),
+        ],
         offset=SCREEN_WIDTH
     )
 

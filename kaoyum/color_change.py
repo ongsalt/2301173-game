@@ -7,7 +7,7 @@ class ColorChange(pygame.sprite.Sprite):
         self.color = color
         self.x = x
         self.y = 0
-        self.rect = Rect(x, 0, 50, 600)
+        self.rect = Rect(x, 0, 12, 600)
         self.rect.y = 0
         self.rect.x = x
     def draw(self, screen: pygame.Surface):

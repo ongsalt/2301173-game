@@ -10,7 +10,7 @@ from kaoyum.ui.animation import Spring
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen_size: tuple[int, int], max_hp = 100, *groups):
         super().__init__(*groups)
-        self.color: Literal["red", "green", "blue"] = "green"
+        self._color: Literal["red", "green", "blue"] = "green"
         self.state: Literal["standard", "transitioning", "flying", "dying"] = "standard"
         self._hp = max_hp
         self._max_hp = max_hp
@@ -74,8 +74,18 @@ class Player(pygame.sprite.Sprite):
     def start_moving(self):
         self.state = "transitioning"
 
-    def change_color(self, color: Literal["red", "green", "blue"]):
-        self.color = color
+    @property
+    def color(self):
+        return self._color
+    
+    @color.setter
+    def color(self, color: Literal["red", "green", "blue"]):
+        if self._color == color:
+            return
+        self._color = color
+        print("Color changed to", color)
+        self.rotation.value = 0
+        self.rotation.animate_to(360)
 
     def take_damage(self, damage: int):
         if self._iframe_cool_down > 0:
@@ -109,15 +119,16 @@ class Player(pygame.sprite.Sprite):
             return pygame.transform.rotate(frame, self.rotation.value)
 
         if self._iframe_cool_down > 200:
-            return tint(self.active_frames[self._animation_frame], (255, 200, 200))
-        return self.active_frames[self._animation_frame]
+            frame = tint(self.active_frames[self._animation_frame], (255, 200, 200))
+        frame = self.active_frames[self._animation_frame]
+        return pygame.transform.rotate(frame, self.rotation.value)
 
     @property
     def active_frames(self):
         if self.state == "standard":
             return self.textures["standard"]
         else:
-            return self.textures["flying"][self.color]
+            return self.textures["flying"][self._color]
             
     def rotate_frame(self, dt: int):
         self._frame_time_counter += dt
