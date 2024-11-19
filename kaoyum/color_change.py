@@ -2,19 +2,18 @@ import pygame
 from pygame.locals import *
 
 class ColorChange(pygame.sprite.Sprite): 
-    def __init__(self,x,y,color,image):
+    def __init__(self,x,y,color):
         super().__init__()
         self.color = color
-        self.image = image
         self.x = x
         self.y = y
-        self.rect = self.image.get_rect()
+        self.rect = Rect(x, y, 50, 600)
         self.rect.y = y
         self.rect.x = x
     def draw(self, screen: pygame.Surface):
         pygame.draw.rect(screen,self.color,self.rect)
     def copy(self):
-        return ColorChange(self.rect.x,self.rect.y,self.color,self.image)
+        return ColorChange(self.rect.x,self.rect.y,self.color)
     def update(self):
         self.rect.x -= 10
     def is_collided(self, player_hitbox: pygame.Rect) -> bool:

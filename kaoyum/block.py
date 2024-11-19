@@ -54,8 +54,8 @@ def initialize_block():
             Scorepoint(550, 450, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(100,200,50,50,pygame.Color(255,0,0)),
-            ColorChange(500,400,50,50,pygame.Color(0,255,0))],
+            ColorChange(100,200,pygame.Color(255,0,0)),
+            ColorChange(500,400,pygame.Color(0,255,0))],
         offset = 800
     )
 
@@ -79,8 +79,8 @@ def initialize_block():
             Scorepoint(560, 470, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(300,400,50,50,pygame.Color(0,0,255)),
-            ColorChange(50,250,50,50,pygame.Color(0,255,0))
+            ColorChange(300,400,pygame.Color(0,0,255)),
+            ColorChange(50,250,pygame.Color(0,255,0))
         ],
         offset = 800
     )
@@ -105,8 +105,8 @@ def initialize_block():
             Scorepoint(570, 490, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(700,200,50,50,pygame.Color(255,0,0)),
-            ColorChange(400,380,50,50,pygame.Color(0,0,255))
+            ColorChange(700,200,pygame.Color(255,0,0)),
+            ColorChange(400,380,pygame.Color(0,0,255))
         ],
         offset = 800
     )
@@ -131,8 +131,8 @@ def initialize_block():
             Scorepoint(580, 500, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(600,220,50,50,pygame.Color(255,0,0)),
-            ColorChange(200,350,50,50,pygame.Color(0,255,0))
+            ColorChange(600,220,pygame.Color(255,0,0)),
+            ColorChange(200,350,pygame.Color(0,255,0))
         ],
         offset = 800
     )
@@ -157,8 +157,8 @@ def initialize_block():
             Scorepoint(590, 510, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(50,600,50,50,pygame.Color(0,255,0)),
-            ColorChange(300,500,50,50,pygame.Color(0,0,255))
+            ColorChange(50,600,pygame.Color(0,255,0)),
+            ColorChange(300,500,pygame.Color(0,0,255))
         ],
         offset = 800
     )
@@ -184,8 +184,8 @@ def initialize_block():
             Scorepoint(600, 520, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(170,220,50,50,pygame.Color(255,0,0)),
-            ColorChange(400,600,50,50,pygame.Color(0,0,255))
+            ColorChange(170,220,pygame.Color(255,0,0)),
+            ColorChange(400,600,pygame.Color(0,0,255))
         ],
         offset = 800
     )
@@ -210,8 +210,8 @@ def initialize_block():
             Scorepoint(610, 530, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(100,200,50,50,pygame.Color(255,0,0)),
-            ColorChange(500,400,50,50,pygame.Color(0,0,255))
+            ColorChange(100,200,pygame.Color(255,0,0)),
+            ColorChange(500,400,pygame.Color(0,0,255))
         ],
         offset = 800
     )
@@ -236,8 +236,8 @@ def initialize_block():
             Scorepoint(620, 540, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(250,330,50,50,pygame.Color(255,0,0)),
-            ColorChange(500,300,50,50,pygame.Color(0,0,255))
+            ColorChange(250,330,pygame.Color(255,0,0)),
+            ColorChange(500,300,pygame.Color(0,0,255))
         ],
         offset = 800
     )
@@ -262,8 +262,8 @@ def initialize_block():
             Scorepoint(630, 550, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(140,280,50,50,pygame.Color(0,0,255)),
-            ColorChange(450,670,50,50,pygame.Color(0,255,0))
+            ColorChange(140,280,pygame.Color(0,0,255)),
+            ColorChange(450,670,pygame.Color(0,255,0))
         ],
         offset = 800
     )
@@ -288,8 +288,8 @@ def initialize_block():
             Scorepoint(640, 560, 30, 30, 10, image2),
         ],
         color_changers = [
-            ColorChange(270,380,50,50,pygame.Color(255,0,0)),
-            ColorChange(400,550,50,50,pygame.Color(0,255,0))
+            ColorChange(270,380,pygame.Color(255,0,0)),
+            ColorChange(400,550,pygame.Color(0,255,0))
         ],
         offset = 800
     )
