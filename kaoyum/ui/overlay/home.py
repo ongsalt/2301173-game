@@ -9,8 +9,8 @@ from ..animation import Loop, Spring, Acceleration
 class HomeUI(Widget):
     def __init__(self, size):
         self.size = size
-        self.static_surface = Surface(size, SRCALPHA, 32)
-        self.surface = Surface(size, SRCALPHA, 32)
+        self.static_surface = Surface(size, SRCALPHA, 32).convert_alpha()
+        self.surface = Surface(size, SRCALPHA, 32).convert_alpha()
         self.offset_x = Acceleration(0, acceleration=0, max_speed=750)
         self.title_text = Text("Game Title", "upheavtt.ttf", 50, (255, 255, 255))
         self.description_text = Text("Press Space to start", "upheavtt.ttf", 20, (255, 255, 255))

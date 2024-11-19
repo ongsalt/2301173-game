@@ -7,7 +7,7 @@ from ..animation import Loop, Spring, Acceleration
 class SettingsUI(Widget):
     def __init__(self, size):
         self.size = size
-        self.surface = Surface(size, SRCALPHA, 32)
+        self.surface = Surface(size, SRCALPHA, 32).convert_alpha()
         self.title_text = Text("Settings", "upheavtt.ttf", 50, (255, 255, 255))
 
     def draw(self, display: Surface, offset: tuple[int, int] = (0, 0)):

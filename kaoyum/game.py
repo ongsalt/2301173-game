@@ -10,6 +10,7 @@ from kaoyum.scorepoint import Scorepoint
 from kaoyum.obstacle import Obstacle
 from kaoyum.assets_manager import AssetsManager
 from kaoyum.block import Block, initialize_block
+from kaoyum.utils import Timer
 
 class Game:
     def __init__(self, screen_size: tuple[int, int]):
@@ -23,6 +24,7 @@ class Game:
         self.blocks = initialize_block()
         self.block_loading_timer = 0
 
+        self.p_timer = Timer()
         self.load_random_block()
 
     def run(self, screen: pygame.Surface, dt: int):
@@ -65,6 +67,7 @@ class Game:
 
             if self.player.hp <= 0:
                 self.state = "finished"
+
 
         # draw
         screen.fill((179, 169, 160))

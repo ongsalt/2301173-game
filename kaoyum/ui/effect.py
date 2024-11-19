@@ -25,10 +25,11 @@ def pixelate(surface: Surface, radius: int):
     surface = scale(surface, (w, h))
     return surface
 
-def smooth_pixelate(surface: Surface, radius: int):
+def smooth_pixelate(surface: Surface, radius: int, target: Surface):
     if radius <= 1:
         return surface
     w, h = surface.get_size()
     surface = smoothscale(surface, (w // radius, h // radius))
-    surface = scale(surface, (w, h))
-    return surface
+    scale(surface, (w, h), target)
+    return target
+

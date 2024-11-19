@@ -6,7 +6,7 @@ from ..widget import Widget, Text
 
 class GameOverUI(Widget):
     def __init__(self, size: tuple[int, int]):
-        self.surface = Surface(size, SRCALPHA, 32)
+        self.surface = Surface(size, SRCALPHA, 32).convert_alpha()
         self.hidden = True
         self.opacity = Spring(0, natural_freq=2)
         self.y_offset = Spring(24, natural_freq=3)
@@ -34,6 +34,8 @@ class GameOverUI(Widget):
         self.y_offset.update(dt)
 
     def draw(self, display: Surface, offset: tuple[int, int] = (0, 0)):
+        if self.hidden and not self.opacity.is_animating:
+            return
         self.surface.fill((120, 120, 120, 120))
         self.surface.set_alpha(self.opacity.value)
 

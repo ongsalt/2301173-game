@@ -7,7 +7,7 @@ from ..animation import SpringRect
 
 class PauseMenu(Widget):
     def __init__(self, size: tuple[int, int]):
-        self.surface = Surface(size, SRCALPHA, 32)
+        self.surface = Surface(size, SRCALPHA, 32).convert_alpha()
         self.hidden = True
         self.opacity = Spring(0, natural_freq=15)
         self.size = size
@@ -20,7 +20,7 @@ class PauseMenu(Widget):
         ]
         self._selected = 0
         self._selected_indicator = SpringRect(0, 0, 0, 0, natural_freq=20)
-        self.background = Surface(size, SRCALPHA, 32)
+        self.background = Surface(size, SRCALPHA, 32).convert_alpha()
         self.background.fill((120, 120, 120, 150))
 
         self.select(0)
@@ -33,6 +33,9 @@ class PauseMenu(Widget):
         self._selected_indicator.update(dt)
 
     def draw(self, display: Surface, offset: tuple[int, int] = (0, 0)):
+        if self.hidden == 0 and not self.opacity.is_animating:
+            return
+
         self.surface.fill((0, 0, 0, 0))
         self.surface.set_alpha(self.opacity.value)
         self.background.set_alpha(self.opacity.value)

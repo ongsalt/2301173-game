@@ -31,3 +31,17 @@ class Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
+class Timer:
+    def __init__(self):
+        self.start_time: dict[str, int] = {}
+        self._stack: list[str] = []
+
+    def start(self, name: str):
+        self.start_time[name] = pygame.time.get_ticks()
+        self._stack.append(name)
+    
+    def stop(self):
+        name = self._stack.pop()
+        print(f"{name}: {pygame.time.get_ticks() - self.start_time[name]}ms")
+        del self.start_time[name]

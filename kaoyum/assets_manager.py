@@ -24,7 +24,7 @@ class AssetsManager(metaclass=Singleton):
             if size == self.surfaces[defualt_key].get_size():
                 self.surfaces[sized_key] = self.surfaces[defualt_key]
             else:
-                self.surfaces[sized_key] = pygame.transform.scale(self.surfaces[defualt_key], size).convert_alpha()
+                self.surfaces[sized_key] = pygame.transform.scale(self.surfaces[defualt_key], size)
 
         return self.surfaces[sized_key]
     

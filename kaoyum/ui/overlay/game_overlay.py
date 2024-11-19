@@ -9,7 +9,7 @@ from ..widget.text import Text
 
 class GameOverlay(Widget):
     def __init__(self, size: tuple[int, int]):
-        self.surface = Surface(size, SRCALPHA, 32)
+        self.surface = Surface(size, SRCALPHA, 32).convert_alpha()
         self.size = size
         self._score = 0
         self._hp = Spring(100) 

@@ -6,6 +6,7 @@ from pygame.locals import *
 from pygame.event import Event
 
 from kaoyum.game import Game
+from kaoyum.utils import Timer
 from .effect import blur, pixelate, smooth_pixelate
 from .overlay.game_over import GameOverUI
 from .overlay.pause_menu import PauseMenu
@@ -13,6 +14,8 @@ from .overlay.home import HomeUI
 from .overlay.game_overlay import GameOverlay
 from .overlay.transition import Transition
 from .animation import Spring
+
+timer = Timer()
 
 class Scene:
     def run(self, display: Surface, dt: int = 1000/60, events: list[Event] | None = None) -> list[Event]: # return the events that are not consumed
@@ -31,6 +34,7 @@ class GameplayScene(Scene):
         self.game_over_ui = GameOverUI(size)
         self.lower_layer = Surface(size)
         self.pixelate_radius = Spring(0, natural_freq=12)
+        self.pixelated_lower_layer = Surface(size)
         self.transition = Transition(size, 32)
 
         self._will_reset = False
@@ -44,8 +48,12 @@ class GameplayScene(Scene):
             self._reset()
             self._will_reset = False
 
+        timer.start("update")
         self.update(dt)
+        timer.stop()
+        timer.start("draw")
         self.draw(display)
+        timer.stop()
 
     def update(self, dt: int):
         self.update_animation(dt)
@@ -90,7 +98,7 @@ class GameplayScene(Scene):
         self.game_overlay.draw(self.lower_layer)
         # blurred_lower_layer = blur(self.lower_layer, 2 * self.pixelate_radius.value, step=4)
         # blurred_lower_layer = pixelate(self.lower_layer, self.pixelate_radius.value)
-        blurred_lower_layer = smooth_pixelate(self.lower_layer, self.pixelate_radius.value)
+        blurred_lower_layer = smooth_pixelate(self.lower_layer, self.pixelate_radius.value, self.pixelated_lower_layer)
         display.blit(blurred_lower_layer, (0, 0))
         self.game_over_ui.draw(display)
         self.pause_menu.draw(display)
