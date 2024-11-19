@@ -34,7 +34,7 @@ class GameOverUI(Widget):
         self.y_offset.update(dt)
 
     def draw(self, display: Surface, offset: tuple[int, int] = (0, 0)):
-        self.surface.fill((80, 80, 80, 80))
+        self.surface.fill((120, 120, 120, 120))
         self.surface.set_alpha(self.opacity.value)
 
         self.score_text.text = f"Your score: {self._score.value:.0f}"

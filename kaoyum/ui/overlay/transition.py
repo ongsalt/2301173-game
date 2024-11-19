@@ -13,7 +13,8 @@ class Transition(Widget):
         self.end_progress = Spring(0, natural_freq=12) # Second ripple
         self.wait_timer = 0
         self.square_surface = Surface((square_size, square_size))
-        self.square_surface.fill((0, 0, 0))
+        # self.square_surface.fill((0, 0, 0))
+        self.square_surface.fill((255, 255, 255))
 
     def update(self, dt: int):
         self.start_progress.update(dt) 

@@ -33,7 +33,7 @@ class GameOverlay(Widget):
         # Hp bar
         hp_bar_width = 400
         hp_bar_height = 4
-        pygame.draw.rect(self.surface, (80, 80, 80, 80), (24, 24, hp_bar_width, hp_bar_height))
+        pygame.draw.rect(self.surface, (120, 120, 120, 120), (24, 24, hp_bar_width, hp_bar_height))
         pygame.draw.rect(self.surface, (255, 255, 255), (24, 24, self._hp.value / self.max_hp * hp_bar_width, hp_bar_height))
 
         display.blit(self.surface, (offset[0] + self.offset_x.value, offset[1]))

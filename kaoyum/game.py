@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import * 
 from pygame.event import Event
 from typing import Literal
+from kaoyum.background import Background
 from kaoyum.player import Player
 from kaoyum.color_change import ColorChange
 from kaoyum.scorepoint import Scorepoint
@@ -16,6 +17,7 @@ class Game:
         self.color_changers: list[ColorChange] = []
         self.state: Literal["waiting", "running", "paused", "finished"] = "waiting"
         self.player = Player(screen_size)
+        self.background = Background(screen_size)
         self.score = 0
         self.blocks = initialize_block()
         self.load_mock_block()
@@ -27,6 +29,7 @@ class Game:
 
         if self.state == "running": 
             self.player.update(dt)
+            self.background.update(dt)
             
             # update scorepoint
             for score_point in self.score_points:
@@ -58,6 +61,7 @@ class Game:
 
         # draw
         screen.fill((179, 169, 160))
+        self.background.draw(screen)
         self.player.draw(screen)
 
         for score_point in self.score_points:
