@@ -9,7 +9,7 @@ class Obstacle:
         self.height = height
         self.damage = damage
         self.image = image
-        self.image = pygame.transform.scale(self.image,(self.width, self.height))
+        # self.image = pygame.transform.scale(self.image,(self.width, self.height))
         self.hitbox = self.image.get_rect()
         self.hitbox.topleft = (self.x,self.y)
 
