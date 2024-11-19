@@ -39,10 +39,10 @@ def initialize_block():
 
     block1 = Block(
         obstacles = [
-            Obstacle(100, 550, 50, 50, 0, image1),
-            Obstacle(170, 350, 50, 50, 0, image1),
-            Obstacle(200, 170, 50, 50, 0, image1),
-            Obstacle(350, 50, 50, 50, 0, image1),
+            Obstacle(100, 550, 50, 50, 10, image1),
+            Obstacle(170, 350, 50, 50, 10, image1),
+            Obstacle(200, 170, 50, 50, 10, image1),
+            Obstacle(350, 50, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(50, 150, 30, 30, 10, image2),
@@ -64,10 +64,10 @@ def initialize_block():
 
     block2 = Block(
         obstacles = [
-            Obstacle(120, 580, 50, 50, 0, image1),
-            Obstacle(190, 400, 50, 50, 0, image1),
-            Obstacle(220, 230, 50, 50, 0, image1),
-            Obstacle(370, 100, 50, 50, 0, image1),
+            Obstacle(120, 580, 50, 50, 10, image1),
+            Obstacle(190, 400, 50, 50, 10, image1),
+            Obstacle(220, 230, 50, 50, 10, image1),
+            Obstacle(370, 100, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(60, 170, 30, 30, 10, image2),
@@ -90,10 +90,10 @@ def initialize_block():
 
     block3 = Block(
         obstacles = [
-            Obstacle(140, 600, 50, 50, 0, image1),
-            Obstacle(210, 450, 50, 50, 0, image1),
-            Obstacle(240, 280, 50, 50, 0, image1),
-            Obstacle(390, 150, 50, 50, 0, image1),
+            Obstacle(140, 600, 50, 50, 10, image1),
+            Obstacle(210, 450, 50, 50, 10, image1),
+            Obstacle(240, 280, 50, 50, 10, image1),
+            Obstacle(390, 150, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(70, 190, 30, 30, 10, image2),
@@ -116,10 +116,10 @@ def initialize_block():
 
     block4 = Block(
         obstacles = [
-            Obstacle(150, 620, 50, 50, 0, image1),
-            Obstacle(220, 470, 50, 50, 0, image1),
-            Obstacle(250, 300, 50, 50, 0, image1),
-            Obstacle(400, 170, 50, 50, 0, image1),
+            Obstacle(150, 620, 50, 50, 10, image1),
+            Obstacle(220, 470, 50, 50, 10, image1),
+            Obstacle(250, 300, 50, 50, 10, image1),
+            Obstacle(400, 170, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(80, 200, 30, 30, 10, image2),
@@ -142,10 +142,10 @@ def initialize_block():
 
     block5 = Block(
         obstacles = [
-            Obstacle(160, 640, 50, 50, 0, image1),
-            Obstacle(230, 490, 50, 50, 0, image1),
-            Obstacle(260, 320, 50, 50, 0, image1),
-            Obstacle(410, 190, 50, 50, 0, image1),
+            Obstacle(160, 640, 50, 50, 10, image1),
+            Obstacle(230, 490, 50, 50, 10, image1),
+            Obstacle(260, 320, 50, 50, 10, image1),
+            Obstacle(410, 190, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(90, 210, 30, 30, 10, image2),
@@ -169,10 +169,10 @@ def initialize_block():
     # เพิ่ม block6 ถึง block10
     block6 = Block(
         obstacles = [
-            Obstacle(180, 660, 50, 50, 0, image1),
-            Obstacle(250, 510, 50, 50, 0, image1),
-            Obstacle(280, 340, 50, 50, 0, image1),
-            Obstacle(430, 210, 50, 50, 0, image1),
+            Obstacle(180, 660, 50, 50, 10, image1),
+            Obstacle(250, 510, 50, 50, 10, image1),
+            Obstacle(280, 340, 50, 50, 10, image1),
+            Obstacle(430, 210, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(100, 220, 30, 30, 10, image2),
@@ -195,10 +195,10 @@ def initialize_block():
 
     block7 = Block(
         obstacles = [
-            Obstacle(190, 680, 50, 50, 0, image1),
-            Obstacle(260, 530, 50, 50, 0, image1),
-            Obstacle(290, 360, 50, 50, 0, image1),
-            Obstacle(440, 220, 50, 50, 0, image1),
+            Obstacle(190, 680, 50, 50, 10, image1),
+            Obstacle(260, 530, 50, 50, 10, image1),
+            Obstacle(290, 360, 50, 50, 10, image1),
+            Obstacle(440, 220, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(110, 230, 30, 30, 10, image2),
@@ -221,10 +221,10 @@ def initialize_block():
 
     block8 = Block(
         obstacles = [
-            Obstacle(200, 700, 50, 50, 0, image1),
-            Obstacle(270, 550, 50, 50, 0, image1),
-            Obstacle(300, 380, 50, 50, 0, image1),
-            Obstacle(450, 230, 50, 50, 0, image1),
+            Obstacle(200, 700, 50, 50, 10, image1),
+            Obstacle(270, 550, 50, 50, 10, image1),
+            Obstacle(300, 380, 50, 50, 10, image1),
+            Obstacle(450, 230, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(120, 240, 30, 30, 10, image2),
@@ -247,10 +247,10 @@ def initialize_block():
 
     block9 = Block(
         obstacles = [
-            Obstacle(210, 720, 50, 50, 0, image1),
-            Obstacle(280, 570, 50, 50, 0, image1),
-            Obstacle(310, 400, 50, 50, 0, image1),
-            Obstacle(460, 240, 50, 50, 0, image1),
+            Obstacle(210, 720, 50, 50, 10, image1),
+            Obstacle(280, 570, 50, 50, 10, image1),
+            Obstacle(310, 400, 50, 50, 10, image1),
+            Obstacle(460, 240, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(130, 250, 30, 30, 10, image2),
@@ -273,10 +273,10 @@ def initialize_block():
 
     block10 = Block(
         obstacles = [
-            Obstacle(220, 740, 50, 50, 0, image1),
-            Obstacle(290, 590, 50, 50, 0, image1),
-            Obstacle(320, 420, 50, 50, 0, image1),
-            Obstacle(470, 250, 50, 50, 0, image1),
+            Obstacle(220, 740, 50, 50, 10, image1),
+            Obstacle(290, 590, 50, 50, 10, image1),
+            Obstacle(320, 420, 50, 50, 10, image1),
+            Obstacle(470, 250, 50, 50, 10, image1),
         ],
         score_points = [
             Scorepoint(140, 260, 30, 30, 10, image2),
