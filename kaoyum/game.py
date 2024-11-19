@@ -9,7 +9,8 @@ from kaoyum.color_change import ColorChange
 from kaoyum.scorepoint import Scorepoint
 from kaoyum.obstacle import Obstacle
 from kaoyum.assets_manager import AssetsManager
-from kaoyum.block import Block, initialize_block
+from kaoyum.block import Block
+from kaoyum.map import initialize_blocks
 from kaoyum.utils import Timer
 
 class Game:
@@ -21,7 +22,7 @@ class Game:
         self.player = Player(screen_size)
         self.background = Background(screen_size)
         self.score = 0
-        self.blocks = initialize_block()
+        self.blocks = initialize_blocks()
         self.block_loading_timer = 0
 
         self.p_timer = Timer()
@@ -44,9 +45,9 @@ class Game:
             for score_point in self.score_points:
                 score_point.update()    
             for score_point in self.score_points[:]:
-                if score_point.is_collided(self.player.rect):
+                if score_point.is_collided(self.player.rect) and score_point.color == self.player.color:
                     self.score += score_point.score
-                    self.player.hp += 5
+                    self.player.hp += 3
                     self.score_points.remove(score_point)
 
             # update obstacle

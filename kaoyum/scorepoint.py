@@ -2,14 +2,15 @@ import pygame
 from pygame import *
 
 class Scorepoint:
-    def __init__(self,x,y,width,height,score ,image):
+    def __init__(self,x,y,width,height,score ,image, color: str):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.score = score
         self.image = image
-        self.image = pygame.transform.scale(self.image,(self.width, self.height))
+        self.color = color
+        # self.image = pygame.transform.scale(self.image,(self.width, self.height))
         self.hitbox = self.image.get_rect()
         self.hitbox.topleft = (self.x,self.y)
 
@@ -23,4 +24,4 @@ class Scorepoint:
         screen.blit(self.image,self.hitbox)
     
     def copy(self):
-        return Scorepoint(self.x,self.y,self.width,self.height,self.score,self.image)
+        return Scorepoint(self.x,self.y,self.width,self.height,self.score,self.image, self.color)

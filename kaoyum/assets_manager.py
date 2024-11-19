@@ -29,7 +29,9 @@ class AssetsManager(metaclass=Singleton):
         return self.surfaces[sized_key]
     
     def set(self, path: str, surface: pygame.Surface) -> None:
-        self.surfaces[path] = surface
+        path = f"Assets/images/{path}"
+        key = (path, None)
+        self.surfaces[key] = surface
         
     def get_font(self, path: str = "Inter-Regular.ttf", size: int = 18) -> pygame.freetype.Font:
         path = f"Assets/fonts/{path}"

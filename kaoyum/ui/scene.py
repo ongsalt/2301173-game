@@ -48,12 +48,12 @@ class GameplayScene(Scene):
             self._reset()
             self._will_reset = False
 
-        timer.start("update")
+        # timer.start("update")
         self.update(dt)
-        timer.stop()
-        timer.start("draw")
+        # timer.stop()
+        # timer.start("draw")
         self.draw(display)
-        timer.stop()
+        # timer.stop()
 
     def update(self, dt: int):
         self.update_animation(dt)

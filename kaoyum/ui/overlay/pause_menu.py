@@ -33,7 +33,7 @@ class PauseMenu(Widget):
         self._selected_indicator.update(dt)
 
     def draw(self, display: Surface, offset: tuple[int, int] = (0, 0)):
-        if self.hidden == 0 and not self.opacity.is_animating:
+        if self.hidden and not self.opacity.is_animating:
             return
 
         self.surface.fill((0, 0, 0, 0))

@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.y = (screen_size[1] - 100) / 2
         self.y_offset = Spring(self.y , natural_freq=10)
         self.x = Spring((screen_size[0] - 100) / 2, natural_freq=2)
-        self.rect = pygame.Rect(self.x.value, self.y + self.y_offset.value, 100, 100)
+        self.rect = pygame.Rect(self.x.value + 12, self.y + self.y_offset.value, 64, 100)
         self.screen_size = screen_size
         self.rotation = Spring(0, natural_freq=12, damping_ratio=0.8)
 
@@ -69,7 +69,7 @@ class Player(pygame.sprite.Sprite):
         # I should precompute the tinted frames
 
         surface.blit(self.current_frame, add(self.rect.topleft, self.texture_offset))
-        # pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
+        pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
 
     def start_moving(self):
         self.state = "transitioning"
