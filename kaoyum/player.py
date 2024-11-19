@@ -116,11 +116,11 @@ class Player(pygame.sprite.Sprite):
                 frame = self.textures["standard"][self._animation_frame % 2]
             else:
                 frame = self.textures["flying"]["green"][self._animation_frame]
-            return pygame.transform.rotate(frame, self.rotation.value)
-
-        if self._iframe_cool_down > 200:
-            frame = tint(self.active_frames[self._animation_frame], (255, 200, 200))
-        frame = self.active_frames[self._animation_frame]
+        else:
+            if self._iframe_cool_down > 200:
+                frame = tint(self.active_frames[self._animation_frame], (255, 200, 200))
+            else:
+                frame = self.active_frames[self._animation_frame]
         return pygame.transform.rotate(frame, self.rotation.value)
 
     @property
