@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-class ColorChange(pygame.sprite.Sprite): 
+class ColorChanger(pygame.sprite.Sprite): 
     def __init__(self,x,color: str):
         super().__init__()
         self.color = color
@@ -19,7 +19,7 @@ class ColorChange(pygame.sprite.Sprite):
             draw_color = (0,0,255)
         pygame.draw.rect(screen,draw_color,self.rect)
     def copy(self):
-        return ColorChange(self.rect.x,self.color)
+        return ColorChanger(self.rect.x,self.color)
     def update(self):
         self.x -= 10
         self.rect.x -= 10

@@ -1,4 +1,3 @@
-import asyncio
 import random
 from threading import Thread
 import pygame
@@ -7,7 +6,7 @@ from pygame.event import Event
 from typing import Literal
 from kaoyum.background import Background
 from kaoyum.player import Player
-from kaoyum.color_change import ColorChange
+from kaoyum.color_changer import ColorChanger
 from kaoyum.scorepoint import Scorepoint
 from kaoyum.obstacle import Obstacle
 from kaoyum.assets_manager import AssetsManager
@@ -19,12 +18,12 @@ class Game:
     def __init__(self, screen_size: tuple[int, int]):
         self.obstacles: list[Obstacle] = []
         self.score_points: list[Scorepoint] = []
-        self.color_changers: list[ColorChange] = []
+        self.color_changers: list[ColorChanger] = []
         self.state: Literal["waiting", "running", "paused", "finished"] = "waiting"
         self.player = Player(screen_size)
         self.background = Background(screen_size)
         self.score = 0
-        self.p_timer = Timer()
+        # self.p_timer = Timer()
 
         self.blocks = []
         self.block_loading_timer = 0
@@ -32,18 +31,21 @@ class Game:
         self.initialize_blocks()
         # self.load_random_block()
 
+    # This is to make resource loading not block the main thread
     def initialize_blocks(self):
-        def wrapper(buffer: list[Block]):
+        def wrapper():
             res = initialize_blocks()
-            buffer.extend(res)
+            self.blocks = res
+            # I really should not mutate self.blocks directly
+            # but who cares, my rust brain said this is fine becuase there is only one writer anyway
         
-        self.thread = Thread(target=wrapper, args=(self.blocks, )) # Might explode later
-        self.thread.start()
+        thread = Thread(target=wrapper) 
+        thread.start()
 
     def run(self, screen: pygame.Surface, dt: int):
         # update player
         if self.state == "running" or self.state == "waiting":
-            self.player.rotate_frame(dt)
+            self.player.cycle_frame(dt)
 
         if self.state == "running": 
             self.block_loading_timer -= 10

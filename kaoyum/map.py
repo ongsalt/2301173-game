@@ -3,7 +3,7 @@ from pygame import Rect
 from kaoyum.block import Block
 from kaoyum.obstacle import Obstacle
 from kaoyum.scorepoint import Scorepoint
-from kaoyum.color_change import ColorChange
+from kaoyum.color_changer import ColorChanger
 from kaoyum.assets_manager import AssetsManager
 from kaoyum.utils import tint
 
@@ -46,8 +46,8 @@ def coin(x: int, y: int, color: Literal["red", "green", "blue"] = "red") -> Scor
         image=AssetsManager().get(f"Coins/{color}.png", (32, 32)),
     )
 
-def color_changer(x: int, color: str) -> ColorChange:
-    return ColorChange(
+def color_changer(x: int, color: str) -> ColorChanger:
+    return ColorChanger(
         x=x,
         color=color,
     )
