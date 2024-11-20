@@ -61,6 +61,9 @@ class Game:
                     self.score += score_point.score
                     self.player.hp += 3
                     self.score_points.remove(score_point)
+                if score_point.is_collided(self.player.rect) and score_point.color != self.player.color:
+                    self.player.hp -= 3
+                    self.score_points.remove(score_point)
 
             # update obstacle
             for obstacle in self.obstacles:
