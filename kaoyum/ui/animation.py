@@ -1,6 +1,4 @@
-from dataclasses import dataclass
 import math
-
 from pygame import Rect
 
 def lerp(a: float, b: float, t: float) -> float:

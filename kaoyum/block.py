@@ -1,5 +1,3 @@
-import random
-import pygame
 from .obstacle import Obstacle
 from .scorepoint import Scorepoint
 from .color_changer import ColorChanger
