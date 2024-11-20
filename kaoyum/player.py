@@ -69,7 +69,7 @@ class Player(pygame.sprite.Sprite):
         # I should precompute the tinted frames
 
         surface.blit(self.current_frame, add(self.rect.topleft, self.texture_offset))
-        pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
+        # pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
 
     def start_moving(self):
         self.state = "transitioning"

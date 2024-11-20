@@ -20,7 +20,7 @@ class Obstacle:
 
     def draw(self, screen: pygame.Surface):
         screen.blit(self.image,(self.x,self.y))
-        pygame.draw.rect(screen,(255,0,0),self.hitbox,1)
+        # pygame.draw.rect(screen,(255,0,0),self.hitbox,1)
     
     def copy(self):
         return Obstacle(self.x,self.y,self.damage,self.image, self.relative_hitbox)
