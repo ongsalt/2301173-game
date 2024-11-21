@@ -59,88 +59,129 @@ def initialize_blocks():
     AssetsManager().set("Coins/green.png", tint(default_coin, (100, 255, 100)))
     AssetsManager().set("Coins/blue.png", tint(default_coin, (100, 130, 255)))
 
-    block1 = Block(
-        obstacles=[
-            bird(0, 100),
-            bat(200, 120),
-            plane(400, 0),
-        ],
-        score_points=[
-            coin(600, 400, "red"),
-            coin(640, 400, "red"),
-            coin(680, 400, "red"),
-            coin(200, 540, "green"),
-            coin(240, 540, "green"),
-            coin(280, 540, "green"),
-        ],
-        color_changers=[
-            color_changer(800, "red"),
-        ],
-        offset=SCREEN_WIDTH
-    )
-
-    block2 = Block(
-        obstacles=[
-            bat(0, 100),
-            bird(200, 120),
-            bat(400, 0),
-            bird(600, 100),
-        ],
-        score_points=[
-            coin(40, 320, "blue"),
-            coin(80, 320, "blue"),
-            coin(120, 320, "blue"),
-        ],
-        color_changers=[],
-        offset=SCREEN_WIDTH
-    )
-
-    block3 = Block(
-        obstacles=[
-            plane(0, 0),
-            plane(0, 200),
-            plane(0, 400),
-            plane(0, 600),
-        ],
-        score_points=[
-            coin(200 + 300, 120, "green"),
-            coin(200 + 340, 120, "green"),
-            coin(200 + 380, 120, "green"),
-            coin(200 + 420, 120, "green"),
-            coin(200 + 460, 120, "green"),
-            coin(200 + 300, 150, "blue"),
-            coin(200 + 340, 150, "blue"),
-            coin(200 + 380, 150, "blue"),
-            coin(200 + 420, 150, "blue"),
-            coin(200 + 460, 150, "blue"),
-            coin(200 + 300, 180, "red"),
-            coin(200 + 340, 180, "red"),
-            coin(200 + 380, 180, "red"),
-            coin(200 + 420, 180, "red"),
-            coin(200 + 460, 180, "red"),
-        ],
-        color_changers=[
-            color_changer(800, "blue"),
-        ],
-        offset=SCREEN_WIDTH
-    )
-
-    block4 = Block(
-        obstacles=[
-            plane(0, -50),
-            plane(0, 100),
-            plane(0, 300),
-            plane(0, 500),
-        ],
-        score_points=[
-            coin(450, 120, "green"),
-            coin(490, 120, "red"),
-            coin(530, 120, "blue"),
-        ],
-        color_changers=[
-            color_changer(800, "green"),
-        ],
-        offset=SCREEN_WIDTH
-    )
-
-    return [block1, block2, block3, block4] 
+    return [
+        Block(
+            obstacles=[
+                bird(0, 100),
+                bat(200, 120),
+                plane(400, 0),
+            ],
+            score_points=[
+                coin(600, 400, "red"),
+                coin(640, 400, "red"),
+                coin(680, 400, "red"),
+                coin(200, 540, "green"),
+                coin(240, 540, "green"),
+                coin(280, 540, "green"),
+            ],
+            color_changers=[
+                color_changer(800, "red"),
+            ],
+            offset=SCREEN_WIDTH
+        ),
+        Block(
+            obstacles=[
+                bat(0, 100),
+                bird(200, 120),
+                bat(400, 0),
+                bird(600, 100),
+            ],
+            score_points=[
+                coin(40, 320, "blue"),
+                coin(80, 320, "blue"),
+                coin(120, 320, "blue"),
+            ],
+            color_changers=[],
+            offset=SCREEN_WIDTH
+        ),
+        Block(
+            obstacles=[
+                plane(0, 0),
+                plane(0, 200),
+                plane(0, 400),
+                plane(0, 600),
+            ],
+            score_points=[
+                coin(200 + 300, 120, "green"),
+                coin(200 + 340, 120, "green"),
+                coin(200 + 380, 120, "green"),
+                coin(200 + 420, 120, "green"),
+                coin(200 + 460, 120, "green"),
+                coin(200 + 300, 150, "blue"),
+                coin(200 + 340, 150, "blue"),
+                coin(200 + 380, 150, "blue"),
+                coin(200 + 420, 150, "blue"),
+                coin(200 + 460, 150, "blue"),
+                coin(200 + 300, 180, "red"),
+                coin(200 + 340, 180, "red"),
+                coin(200 + 380, 180, "red"),
+                coin(200 + 420, 180, "red"),
+                coin(200 + 460, 180, "red"),
+            ],
+            color_changers=[
+                color_changer(800, "blue"),
+            ],
+            offset=SCREEN_WIDTH
+        ),
+        Block(
+            obstacles=[
+                plane(0, -50),
+                plane(0, 100),
+                plane(0, 300),
+                plane(0, 500),
+            ],
+            score_points=[
+                coin(450, 120, "green"),
+                coin(490, 120, "red"),
+                coin(530, 120, "blue"),
+            ],
+            color_changers=[
+                color_changer(800, "green"),
+            ],
+            offset=SCREEN_WIDTH
+        ),
+        Block(
+            obstacles=[
+                bird(100 + 0, 600),
+                bird(100 + 40, 560),
+                bird(100 + 80, 520),
+                bird(100 + 120, 480),
+                bird(100 + 160, 440),
+            ],
+            color_changers=[],
+            offset=SCREEN_WIDTH,
+            score_points=[
+                coin(40, 560, "blue"),
+                coin(80, 520, "blue"),
+                coin(120, 480, "blue"),
+                coin(160, 440, "blue"),
+                coin(200, 400, "green"),
+                coin(240, 360, "green"),
+                coin(280, 320, "green"),
+                coin(320, 280, "green"),
+            ]
+        ),
+        Block(
+            obstacles=[
+                bat(200 + 0, 440),
+                bat(200 + 40, 480),
+                bat(200 + 80, 520),
+                bat(200 + 120, 560),
+                bat(200 + 160, 600),
+            ],
+            color_changers=[
+                color_changer(800, "blue"),
+            ],
+            offset=SCREEN_WIDTH,
+            score_points=[
+                coin(40, 560, "green"),
+                coin(80, 520, "green"),
+                coin(120, 480, "green"),
+                coin(160, 440, "green"),
+                coin(200, 400, "blue"),
+                coin(240, 360, "blue"),
+                coin(280, 320, "blue"),
+                coin(320, 280, "blue"),
+            ]
+        )
+    ]
