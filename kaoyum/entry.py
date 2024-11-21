@@ -14,7 +14,7 @@ def game_entry():
     DISPLAY_SIZE = (800, 600)
     screen = pygame.display.set_mode(DISPLAY_SIZE)
     clock = pygame.time.Clock()
-    pygame.display.set_caption('Game Title')
+    pygame.display.set_caption('Kaoyum Adventure')
 
     active_scene = GameplayScene(DISPLAY_SIZE)
 

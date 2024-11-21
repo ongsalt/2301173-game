@@ -1,5 +1,5 @@
 from typing import Literal
-from pygame import Rect
+from pygame import SRCALPHA, Rect, Surface
 from kaoyum.block import Block
 from kaoyum.obstacle import Obstacle
 from kaoyum.scorepoint import Scorepoint
@@ -52,12 +52,30 @@ def color_changer(x: int, color: str) -> ColorChanger:
         color=color,
     )
 
+def _load_color_changer_image(color: str):
+    for i in range(1, 10):
+        image = AssetsManager().get(f"Effects/{color}/row-26-column-{i}.png")
+        surface = Surface((64, 600), SRCALPHA, 32)
+        surface.fill((0, 0, 0, 0))
+        y = 0
+        while y < 600 + image.get_height():
+            y += image.get_height()
+            surface.blit(image, (0, y - image.get_height()))
+            # print(y)
+
+        AssetsManager().set(f"ColorChanger/{color}-{i}.png", surface.convert_alpha())
+
+
 def initialize_blocks():
     SCREEN_WIDTH = 800
     default_coin = AssetsManager().get("Coins/1.png")
     AssetsManager().set("Coins/red.png", tint(default_coin, (255, 100, 100)))
     AssetsManager().set("Coins/green.png", tint(default_coin, (100, 255, 100)))
     AssetsManager().set("Coins/blue.png", tint(default_coin, (100, 130, 255)))
+
+    _load_color_changer_image("red")
+    _load_color_changer_image("green")
+    _load_color_changer_image("blue")
 
     return [
         Block(
@@ -81,10 +99,10 @@ def initialize_blocks():
         ),
         Block(
             obstacles=[
-                bat(0, 100),
-                bird(200, 120),
-                bat(400, 0),
-                bird(600, 100),
+                bat(0, 100 + 300),
+                bird(200, 120 + 300),
+                bat(400, 100),
+                bird(600, 100 + 300),
             ],
             score_points=[
                 coin(40, 320, "blue"),
@@ -163,11 +181,11 @@ def initialize_blocks():
         ),
         Block(
             obstacles=[
-                bat(200 + 0, 440),
-                bat(200 + 40, 480),
-                bat(200 + 80, 520),
-                bat(200 + 120, 560),
-                bat(200 + 160, 600),
+                bat(0, 440 - 200),
+                bat(40, 480 - 200),
+                bat(80, 520 - 200),
+                bat(120, 560 - 200),
+                bat(160, 600 - 200),
             ],
             color_changers=[
                 color_changer(800, "blue"),
@@ -178,10 +196,28 @@ def initialize_blocks():
                 coin(80, 520, "green"),
                 coin(120, 480, "green"),
                 coin(160, 440, "green"),
-                coin(200, 400, "blue"),
-                coin(240, 360, "blue"),
-                coin(280, 320, "blue"),
-                coin(320, 280, "blue"),
+                coin(200 + 200, 400, "red"),
+                coin(200 + 240, 360, "red"),
+                coin(200 + 280, 320, "red"),
+                coin(200 + 320, 280, "red"),
             ]
+        ),
+        Block(
+            obstacles=[
+                bird(0, 100),
+                bird(40, 140),
+                bird(80, 180),
+                bird(120, 220),
+                bird(160, 260),
+            ],
+            color_changers=[],
+            score_points=[
+                coin(200, 400, "red"),
+                coin(240, 400, "red"),
+                coin(280, 400, "red"),
+                coin(320, 400, "red"),
+                coin(360, 400, "red"),
+            ],
+            offset=SCREEN_WIDTH
         )
     ]
