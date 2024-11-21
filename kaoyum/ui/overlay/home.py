@@ -12,7 +12,7 @@ class HomeUI(Widget):
         self.static_surface = Surface(size, SRCALPHA, 32).convert_alpha()
         self.surface = Surface(size, SRCALPHA, 32).convert_alpha()
         self.offset_x = Acceleration(0, acceleration=0, max_speed=750)
-        self.title_text = Text("Game Title", "upheavtt.ttf", 50, (255, 255, 255))
+        self.title_text = Text("Kaoyum Adventure", "upheavtt.ttf", 50, (255, 255, 255))
         self.description_text = Text("Press Space to start", "upheavtt.ttf", 20, (255, 255, 255))
         self.description_text_opacity = Loop(160, 235, angular_frequency=.5)
         self.static_part_opacity = Spring(255, natural_freq=10)

@@ -16,6 +16,7 @@ class Player(pygame.sprite.Sprite):
         self._max_hp = max_hp
         self.y = (screen_size[1] - 100) / 2
         self.y_offset = Spring(self.y , natural_freq=10)
+        
         self.x = Spring((screen_size[0] - 100) / 2, natural_freq=2)
         self.rect = pygame.Rect(self.x.value + 12, self.y + self.y_offset.value, 64, 100)
         self.screen_size = screen_size

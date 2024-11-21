@@ -131,24 +131,9 @@ class Game:
         self.score_points.append(Scorepoint(1500, 100, 64, 64, 10, image))
 
     def remove_dead_objects(self):
-        new_obstacles = self.obstacles
-        for obstacle in self.obstacles:
-           if obstacle.x < -600: # we dont know the object size
-              new_obstacles.remove(obstacle)
-        self.obstacles = new_obstacles
-
-        new_color_changers = self.color_changers
-        for color_changer in self.color_changers:
-           if color_changer.x < -600: # we dont know the object size
-              new_color_changers.remove(color_changer)
-        self.color_changers = new_color_changers
-
-        new_score_point = self.score_points
-        for score_point in self.score_points:
-           if score_point.x < -600: # we dont know the object size
-              new_score_point.remove(score_point)
-        self.score_points = new_score_point
-
+        self.obstacles = [obstacle for obstacle in self.obstacles if obstacle.x > -600]
+        self.score_points = [score_point for score_point in self.score_points if score_point.x > -600]
+        self.color_changers = [color_changer for color_changer in self.color_changers if color_changer.x > -600]
 
     # For state management
     @property
@@ -157,6 +142,8 @@ class Game:
 
     def start(self):
         if self.state == "waiting":
+            if self.blocks == []:
+                return
             self.state = "running"
             self.player.start_moving()
 
